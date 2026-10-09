@@ -4,6 +4,43 @@
     "techStacks": "Tech stack",
     "settings": "Pengaturan"
   },
+  "common": {
+    "error": "Terjadi kesalahan",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Ubah",
+    "add": "Tambah",
+    "copy": "Salin",
+    "copied": "Tersalin",
+    "reveal": "Tampilkan",
+    "hide": "Sembunyikan",
+    "back": "Kembali",
+    "search": "Cari",
+    "all": "Semua",
+    "saved": "Tersimpan",
+    "deleted": "Terhapus",
+    "confirmDelete": "Hapus item ini? Tindakan ini tidak bisa dibatalkan."
+  },
+  "validation": {
+    "required": "Wajib diisi",
+    "email": "Email tidak valid",
+    "url": "Harus URL http(s)",
+    "passwordMin": "Minimal 8 karakter",
+    "passwordMismatch": "Kata sandi tidak sama"
+  },
+  "auth": {
+    "setupTitle": "Siapkan BibloDrive",
+    "setupDescription": "Buat akun untuk instance ini. Hanya boleh ada satu akun.",
+    "createAccount": "Buat akun",
+    "signIn": "Masuk",
+    "signOut": "Keluar",
+    "name": "Nama",
+    "email": "Email",
+    "password": "Kata sandi",
+    "confirmPassword": "Konfirmasi kata sandi",
+    "invalidCredentials": "Email atau kata sandi salah"
+  },
   "projects": {
     "empty": "Belum ada proyek"
   }

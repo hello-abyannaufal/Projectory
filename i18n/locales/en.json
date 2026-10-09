@@ -4,6 +4,43 @@
     "techStacks": "Tech stacks",
     "settings": "Settings"
   },
+  "common": {
+    "error": "Something went wrong",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "copy": "Copy",
+    "copied": "Copied",
+    "reveal": "Reveal",
+    "hide": "Hide",
+    "back": "Back",
+    "search": "Search",
+    "all": "All",
+    "saved": "Saved",
+    "deleted": "Deleted",
+    "confirmDelete": "Delete this item? This cannot be undone."
+  },
+  "validation": {
+    "required": "Required",
+    "email": "Invalid email",
+    "url": "Must be an http(s) URL",
+    "passwordMin": "At least 8 characters",
+    "passwordMismatch": "Passwords don't match"
+  },
+  "auth": {
+    "setupTitle": "Set up BibloDrive",
+    "setupDescription": "Create the account for this instance. Only one account can exist.",
+    "createAccount": "Create account",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "invalidCredentials": "Invalid email or password"
+  },
   "projects": {
     "empty": "No projects yet"
   }
