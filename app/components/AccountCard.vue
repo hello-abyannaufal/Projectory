@@ -3,6 +3,8 @@ const props = defineProps<{
   account: DeploymentAccount
   // Fetches (and caches) decrypted secret values by field id
   loadSecrets: () => Promise<Record<string, string> | undefined>
+  // Attributes from useDragSort().handle(), bound on the grip
+  dragHandle?: Record<string, unknown>
 }>()
 
 const emit = defineEmits<{
@@ -83,14 +85,23 @@ const menu = computed(() => [[
           />
         </div>
       </div>
-      <UDropdownMenu :items="menu">
-        <UButton
-          icon="i-lucide-ellipsis-vertical"
-          color="neutral"
-          variant="ghost"
-          :aria-label="t('common.more')"
+      <div class="flex shrink-0 items-center">
+        <UIcon
+          v-if="dragHandle"
+          v-bind="dragHandle"
+          name="i-lucide-grip-vertical"
+          :aria-label="t('common.reorder')"
+          class="size-4 cursor-grab text-dimmed"
         />
-      </UDropdownMenu>
+        <UDropdownMenu :items="menu">
+          <UButton
+            icon="i-lucide-ellipsis-vertical"
+            color="neutral"
+            variant="ghost"
+            :aria-label="t('common.more')"
+          />
+        </UDropdownMenu>
+      </div>
     </div>
 
     <p

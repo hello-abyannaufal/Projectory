@@ -48,6 +48,8 @@ watch(open, (value) => {
 
 const statusItems = computed(() => TEST_ACCOUNT_STATUSES.map(value => ({ value, label: t(`accountStatus.${value}`) })))
 
+const fieldSort = useDragSort(() => state.fields)
+
 function addField() {
   state.fields.push({ key: '', value: '', isSecret: false, stored: false })
 }
@@ -142,8 +144,15 @@ async function onSubmit() {
           <div
             v-for="(field, index) in state.fields"
             :key="index"
-            class="flex flex-wrap items-center gap-2 sm:flex-nowrap"
+            v-bind="fieldSort.item(index)"
+            :class="['flex flex-wrap items-center gap-2 sm:flex-nowrap', fieldSort.dragging.value === index && 'opacity-50']"
           >
+            <UIcon
+              v-bind="fieldSort.handle(index)"
+              name="i-lucide-grip-vertical"
+              :aria-label="t('common.reorder')"
+              class="size-4 shrink-0 cursor-grab text-dimmed"
+            />
             <UInput
               v-model="field.key"
               :placeholder="t('accounts.fieldKey')"

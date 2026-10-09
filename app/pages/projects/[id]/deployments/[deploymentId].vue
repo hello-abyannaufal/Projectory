@@ -65,6 +65,12 @@ async function deleteAccount(account: DeploymentAccount) {
   }
 }
 
+const accountSort = useDragSort(() => deployment.value?.testAccounts ?? [], async () => {
+  const ids = deployment.value?.testAccounts.map(account => account.id) ?? []
+  await api(() => request(`/api/deployments/${deploymentId.value}/accounts/reorder`, { method: 'POST', body: { ids } }))
+  await refresh()
+})
+
 async function verifyAccount(account: DeploymentAccount) {
   if (await api(() => request(`/api/accounts/${account.id}`, { method: 'PATCH', body: { lastVerifiedAt: new Date().toISOString() } }))) {
     await reload()
@@ -306,9 +312,12 @@ const copyItems = computed(() => [[
                   class="grid gap-3 sm:grid-cols-[repeat(auto-fill,minmax(19rem,1fr))]"
                 >
                   <AccountCard
-                    v-for="account in deployment.testAccounts"
+                    v-for="(account, index) in deployment.testAccounts"
                     :key="account.id"
+                    v-bind="accountSort.item(index)"
                     :account="account"
+                    :drag-handle="accountSort.handle(index)"
+                    :class="accountSort.dragging.value === index && 'opacity-50'"
                     :load-secrets="loadSecrets(account.id)"
                     @edit="openAccount(account)"
                     @delete="deleteAccount(account)"

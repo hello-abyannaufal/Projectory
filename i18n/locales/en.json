@@ -21,6 +21,7 @@
     "saved": "Saved",
     "deleted": "Deleted",
     "confirmDelete": "Delete this item? This cannot be undone.",
+    "reorder": "Drag to reorder",
     "more": "More",
     "moveUp": "Move up",
     "moveDown": "Move down"
