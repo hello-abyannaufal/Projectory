@@ -40,7 +40,9 @@ function valueOf(id: string) {
   return visible.value ? revealed.value?.find(entry => entry.id === id)?.value ?? '' : SECRET_MASK
 }
 
-const rawText = computed(() => serializeDotenv(props.envVars.map(entry => ({ key: entry.key, value: valueOf(entry.id) }))))
+const rawText = computed(() => visible.value && revealed.value
+  ? serializeDotenv(revealed.value)
+  : props.envVars.map(entry => `${entry.key}=${SECRET_MASK}`).join('\n'))
 
 async function copyValue(id: string) {
   const values = await loadValues()
