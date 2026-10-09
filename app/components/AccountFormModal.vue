@@ -123,6 +123,8 @@ async function onSubmit() {
         >
           <UInputTags
             v-model="state.tags"
+            add-on-blur
+            add-on-paste
             class="w-full"
           />
         </UFormField>
