@@ -144,7 +144,28 @@
     "placeholder": "Write something…"
   },
   "export": {
-    "button": "Export"
+    "button": "Export",
+    "title": "Export project",
+    "format": "Format",
+    "zipTitle": "BibloDrive file (.zip)",
+    "zipDescription": "All data plus logos. Can be imported into another BibloDrive instance.",
+    "textTitle": "Copy as text / Markdown",
+    "textDescription": "Readable summary for people without BibloDrive, e.g. to paste in chat.",
+    "secrets": "Secrets (passwords, .env)",
+    "withoutSecrets": "Without secrets",
+    "withoutSecretsZip": "Secret values are left empty. Structure stays complete.",
+    "withoutSecretsText": "Secret values are shown as ••••.",
+    "encrypted": "With secrets, encrypted",
+    "encryptedDescription": "Secrets are re-encrypted with a passphrase. The receiver needs it to import.",
+    "plaintext": "Include as plaintext",
+    "plaintextDescription": "Secret values are copied as readable text.",
+    "passphrase": "Passphrase",
+    "confirmPassphrase": "Confirm passphrase",
+    "passphraseMin": "At least 8 characters",
+    "passphraseWarning": "Send the passphrase through a different channel than the file. It cannot be recovered.",
+    "plaintextWarning": "Passwords and .env values will be copied as readable text. Anyone with the text can use them.",
+    "download": "Download .zip",
+    "copyText": "Copy text"
   },
   "accounts": {
     "title": "Accounts",
@@ -288,5 +309,18 @@
     "passwordChanged": "Password updated",
     "session": "Session",
     "sessionHint": "Sign out of BibloDrive on this browser."
+  },
+  "import": {
+    "button": "Import",
+    "title": "Import project",
+    "description": "Creates a new project from a BibloDrive export.",
+    "chooseFile": "Choose a .biblodrive.zip file",
+    "hint": "Imports always create a new project; nothing existing is changed.",
+    "done": "Project imported",
+    "errors": {
+      "PASSPHRASE_REQUIRED": "This file contains encrypted secrets. Enter the passphrase.",
+      "INVALID_PASSPHRASE": "Wrong passphrase.",
+      "INVALID_FILE": "This isn't a valid BibloDrive export."
+    }
   }
 }

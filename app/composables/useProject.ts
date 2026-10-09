@@ -1,5 +1,8 @@
+import type { InternalApi } from 'nitropack/types'
+
+// Explicit type: `/api/projects/${id}` would also match `/api/projects/import`.
 export function useProject(id: MaybeRefOrGetter<string>) {
-  return useFetch(() => `/api/projects/${toValue(id)}`, { key: `project-${toValue(id)}` })
+  return useFetch<InternalApi['/api/projects/:id']['get']>(() => `/api/projects/${toValue(id)}`, { key: `project-${toValue(id)}` })
 }
 
 export type ProjectDetail = NonNullable<Awaited<ReturnType<typeof useProject>>['data']['value']>

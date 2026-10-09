@@ -1,5 +1,7 @@
+import type { InternalApi } from 'nitropack/types'
+
 export function useDeployment(id: MaybeRefOrGetter<string>) {
-  return useFetch(() => `/api/deployments/${toValue(id)}`, { key: `deployment-${toValue(id)}` })
+  return useFetch<InternalApi['/api/deployments/:id']['get']>(() => `/api/deployments/${toValue(id)}`, { key: `deployment-${toValue(id)}` })
 }
 
 export type DeploymentDetail = NonNullable<Awaited<ReturnType<typeof useDeployment>>['data']['value']>

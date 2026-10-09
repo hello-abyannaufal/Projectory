@@ -144,7 +144,28 @@
     "placeholder": "Tulis sesuatu…"
   },
   "export": {
-    "button": "Ekspor"
+    "button": "Ekspor",
+    "title": "Ekspor proyek",
+    "format": "Format",
+    "zipTitle": "File BibloDrive (.zip)",
+    "zipDescription": "Semua data beserta logo. Bisa diimpor ke instance BibloDrive lain.",
+    "textTitle": "Salin sebagai teks / Markdown",
+    "textDescription": "Ringkasan untuk orang yang tidak memakai BibloDrive, misal untuk ditempel di chat.",
+    "secrets": "Rahasia (kata sandi, .env)",
+    "withoutSecrets": "Tanpa rahasia",
+    "withoutSecretsZip": "Nilai rahasia dikosongkan. Struktur tetap lengkap.",
+    "withoutSecretsText": "Nilai rahasia ditampilkan sebagai ••••.",
+    "encrypted": "Dengan rahasia, terenkripsi",
+    "encryptedDescription": "Rahasia dienkripsi ulang dengan passphrase. Penerima butuh passphrase itu untuk impor.",
+    "plaintext": "Sertakan sebagai teks biasa",
+    "plaintextDescription": "Nilai rahasia disalin sebagai teks yang bisa dibaca.",
+    "passphrase": "Passphrase",
+    "confirmPassphrase": "Konfirmasi passphrase",
+    "passphraseMin": "Minimal 8 karakter",
+    "passphraseWarning": "Kirim passphrase lewat jalur yang berbeda dari file. Passphrase tidak bisa dipulihkan.",
+    "plaintextWarning": "Kata sandi dan isi .env akan disalin sebagai teks biasa. Siapa pun yang punya teksnya bisa memakainya.",
+    "download": "Unduh .zip",
+    "copyText": "Salin teks"
   },
   "accounts": {
     "title": "Akun",
@@ -288,5 +309,18 @@
     "passwordChanged": "Kata sandi diperbarui",
     "session": "Sesi",
     "sessionHint": "Keluar dari BibloDrive di browser ini."
+  },
+  "import": {
+    "button": "Impor",
+    "title": "Impor proyek",
+    "description": "Membuat proyek baru dari file ekspor BibloDrive.",
+    "chooseFile": "Pilih file .biblodrive.zip",
+    "hint": "Impor selalu membuat proyek baru; data yang sudah ada tidak diubah.",
+    "done": "Proyek berhasil diimpor",
+    "errors": {
+      "PASSPHRASE_REQUIRED": "File ini berisi rahasia terenkripsi. Masukkan passphrase.",
+      "INVALID_PASSPHRASE": "Passphrase salah.",
+      "INVALID_FILE": "Ini bukan file ekspor BibloDrive yang valid."
+    }
   }
 }

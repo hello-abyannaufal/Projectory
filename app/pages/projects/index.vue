@@ -22,6 +22,7 @@ const filters = computed(() => [
 ])
 
 const createOpen = ref(false)
+const importOpen = ref(false)
 
 async function onCreated(id: string) {
   await navigateTo(`/projects/${id}`)
@@ -37,6 +38,13 @@ async function onCreated(id: string) {
             <UDashboardSidebarCollapse />
           </template>
           <template #right>
+            <UButton
+              icon="i-lucide-upload"
+              color="neutral"
+              variant="outline"
+              :label="t('import.button')"
+              @click="importOpen = true"
+            />
             <UButton
               icon="i-lucide-plus"
               :label="t('projects.new')"
@@ -136,6 +144,10 @@ async function onCreated(id: string) {
     <ProjectFormModal
       v-model:open="createOpen"
       @saved="onCreated"
+    />
+    <ImportProjectModal
+      v-model:open="importOpen"
+      @imported="onCreated"
     />
   </div>
 </template>

@@ -31,8 +31,9 @@ const tabs = computed<TabsItem[]>(() => [
 ])
 const activeTab = ref('deployments')
 
-// Edit / delete project
+// Edit / delete / export project
 const editOpen = ref(false)
+const exportOpen = ref(false)
 
 async function deleteProject() {
   if (!project.value) {
@@ -176,7 +177,7 @@ async function saveNotes() {
               color="neutral"
               variant="outline"
               :label="t('export.button')"
-              :to="`/projects/${project.id}/export`"
+              @click="exportOpen = true"
             />
             <UButton
               icon="i-lucide-pencil"
@@ -506,6 +507,12 @@ async function saveNotes() {
       v-model:open="editOpen"
       :project="project"
       @saved="refresh()"
+    />
+    <ExportProjectModal
+      v-if="project"
+      v-model:open="exportOpen"
+      :project-id="project.id"
+      :project-name="project.name"
     />
     <AppFormModal
       v-model:open="appOpen"
