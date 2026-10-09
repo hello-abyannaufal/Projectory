@@ -1,0 +1,10 @@
+{
+  "nav": {
+    "projects": "Projects",
+    "techStacks": "Tech stacks",
+    "settings": "Settings"
+  },
+  "projects": {
+    "empty": "No projects yet"
+  }
+}

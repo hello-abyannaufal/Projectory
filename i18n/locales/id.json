@@ -1,0 +1,10 @@
+{
+  "nav": {
+    "projects": "Proyek",
+    "techStacks": "Tech stack",
+    "settings": "Pengaturan"
+  },
+  "projects": {
+    "empty": "Belum ada proyek"
+  }
+}

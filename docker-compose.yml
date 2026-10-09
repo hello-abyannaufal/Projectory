@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: biblodrive
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-biblodrive}
+      POSTGRES_DB: biblodrive
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U biblodrive -d biblodrive"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NUXT_DATABASE_URL: postgres://biblodrive:${POSTGRES_PASSWORD:-biblodrive}@postgres:5432/biblodrive
+      NUXT_MASTER_KEY: ${NUXT_MASTER_KEY:?Set NUXT_MASTER_KEY in .env}
+      NUXT_UPLOAD_DIR: /data/uploads
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    volumes:
+      - ./data/uploads:/data/uploads
+
+volumes:
+  postgres-data:

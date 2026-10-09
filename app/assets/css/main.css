@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/*
+ * Design tokens. Semantic colors (primary, neutral, ...) live in app/app.config.ts.
+ * Background, text and border tokens below override Nuxt UI's defaults
+ * for light (:root) and dark (.dark) mode.
+ */
+@theme static {
+  --font-sans: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+:root {
+  --ui-radius: 0.375rem;
+  --ui-bg: #FFFFFF;
+  --ui-bg-muted: #F6F6F3;
+}
+
+.dark {
+  --ui-bg: var(--ui-color-neutral-900);
+  --ui-bg-muted: var(--ui-color-neutral-950);
+}
