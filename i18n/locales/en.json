@@ -237,5 +237,56 @@
     "keepHint": "Variables not in the file are kept.",
     "preview": "Preview changes",
     "importCount": "Import {count} variables"
+  },
+  "techCategory": {
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "mobile": "Mobile",
+    "database": "Database",
+    "devops": "DevOps",
+    "other": "Other"
+  },
+  "techStacks": {
+    "description": "Logos you can attach to apps. Built-in stacks come from Simple Icons and can't be edited.",
+    "search": "Search stacks…",
+    "newCustom": "Add custom stack",
+    "edit": "Edit stack",
+    "fromCatalog": "Add from Simple Icons",
+    "fromCatalogHint": "Search 3,000+ brand logos and add the ones you use.",
+    "searchCatalog": "Search Simple Icons…",
+    "typeToSearch": "Type to search.",
+    "noResults": "No matches.",
+    "alreadyAdded": "Added",
+    "added": "{name} added",
+    "category": "Category",
+    "color": "Color",
+    "logo": "Logo",
+    "uploadLogo": "Upload SVG or PNG",
+    "logoHint": "Without a logo, initials are used.",
+    "custom": "Custom",
+    "usedIn": "not used | used in 1 app | used in {count} apps",
+    "notUsed": "Not used",
+    "deleteTitle": "Delete {name}?"
+  },
+  "settings": {
+    "preferences": "Preferences",
+    "language": "Language",
+    "languageHint": "Interface language. Your project data is not translated.",
+    "themeLabel": "Theme",
+    "themeHint": "System follows your OS setting.",
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "profile": "Profile",
+    "changeAvatar": "Change avatar",
+    "saveChanges": "Save changes",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "updatePassword": "Update password",
+    "passwordChanged": "Password updated",
+    "session": "Session",
+    "sessionHint": "Sign out of BibloDrive on this browser."
   }
 }

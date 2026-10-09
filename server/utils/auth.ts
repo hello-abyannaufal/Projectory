@@ -21,6 +21,10 @@ function createAuth() {
       enabled: true,
       minPasswordLength: 8
     },
+    user: {
+      // No mail server: the single local user can change their email directly.
+      changeEmail: { enabled: true, updateEmailWithoutVerification: true }
+    },
     databaseHooks: {
       user: {
         create: {

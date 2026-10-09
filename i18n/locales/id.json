@@ -237,5 +237,56 @@
     "keepHint": "Variabel yang tidak ada di file tetap disimpan.",
     "preview": "Pratinjau perubahan",
     "importCount": "Impor {count} variabel"
+  },
+  "techCategory": {
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "mobile": "Mobile",
+    "database": "Database",
+    "devops": "DevOps",
+    "other": "Lainnya"
+  },
+  "techStacks": {
+    "description": "Logo yang bisa dipasang ke app. Stack bawaan berasal dari Simple Icons dan tidak bisa diubah.",
+    "search": "Cari stack…",
+    "newCustom": "Tambah stack custom",
+    "edit": "Ubah stack",
+    "fromCatalog": "Tambah dari Simple Icons",
+    "fromCatalogHint": "Cari di 3.000+ logo dan tambahkan yang kamu pakai.",
+    "searchCatalog": "Cari Simple Icons…",
+    "typeToSearch": "Ketik untuk mencari.",
+    "noResults": "Tidak ada hasil.",
+    "alreadyAdded": "Sudah ada",
+    "added": "{name} ditambahkan",
+    "category": "Kategori",
+    "color": "Warna",
+    "logo": "Logo",
+    "uploadLogo": "Unggah SVG atau PNG",
+    "logoHint": "Tanpa logo, inisial yang dipakai.",
+    "custom": "Custom",
+    "usedIn": "tidak dipakai | dipakai di 1 app | dipakai di {count} app",
+    "notUsed": "Tidak dipakai",
+    "deleteTitle": "Hapus {name}?"
+  },
+  "settings": {
+    "preferences": "Preferensi",
+    "language": "Bahasa",
+    "languageHint": "Bahasa tampilan. Data proyek kamu tidak ikut diterjemahkan.",
+    "themeLabel": "Tema",
+    "themeHint": "Sistem mengikuti pengaturan OS.",
+    "theme": {
+      "light": "Terang",
+      "dark": "Gelap",
+      "system": "Sistem"
+    },
+    "profile": "Profil",
+    "changeAvatar": "Ganti avatar",
+    "saveChanges": "Simpan perubahan",
+    "currentPassword": "Kata sandi saat ini",
+    "newPassword": "Kata sandi baru",
+    "updatePassword": "Perbarui kata sandi",
+    "passwordChanged": "Kata sandi diperbarui",
+    "session": "Sesi",
+    "sessionHint": "Keluar dari BibloDrive di browser ini."
   }
 }
