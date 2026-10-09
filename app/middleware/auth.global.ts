@@ -12,11 +12,15 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo('/login')
   }
 
-  const { data: session } = await authClient.useSession(useFetch)
-  if (!session.value && to.path !== '/login') {
+  // On the client, useFetch would reuse the session cached during SSR,
+  // which is stale right after signing in or out.
+  const session = import.meta.server
+    ? (await authClient.useSession(useFetch)).data.value
+    : (await authClient.getSession()).data
+  if (!session && to.path !== '/login') {
     return navigateTo('/login')
   }
-  if (session.value && to.path === '/login') {
+  if (session && to.path === '/login') {
     return navigateTo('/projects')
   }
 })
