@@ -11,7 +11,7 @@ function createDb() {
   if (!databaseUrl) {
     throw new Error('NUXT_DATABASE_URL is not set')
   }
-  return drizzle(postgres(databaseUrl), { schema })
+  return drizzle(postgres(databaseUrl, { onnotice: () => {} }), { schema })
 }
 
 export function useDb() {

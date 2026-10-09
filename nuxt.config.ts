@@ -33,6 +33,8 @@ export default defineNuxtConfig({
   },
 
   i18n: {
+    // Only used for SEO link tags; override with NUXT_PUBLIC_I18N_BASE_URL
+    baseUrl: 'http://localhost:3000',
     defaultLocale: 'en',
     strategy: 'no_prefix',
     locales: [
