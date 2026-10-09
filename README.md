@@ -13,7 +13,7 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Open http://localhost:3000 and create your account. Only one account can exist per instance.
+Open http://localhost:4747 and create your account. Only one account can exist per instance.
 
 ```bash
 docker compose up -d            # start
@@ -29,18 +29,18 @@ Requires Node 24 and pnpm.
 
 ```bash
 cp .env.example .env            # fill in the two secrets
-docker compose stop app         # free port 3000 if the Docker app is running
+docker compose stop app         # free port 4747 if the Docker app is running
 docker compose up -d postgres   # database only
 nvm use 24
 pnpm install
-pnpm dev                        # http://localhost:3000
+pnpm dev                        # http://localhost:4747
 ```
 
 Migrations and the built-in tech stack seed run automatically on server start.
 
 | Script | |
 |---|---|
-| `pnpm dev` | Dev server on http://localhost:3000 |
+| `pnpm dev` | Dev server on http://localhost:4747 |
 | `pnpm db:generate` | Create a migration after changing `server/db/schema.ts` |
 | `pnpm db:studio` | Browse the database with Drizzle Studio |
 | `pnpm lint` / `pnpm typecheck` | Checks |
@@ -51,7 +51,7 @@ Migrations and the built-in tech stack seed run automatically on server start.
 |---|---|
 | `NUXT_MASTER_KEY` | 32-byte base64 key that encrypts passwords and `.env` values |
 | `BETTER_AUTH_SECRET` | Session signing secret |
-| `BETTER_AUTH_URL` | URL you open the app on (default `http://localhost:3000`) |
+| `BETTER_AUTH_URL` | URL you open the app on (default `http://localhost:4747`) |
 | `NUXT_DATABASE_URL` | Postgres URL (set automatically inside Docker Compose) |
 | `APP_PORT`, `POSTGRES_PORT` | Host ports |
 

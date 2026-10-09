@@ -10,6 +10,11 @@ export default defineNuxtConfig({
     enabled: true
   },
 
+  // Same port as the Docker app; 3000 is usually taken by other projects.
+  devServer: {
+    port: 4747
+  },
+
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
@@ -34,7 +39,7 @@ export default defineNuxtConfig({
 
   i18n: {
     // Only used for SEO link tags; override with NUXT_PUBLIC_I18N_BASE_URL
-    baseUrl: 'http://localhost:3000',
+    baseUrl: 'http://localhost:4747',
     defaultLocale: 'en',
     strategy: 'no_prefix',
     locales: [

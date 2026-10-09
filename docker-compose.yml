@@ -27,9 +27,9 @@ services:
       NUXT_MASTER_KEY: ${NUXT_MASTER_KEY:?Set NUXT_MASTER_KEY in .env}
       NUXT_UPLOAD_DIR: /data/uploads
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:4747}
     ports:
-      - "127.0.0.1:${APP_PORT:-3000}:3000"
+      - "127.0.0.1:${APP_PORT:-4747}:3000"
     volumes:
       - ./data/uploads:/data/uploads
 
