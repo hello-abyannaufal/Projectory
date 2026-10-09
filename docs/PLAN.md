@@ -31,10 +31,10 @@ Aplikasi self-hosted untuk menyimpan data project aplikasi (Web, Mobile, Backend
 
 | Bagian | Pilihan |
 |---|---|
-| Runtime | Node.js 24 |
+| Runtime | Node.js 24, pnpm |
 | Framework | Nuxt 4 (full-stack, server routes via Nitro) |
 | UI | Nuxt UI (Tailwind) |
-| Rich text | TipTap, disimpan sebagai JSON |
+| Rich text | TipTap (via `UEditor` Nuxt UI), disimpan sebagai JSON |
 | Database | PostgreSQL |
 | ORM | Drizzle |
 | Auth | Better Auth (email + password) |
@@ -192,23 +192,23 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 ## 7. Scope MVP
 
 ### Masuk MVP
-- [ ] Auth: halaman setup (buat akun pertama), login, logout
-- [ ] Settings: profil, ganti password, bahasa, tema
-- [ ] CRUD Project (termasuk cover, status, notes, links)
-- [ ] CRUD Environment per project
-- [ ] CRUD App (platform, tech stack, links, notes)
-- [ ] Master TechStack: seed dari `simple-icons` + upload custom
-- [ ] Matriks App × Environment
-- [ ] CRUD Deployment: URL, branch, notes
-- [ ] CRUD Release
-- [ ] CRUD Account dengan field dinamis + mask/reveal/copy
-- [ ] CRUD EnvVar + mask/reveal/copy, tampilan Table & Raw
-- [ ] Import `.env` (paste/upload + preview) dan export `.env`
-- [ ] Theming via token warna
-- [ ] i18n English & Bahasa Indonesia
-- [ ] Export/import `.zip` level project (tanpa secret / dengan passphrase)
-- [ ] Copy text per Deployment
-- [ ] Docker Compose (`app` + `postgres`)
+- [x] Auth: halaman setup (buat akun pertama), login, logout
+- [x] Settings: profil, ganti password, bahasa, tema
+- [x] CRUD Project (termasuk cover, status, notes, links)
+- [x] CRUD Environment per project
+- [x] CRUD App (platform, tech stack, links, notes)
+- [x] Master TechStack: seed dari `simple-icons` + upload custom
+- [x] Matriks App × Environment
+- [x] CRUD Deployment: URL, branch, notes
+- [x] CRUD Release
+- [x] CRUD Account dengan field dinamis + mask/reveal/copy
+- [x] CRUD EnvVar + mask/reveal/copy, tampilan Table & Raw
+- [x] Import `.env` (paste/upload + preview) dan export `.env`
+- [x] Theming via token warna
+- [x] i18n English & Bahasa Indonesia
+- [x] Export/import `.zip` level project (tanpa secret / dengan passphrase)
+- [x] Copy text per Deployment
+- [x] Docker Compose (`app` + `postgres`)
 
 ### Ditunda
 - 2FA
@@ -222,9 +222,16 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 - Search & filter lintas project
 - Version history `.env`
 
-## 8. Langkah Berikutnya
+## 8. Catatan Implementasi
 
-1. Review dokumen ini.
-2. Buat skema database (Drizzle) → review.
-3. Scaffold project Nuxt + `docker-compose.yml`.
-4. Implementasi MVP sesuai urutan checklist di atas.
+- Package manager: **pnpm** (mengikuti template Nuxt UI).
+- Rich text memakai komponen `UEditor` dari Nuxt UI (berbasis TipTap) + extension text-align.
+- Logo tech stack bawaan dirender lewat `@iconify-json/simple-icons`; nama dan warna resmi dari package `simple-icons`. Selain seed bawaan, stack lain bisa ditambahkan dari katalog Simple Icons di halaman Tech stacks.
+- Tabel akun testing bernama `test_accounts` agar tidak bentrok dengan tabel `account` milik Better Auth.
+- Network Docker Compose dikunci ke `192.168.237.0/24` karena VPN kantor me-route subnet `172.x`/`10.x` milik Docker.
+- Migrasi database dan seed tech stack jalan otomatis saat server start.
+
+## 9. Langkah Berikutnya
+
+1. Coba MVP secara langsung dan catat yang perlu diubah.
+2. Pilih fitur dari daftar *Ditunda* untuk iterasi berikutnya.
