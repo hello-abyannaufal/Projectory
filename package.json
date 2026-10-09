@@ -21,11 +21,13 @@
     "drizzle-orm": "^0.45.3",
     "nuxt": "^4.6.0",
     "postgres": "^3.4.9",
+    "simple-icons": "^16.34.0",
     "tailwindcss": "^4.3.3",
     "zod": "^4.6.5"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.17.0",
+    "@types/node": "^24.19.1",
     "drizzle-kit": "^0.31.11",
     "eslint": "^10.12.0",
     "eslint-plugin-better-tailwindcss": "^4.7.0",
