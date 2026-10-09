@@ -125,7 +125,19 @@
     "noCredentials": "Tanpa kredensial",
     "accountCount": "0 akun | 1 akun | {count} akun",
     "emptyTitle": "Tambahkan app dan environment",
-    "emptyDescription": "Tiap app punya satu deployment per environment, berisi URL, akun, dan .env."
+    "emptyDescription": "Tiap app punya satu deployment per environment, berisi URL, akun, dan .env.",
+    "edit": "Ubah URL & branch",
+    "delete": "Hapus deployment",
+    "deleteTitle": "Hapus deployment ini?",
+    "deleteDescription": "Akun, isi .env, dan rilisnya akan dihapus.",
+    "branch": "Branch",
+    "copyAsText": "Salin sebagai teks",
+    "copyWithoutSecrets": "Tanpa rahasia",
+    "copyWithSecrets": "Dengan rahasia (teks biasa)",
+    "openApp": "Buka app",
+    "addUrl": "Tambah URL",
+    "productionTitle": "Production tidak menyimpan kredensial",
+    "productionDescription": "Akun dan isi .env hanya disimpan untuk environment selain production."
   },
   "notes": {
     "warning": "Catatan tidak dienkripsi. Simpan kata sandi di Akun.",
@@ -133,5 +145,97 @@
   },
   "export": {
     "button": "Ekspor"
+  },
+  "accounts": {
+    "title": "Akun",
+    "new": "Tambah akun",
+    "edit": "Ubah akun",
+    "empty": "Belum ada akun.",
+    "deleteTitle": "Hapus {name}?",
+    "markVerified": "Tandai sudah dicek sekarang",
+    "verifiedAgo": "Dicek {time}",
+    "neverVerified": "Belum pernah dicek",
+    "labelPlaceholder": "misal Maker 01",
+    "tags": "Role",
+    "tagsHint": "misal maker, checker, approver",
+    "fields": "Field",
+    "fieldKey": "Field",
+    "fieldValue": "Nilai",
+    "keepSecret": "Kosongkan untuk tetap",
+    "secret": "Rahasia",
+    "addField": "Tambah field"
+  },
+  "accountStatus": {
+    "active": "Aktif",
+    "locked": "Terkunci",
+    "expired": "Kedaluwarsa"
+  },
+  "releases": {
+    "title": "Rilis",
+    "new": "Tambah rilis",
+    "edit": "Ubah rilis",
+    "empty": "Belum ada rilis.",
+    "deleteTitle": "Hapus {version}?",
+    "version": "Versi",
+    "buildNumber": "Nomor build",
+    "releasedAt": "Tanggal rilis",
+    "changelog": "Catatan rilis"
+  },
+  "releaseType": {
+    "web_url": "URL web",
+    "play_store": "Play Store",
+    "app_store": "App Store",
+    "testflight": "TestFlight",
+    "firebase_distribution": "Firebase App Distribution",
+    "build_file": "File build",
+    "docker_image": "Docker image",
+    "package": "Package",
+    "other": "Lainnya"
+  },
+  "releaseStatus": {
+    "draft": "Draf",
+    "released": "Dirilis",
+    "rolled_back": "Di-rollback"
+  },
+  "env": {
+    "encrypted": "Terenkripsi",
+    "table": "Tabel",
+    "raw": "Raw",
+    "hideValues": "Sembunyikan nilai",
+    "revealValues": "Tampilkan nilai",
+    "import": "Impor .env",
+    "copyAll": "Salin sebagai .env",
+    "download": "Unduh .env",
+    "deleteTitle": "Hapus {key}?",
+    "empty": "Belum ada variabel.",
+    "addVariable": "Tambah variabel",
+    "editVariable": "Ubah variabel",
+    "key": "Key",
+    "value": "Nilai",
+    "editAsText": "Ubah sebagai teks",
+    "rawHint": "Perubahan ditinjau dulu sebelum disimpan.",
+    "reviewChanges": "Tinjau perubahan",
+    "step1": "Langkah 1 dari 2",
+    "step2": "Langkah 2 dari 2 · Pratinjau",
+    "paste": "Tempel teks",
+    "upload": "Unggah file",
+    "chooseFile": "Pilih file .env",
+    "parserHint": "Mendukung komentar (#), nilai ber-quote, dan export KEY=…. Belum ada yang disimpan sampai kamu konfirmasi.",
+    "addedCount": "{count} baru",
+    "changedCount": "{count} berubah",
+    "removedCount": "{count} dihapus",
+    "unchangedCount": "{count} sama",
+    "kind": {
+      "added": "Baru",
+      "changed": "Berubah",
+      "removed": "Dihapus",
+      "unchanged": "Sama"
+    },
+    "overwrite": "Timpa",
+    "nothingFound": "Tidak ada variabel.",
+    "replaceHint": "Variabel yang dihapus dari teks akan ikut dihapus.",
+    "keepHint": "Variabel yang tidak ada di file tetap disimpan.",
+    "preview": "Pratinjau perubahan",
+    "importCount": "Impor {count} variabel"
   }
 }

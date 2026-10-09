@@ -67,6 +67,7 @@ export const releaseInput = z.object({
 })
 
 export const testAccountFieldInput = z.object({
+  id: z.uuid().optional(),
   key: z.string().trim().min(1).max(60),
   // For an existing secret field, null keeps the stored value unchanged.
   value: z.string().max(2000).nullable(),
@@ -87,6 +88,16 @@ export const ENV_KEY_PATTERN = /^[A-Za-z_][A-Za-z0-9_.-]*$/
 export const envVarInput = z.object({
   key: z.string().trim().regex(ENV_KEY_PATTERN).max(200),
   value: z.string().max(20000)
+})
+
+export const envImportInput = z.object({
+  content: z.string().max(200000),
+  // Without apply the request only returns the preview.
+  apply: z.boolean().default(false),
+  // Changed keys to leave untouched.
+  skip: z.array(z.string()).default([]),
+  // Delete stored keys that are missing from content (used by the raw editor).
+  replace: z.boolean().default(false)
 })
 
 export const techStackInput = z.object({

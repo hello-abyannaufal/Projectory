@@ -35,3 +35,11 @@ services:
 
 volumes:
   postgres-data:
+
+# Fixed subnet so a corporate VPN that routes 172.16.0.0/12 or 10.0.0.0/8
+# doesn't swallow traffic to the containers.
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 192.168.237.0/24

@@ -125,7 +125,19 @@
     "noCredentials": "No credentials",
     "accountCount": "0 accounts | 1 account | {count} accounts",
     "emptyTitle": "Add apps and environments",
-    "emptyDescription": "Each app gets a deployment per environment, holding its URL, accounts and .env."
+    "emptyDescription": "Each app gets a deployment per environment, holding its URL, accounts and .env.",
+    "edit": "Edit URL & branch",
+    "delete": "Delete deployment",
+    "deleteTitle": "Delete this deployment?",
+    "deleteDescription": "Its accounts, .env values and releases will be deleted.",
+    "branch": "Branch",
+    "copyAsText": "Copy as text",
+    "copyWithoutSecrets": "Without secrets",
+    "copyWithSecrets": "With secrets (plaintext)",
+    "openApp": "Open app",
+    "addUrl": "Add URL",
+    "productionTitle": "Production doesn't store credentials",
+    "productionDescription": "Accounts and .env values are only kept for non-production environments."
   },
   "notes": {
     "warning": "Notes are not encrypted. Keep passwords in Accounts.",
@@ -133,5 +145,97 @@
   },
   "export": {
     "button": "Export"
+  },
+  "accounts": {
+    "title": "Accounts",
+    "new": "Add account",
+    "edit": "Edit account",
+    "empty": "No accounts yet.",
+    "deleteTitle": "Delete {name}?",
+    "markVerified": "Mark as verified now",
+    "verifiedAgo": "Verified {time}",
+    "neverVerified": "Not verified yet",
+    "labelPlaceholder": "e.g. Maker 01",
+    "tags": "Roles",
+    "tagsHint": "e.g. maker, checker, approver",
+    "fields": "Fields",
+    "fieldKey": "Field",
+    "fieldValue": "Value",
+    "keepSecret": "Leave empty to keep",
+    "secret": "Secret",
+    "addField": "Add field"
+  },
+  "accountStatus": {
+    "active": "Active",
+    "locked": "Locked",
+    "expired": "Expired"
+  },
+  "releases": {
+    "title": "Releases",
+    "new": "Add release",
+    "edit": "Edit release",
+    "empty": "No releases yet.",
+    "deleteTitle": "Delete {version}?",
+    "version": "Version",
+    "buildNumber": "Build number",
+    "releasedAt": "Release date",
+    "changelog": "Release notes"
+  },
+  "releaseType": {
+    "web_url": "Web URL",
+    "play_store": "Play Store",
+    "app_store": "App Store",
+    "testflight": "TestFlight",
+    "firebase_distribution": "Firebase App Distribution",
+    "build_file": "Build file",
+    "docker_image": "Docker image",
+    "package": "Package",
+    "other": "Other"
+  },
+  "releaseStatus": {
+    "draft": "Draft",
+    "released": "Released",
+    "rolled_back": "Rolled back"
+  },
+  "env": {
+    "encrypted": "Encrypted at rest",
+    "table": "Table",
+    "raw": "Raw",
+    "hideValues": "Hide values",
+    "revealValues": "Reveal values",
+    "import": "Import .env",
+    "copyAll": "Copy as .env",
+    "download": "Download .env",
+    "deleteTitle": "Delete {key}?",
+    "empty": "No variables yet.",
+    "addVariable": "Add variable",
+    "editVariable": "Edit variable",
+    "key": "Key",
+    "value": "Value",
+    "editAsText": "Edit as text",
+    "rawHint": "Changes are previewed before saving.",
+    "reviewChanges": "Review changes",
+    "step1": "Step 1 of 2",
+    "step2": "Step 2 of 2 · Preview",
+    "paste": "Paste text",
+    "upload": "Upload file",
+    "chooseFile": "Choose a .env file",
+    "parserHint": "Comments (#), quoted values and export KEY=… are supported. Nothing is saved until you confirm.",
+    "addedCount": "{count} new",
+    "changedCount": "{count} changed",
+    "removedCount": "{count} removed",
+    "unchangedCount": "{count} unchanged",
+    "kind": {
+      "added": "New",
+      "changed": "Changed",
+      "removed": "Removed",
+      "unchanged": "Unchanged"
+    },
+    "overwrite": "Overwrite",
+    "nothingFound": "No variables found.",
+    "replaceHint": "Variables removed from the text will be deleted.",
+    "keepHint": "Variables not in the file are kept.",
+    "preview": "Preview changes",
+    "importCount": "Import {count} variables"
   }
 }
