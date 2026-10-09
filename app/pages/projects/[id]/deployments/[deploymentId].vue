@@ -260,6 +260,15 @@ const copyItems = computed(() => [[
                 />
                 <code class="font-mono">{{ deployment.branch }}</code>
               </span>
+              <UButton
+                v-if="deployment.url"
+                icon="i-lucide-pencil"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                :aria-label="t('deployments.edit')"
+                @click="editOpen = true"
+              />
             </div>
           </div>
 
