@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   const id = getIdParam(event)
-  const input = await readInput(event, linkInput.partial())
+  const input = await readPatch(event, linkInput.partial())
   const db = useDb()
   const existing = await db.query.links.findFirst({ where: eq(tables.links.id, id) })
   if (!existing) {

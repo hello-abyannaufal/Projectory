@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   const id = getIdParam(event)
   const account = await findTestAccount(id)
   assertNotProduction(account.deployment)
-  const { fields, lastVerifiedAt, ...input } = await readInput(event, testAccountInput.partial())
+  const { fields, lastVerifiedAt, ...input } = await readPatch(event, testAccountInput.partial())
   const values = {
     ...input,
     ...(lastVerifiedAt !== undefined ? { lastVerifiedAt: lastVerifiedAt ? new Date(lastVerifiedAt) : null } : {})

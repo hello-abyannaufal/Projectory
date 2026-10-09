@@ -18,3 +18,11 @@ export function notFound(): never {
 export function readInput<T extends z.ZodType>(event: H3Event, schema: T) {
   return readValidatedBody(event, body => schema.parse(body)) as Promise<z.output<T>>
 }
+
+// Zod 4 still fills .default() values for keys a partial schema leaves out,
+// which would overwrite stored data, so a patch keeps only the keys that were sent.
+export async function readPatch<T extends z.ZodType>(event: H3Event, schema: T) {
+  const data = await readInput(event, schema) as Record<string, unknown>
+  const body = await readBody<Record<string, unknown>>(event)
+  return Object.fromEntries(Object.entries(data).filter(([key]) => key in body)) as z.output<T>
+}

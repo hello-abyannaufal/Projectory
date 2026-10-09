@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   const id = getIdParam(event)
-  const { techStackIds, ...input } = await readInput(event, appPatch)
+  const { techStackIds, ...input } = await readPatch(event, appPatch)
   const db = useDb()
   const [app] = Object.keys(input).length
     ? await db.update(tables.apps).set(input).where(eq(tables.apps.id, id)).returning()
