@@ -15,7 +15,13 @@ docker compose up -d --build
 
 Open http://localhost:3000 and create your account. Only one account can exist per instance.
 
-Uploaded images live in `./data/uploads`, the database in the `postgres-data` volume.
+```bash
+docker compose up -d            # start
+docker compose down             # stop (data is kept)
+docker compose up -d --build    # rebuild after code changes
+```
+
+Uploaded images live in `./data/uploads`, the database in the `postgres-data` volume. `docker compose down -v` deletes the database volume.
 
 ## Develop
 
@@ -23,9 +29,11 @@ Requires Node 24 and pnpm.
 
 ```bash
 cp .env.example .env            # fill in the two secrets
+docker compose stop app         # free port 3000 if the Docker app is running
 docker compose up -d postgres   # database only
+nvm use 24
 pnpm install
-pnpm dev
+pnpm dev                        # http://localhost:3000
 ```
 
 Migrations and the built-in tech stack seed run automatically on server start.
