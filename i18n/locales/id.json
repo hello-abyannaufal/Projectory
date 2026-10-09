@@ -20,7 +20,10 @@
     "all": "Semua",
     "saved": "Tersimpan",
     "deleted": "Terhapus",
-    "confirmDelete": "Hapus item ini? Tindakan ini tidak bisa dibatalkan."
+    "confirmDelete": "Hapus item ini? Tindakan ini tidak bisa dibatalkan.",
+    "more": "Lainnya",
+    "moveUp": "Naikkan",
+    "moveDown": "Turunkan"
   },
   "validation": {
     "required": "Wajib diisi",
@@ -42,6 +45,93 @@
     "invalidCredentials": "Email atau kata sandi salah"
   },
   "projects": {
-    "empty": "Belum ada proyek"
+    "empty": "Belum ada proyek",
+    "new": "Proyek baru",
+    "edit": "Ubah proyek",
+    "delete": "Hapus proyek",
+    "deleteTitle": "Hapus {name}?",
+    "deleteDescription": "Semua app, environment, akun, dan isi .env di proyek ini akan dihapus.",
+    "searchPlaceholder": "Cari proyek…",
+    "emptyDescription": "Buat proyek untuk mulai menyimpan app, environment, dan akunnya.",
+    "appCount": "belum ada app | 1 app | {count} app",
+    "environmentCount": "belum ada env | 1 env | {count} env",
+    "uploadCover": "Unggah logo",
+    "removeCover": "Hapus logo"
+  },
+  "fields": {
+    "name": "Nama",
+    "description": "Deskripsi",
+    "status": "Status",
+    "type": "Tipe",
+    "label": "Label",
+    "platforms": "Platform",
+    "notes": "Catatan"
+  },
+  "projectStatus": {
+    "active": "Aktif",
+    "maintenance": "Maintenance",
+    "on_hold": "Ditunda",
+    "archived": "Diarsipkan"
+  },
+  "platform": {
+    "web": "Web",
+    "android": "Android",
+    "ios": "iOS",
+    "desktop": "Desktop",
+    "backend": "Backend",
+    "other": "Lainnya"
+  },
+  "linkType": {
+    "repository": "Repository",
+    "mockup": "Mockup",
+    "docs": "Dokumen",
+    "api_docs": "Dokumentasi API",
+    "ci_cd": "CI/CD",
+    "issue_tracker": "Issue",
+    "other": "Lainnya"
+  },
+  "apps": {
+    "title": "App",
+    "new": "Tambah app",
+    "edit": "Ubah app",
+    "nameHint": "misal IBB Corporate, Mobile, Backend",
+    "deleteTitle": "Hapus {name}?",
+    "deleteDescription": "Deployment, akun, dan isi .env milik app ini akan dihapus."
+  },
+  "environments": {
+    "title": "Environment",
+    "new": "Tambah environment",
+    "edit": "Ubah environment",
+    "nameHint": "misal SIT, UAT, Staging",
+    "isProduction": "Production",
+    "isProductionHint": "Akun dan .env tidak disimpan untuk production.",
+    "production": "Production",
+    "deleteTitle": "Hapus {name}?",
+    "deleteDescription": "Deployment di environment ini beserta akun dan isi .env-nya akan dihapus."
+  },
+  "links": {
+    "title": "Link",
+    "new": "Tambah link",
+    "edit": "Ubah link",
+    "wholeProject": "Seluruh proyek",
+    "belongsTo": "Milik",
+    "labelPlaceholder": "misal Repo Backend API",
+    "deleteTitle": "Hapus {name}?"
+  },
+  "deployments": {
+    "title": "Deployment",
+    "add": "Tambah deployment",
+    "noUrl": "Belum ada URL",
+    "noCredentials": "Tanpa kredensial",
+    "accountCount": "0 akun | 1 akun | {count} akun",
+    "emptyTitle": "Tambahkan app dan environment",
+    "emptyDescription": "Tiap app punya satu deployment per environment, berisi URL, akun, dan .env."
+  },
+  "notes": {
+    "warning": "Catatan tidak dienkripsi. Simpan kata sandi di Akun.",
+    "placeholder": "Tulis sesuatu…"
+  },
+  "export": {
+    "button": "Ekspor"
   }
 }

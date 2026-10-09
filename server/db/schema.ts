@@ -13,6 +13,15 @@ import {
   unique,
   uuid
 } from 'drizzle-orm/pg-core'
+import {
+  LINK_TYPES,
+  PLATFORMS,
+  PROJECT_STATUSES,
+  RELEASE_STATUSES,
+  RELEASE_TYPES,
+  TECH_CATEGORIES,
+  TEST_ACCOUNT_STATUSES
+} from '../../shared/utils/constants'
 
 // ---------------------------------------------------------------------------
 // Auth (Better Auth core tables)
@@ -68,29 +77,19 @@ export const verification = pgTable('verification', {
 // Enums
 // ---------------------------------------------------------------------------
 
-export const projectStatus = pgEnum('project_status', ['active', 'maintenance', 'on_hold', 'archived'])
+export const projectStatus = pgEnum('project_status', PROJECT_STATUSES)
 
-export const linkType = pgEnum('link_type', ['repository', 'mockup', 'docs', 'api_docs', 'ci_cd', 'issue_tracker', 'other'])
+export const linkType = pgEnum('link_type', LINK_TYPES)
 
-export const platform = pgEnum('platform', ['web', 'android', 'ios', 'desktop', 'backend', 'other'])
+export const platform = pgEnum('platform', PLATFORMS)
 
-export const techCategory = pgEnum('tech_category', ['frontend', 'backend', 'mobile', 'database', 'devops', 'other'])
+export const techCategory = pgEnum('tech_category', TECH_CATEGORIES)
 
-export const releaseType = pgEnum('release_type', [
-  'web_url',
-  'play_store',
-  'app_store',
-  'testflight',
-  'firebase_distribution',
-  'build_file',
-  'docker_image',
-  'package',
-  'other'
-])
+export const releaseType = pgEnum('release_type', RELEASE_TYPES)
 
-export const releaseStatus = pgEnum('release_status', ['draft', 'released', 'rolled_back'])
+export const releaseStatus = pgEnum('release_status', RELEASE_STATUSES)
 
-export const testAccountStatus = pgEnum('test_account_status', ['active', 'locked', 'expired'])
+export const testAccountStatus = pgEnum('test_account_status', TEST_ACCOUNT_STATUSES)
 
 const timestamps = {
   createdAt: timestamp('created_at').notNull().defaultNow(),

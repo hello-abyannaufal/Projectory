@@ -20,7 +20,10 @@
     "all": "All",
     "saved": "Saved",
     "deleted": "Deleted",
-    "confirmDelete": "Delete this item? This cannot be undone."
+    "confirmDelete": "Delete this item? This cannot be undone.",
+    "more": "More",
+    "moveUp": "Move up",
+    "moveDown": "Move down"
   },
   "validation": {
     "required": "Required",
@@ -42,6 +45,93 @@
     "invalidCredentials": "Invalid email or password"
   },
   "projects": {
-    "empty": "No projects yet"
+    "empty": "No projects yet",
+    "new": "New project",
+    "edit": "Edit project",
+    "delete": "Delete project",
+    "deleteTitle": "Delete {name}?",
+    "deleteDescription": "All apps, environments, accounts and .env values in this project will be deleted.",
+    "searchPlaceholder": "Search projects…",
+    "emptyDescription": "Create a project to start storing its apps, environments and accounts.",
+    "appCount": "no apps | 1 app | {count} apps",
+    "environmentCount": "no envs | 1 env | {count} envs",
+    "uploadCover": "Upload logo",
+    "removeCover": "Remove logo"
+  },
+  "fields": {
+    "name": "Name",
+    "description": "Description",
+    "status": "Status",
+    "type": "Type",
+    "label": "Label",
+    "platforms": "Platforms",
+    "notes": "Notes"
+  },
+  "projectStatus": {
+    "active": "Active",
+    "maintenance": "Maintenance",
+    "on_hold": "On hold",
+    "archived": "Archived"
+  },
+  "platform": {
+    "web": "Web",
+    "android": "Android",
+    "ios": "iOS",
+    "desktop": "Desktop",
+    "backend": "Backend",
+    "other": "Other"
+  },
+  "linkType": {
+    "repository": "Repository",
+    "mockup": "Mockup",
+    "docs": "Docs",
+    "api_docs": "API docs",
+    "ci_cd": "CI/CD",
+    "issue_tracker": "Issues",
+    "other": "Other"
+  },
+  "apps": {
+    "title": "Apps",
+    "new": "Add app",
+    "edit": "Edit app",
+    "nameHint": "e.g. IBB Corporate, Mobile, Backend",
+    "deleteTitle": "Delete {name}?",
+    "deleteDescription": "Its deployments, accounts and .env values will be deleted."
+  },
+  "environments": {
+    "title": "Environments",
+    "new": "Add environment",
+    "edit": "Edit environment",
+    "nameHint": "e.g. SIT, UAT, Staging",
+    "isProduction": "Production",
+    "isProductionHint": "Accounts and .env are not stored for production.",
+    "production": "Production",
+    "deleteTitle": "Delete {name}?",
+    "deleteDescription": "Deployments in this environment, with their accounts and .env values, will be deleted."
+  },
+  "links": {
+    "title": "Links",
+    "new": "Add link",
+    "edit": "Edit link",
+    "wholeProject": "Whole project",
+    "belongsTo": "Belongs to",
+    "labelPlaceholder": "e.g. Backend API repo",
+    "deleteTitle": "Delete {name}?"
+  },
+  "deployments": {
+    "title": "Deployments",
+    "add": "Add deployment",
+    "noUrl": "No URL yet",
+    "noCredentials": "No credentials",
+    "accountCount": "0 accounts | 1 account | {count} accounts",
+    "emptyTitle": "Add apps and environments",
+    "emptyDescription": "Each app gets a deployment per environment, holding its URL, accounts and .env."
+  },
+  "notes": {
+    "warning": "Notes are not encrypted. Keep passwords in Accounts.",
+    "placeholder": "Write something…"
+  },
+  "export": {
+    "button": "Export"
   }
 }

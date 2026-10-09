@@ -17,6 +17,7 @@
     "@iconify-json/simple-icons": "^1.2.98",
     "@nuxt/ui": "^4.11.3",
     "@nuxtjs/i18n": "^10.6.0",
+    "@tiptap/extension-text-align": "^3.31.4",
     "better-auth": "^1.7.7",
     "drizzle-orm": "^0.45.3",
     "nuxt": "^4.6.0",
