@@ -102,6 +102,13 @@ async function remove(envVar: DeploymentEnvVar) {
   }
 }
 
+async function removeAll() {
+  if (await confirm({ title: t('env.deleteAllTitle', { count: props.envVars.length }), description: t('env.deleteAllDescription'), confirmLabel: t('env.deleteAll') })
+    && await api(() => request(`/api/deployments/${props.deploymentId}/env`, { method: 'DELETE' }))) {
+    emit('changed')
+  }
+}
+
 // Import, and raw editing (saved through the same preview)
 const importOpen = ref(false)
 const rawEditing = ref(false)
@@ -176,7 +183,9 @@ function onApplied() {
           :items="[[
             { label: t('env.copyAll'), icon: 'i-lucide-copy', onSelect: copyAll },
             { label: t('env.download'), icon: 'i-lucide-download', onSelect: download }
-          ]]"
+          ], ...(envVars.length ? [[
+            { label: t('env.deleteAll'), icon: 'i-lucide-trash-2', color: 'error' as const, onSelect: removeAll }
+          ]] : [])]"
         >
           <UButton
             icon="i-lucide-ellipsis-vertical"
