@@ -45,7 +45,8 @@
     "email": "Email",
     "password": "Kata sandi",
     "confirmPassword": "Konfirmasi kata sandi",
-    "invalidCredentials": "Email atau kata sandi salah"
+    "invalidCredentials": "Email atau kata sandi salah",
+    "signedOutIdle": "Kamu otomatis keluar karena tidak aktif selama satu jam."
   },
   "projects": {
     "empty": "Belum ada proyek",

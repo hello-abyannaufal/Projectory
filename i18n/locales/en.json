@@ -45,7 +45,8 @@
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm password",
-    "invalidCredentials": "Invalid email or password"
+    "invalidCredentials": "Invalid email or password",
+    "signedOutIdle": "You were signed out after an hour of inactivity."
   },
   "projects": {
     "empty": "No projects yet",

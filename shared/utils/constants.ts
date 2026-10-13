@@ -54,3 +54,6 @@ export const AUDIT_ACTIONS = [
   'group.delete'
 ] as const
 export type AuditAction = typeof AUDIT_ACTIONS[number]
+
+// Signed out after this long without keyboard, mouse or touch input.
+export const IDLE_TIMEOUT_MS = 60 * 60 * 1000
