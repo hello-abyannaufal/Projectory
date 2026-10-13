@@ -61,7 +61,11 @@
     "environmentCount": "no envs | 1 env | {count} envs",
     "uploadCover": "Upload logo",
     "removeCover": "Remove logo",
-    "noMatch": "No projects match your search."
+    "noMatch": "No projects match your search.",
+    "pin": "Pin to top",
+    "unpin": "Unpin",
+    "pinned": "Pinned",
+    "recent": "Recently opened"
   },
   "fields": {
     "name": "Name",

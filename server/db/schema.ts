@@ -254,6 +254,23 @@ export const envVars = pgTable('env_vars', {
 }, t => [unique('env_vars_deployment_key_unique').on(t.deploymentId, t.key)])
 
 // ---------------------------------------------------------------------------
+// Per-user project shortcuts
+// ---------------------------------------------------------------------------
+
+export const projectPins = pgTable('project_pins', {
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+}, t => [primaryKey({ columns: [t.userId, t.projectId] })])
+
+// When each user last opened each project.
+export const projectVisits = pgTable('project_visits', {
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  visitedAt: timestamp('visited_at').notNull().defaultNow()
+}, t => [primaryKey({ columns: [t.userId, t.projectId] })])
+
+// ---------------------------------------------------------------------------
 // Audit log
 // ---------------------------------------------------------------------------
 

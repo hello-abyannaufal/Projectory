@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const { can } = usePermissions()
 const api = useApi()
 const confirm = useConfirm()
@@ -38,6 +38,28 @@ const filters = computed(() => [
 ])
 
 const hasOpenGroup = computed(() => groups.value.some(group => !group.locked))
+
+// Personal shortcuts, hidden while filtering.
+const RECENT_LIMIT = 4
+const pinned = computed(() => projects.value
+  .filter(project => project.pinnedAt)
+  .sort((a, b) => a.name.localeCompare(b.name)))
+const recent = computed(() => projects.value
+  .filter(project => project.visitedAt && !project.pinnedAt)
+  .sort((a, b) => new Date(b.visitedAt!).getTime() - new Date(a.visitedAt!).getTime())
+  .slice(0, RECENT_LIMIT))
+const shortcuts = computed(() => filtering.value
+  ? []
+  : [
+      { key: 'pinned', icon: 'i-lucide-pin', title: t('projects.pinned'), projects: pinned.value },
+      { key: 'recent', icon: 'i-lucide-history', title: t('projects.recent'), projects: recent.value }
+    ].filter(section => section.projects.length))
+
+async function togglePin(project: { id: string, pinnedAt: string | null }) {
+  if (await api(() => request(`/api/projects/${project.id}/pin`, { method: project.pinnedAt ? 'DELETE' : 'POST' }))) {
+    await refreshProjects()
+  }
+}
 
 // Projects
 const createOpen = ref(false)
@@ -163,6 +185,30 @@ function openUnlock(group: Group) {
           class="flex flex-col gap-8"
         >
           <section
+            v-for="section in shortcuts"
+            :key="section.key"
+            class="flex flex-col gap-3"
+          >
+            <div class="flex items-center gap-2">
+              <UIcon
+                :name="section.icon"
+                class="size-5 shrink-0 text-muted"
+              />
+              <h2 class="font-semibold text-highlighted">
+                {{ section.title }}
+              </h2>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <ProjectCard
+                v-for="project in section.projects"
+                :key="project.id"
+                :project="project"
+                @toggle-pin="togglePin(project)"
+              />
+            </div>
+          </section>
+
+          <section
             v-for="{ group, projects: groupProjects } in sections"
             :key="group.id"
             class="flex flex-col gap-3"
@@ -245,53 +291,12 @@ function openUnlock(group: Group) {
               v-else
               class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
             >
-              <NuxtLink
+              <ProjectCard
                 v-for="project in groupProjects"
                 :key="project.id"
-                :to="`/projects/${project.id}`"
-                class="flex flex-col gap-3.5 rounded-lg border border-default bg-default p-5 transition hover:border-accented hover:shadow-sm"
-              >
-                <div class="flex items-start gap-3">
-                  <ProjectCover
-                    :name="project.name"
-                    :cover="project.cover"
-                  />
-                  <div class="flex min-w-0 flex-col items-start gap-1">
-                    <span class="font-semibold text-highlighted">{{ project.name }}</span>
-                    <UBadge
-                      :color="projectStatusColor[project.status]"
-                      variant="subtle"
-                      :label="t(`projectStatus.${project.status}`)"
-                      class="rounded-full"
-                    />
-                  </div>
-                </div>
-                <p
-                  v-if="project.description"
-                  class="line-clamp-2 text-sm text-muted"
-                >
-                  {{ project.description }}
-                </p>
-                <div
-                  v-if="project.techStacks.length"
-                  class="flex flex-wrap gap-1.5"
-                >
-                  <span
-                    v-for="stack in project.techStacks"
-                    :key="stack.id"
-                    class="inline-flex items-center gap-1.5 rounded-md bg-elevated px-2 py-0.5 text-xs text-toned"
-                  >
-                    <TechStackIcon :stack="stack" />
-                    {{ stack.name }}
-                  </span>
-                </div>
-                <div class="mt-auto flex flex-wrap justify-between gap-2 border-t border-default pt-3 text-xs text-muted">
-                  <span>{{ project.platforms.map(p => t(`platform.${p}`)).join(' · ') || '—' }}</span>
-                  <span>
-                    {{ t('projects.appCount', project.appCount) }} · {{ t('projects.environmentCount', project.environmentCount) }} · {{ timeAgo(project.updatedAt, locale) }}
-                  </span>
-                </div>
-              </NuxtLink>
+                :project="project"
+                @toggle-pin="togglePin(project)"
+              />
             </div>
           </section>
 

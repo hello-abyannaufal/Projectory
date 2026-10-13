@@ -3,6 +3,7 @@ const PUBLIC_PREFIXES = ['/api/auth/', '/api/setup', '/api/_nuxt_icon']
 
 // Which permission a request needs, by path and method. Reads are open to every role
 // except secret reveals; export checks secrets itself since a viewer may export without them.
+// Pins are personal, so every role may set them.
 function requiredPermission(path: string, method: string): Permission | undefined {
   if (path.startsWith('/api/groups')) {
     // Anyone may list groups and enter an access code; the rest is for the super user.
@@ -15,7 +16,7 @@ function requiredPermission(path: string, method: string): Permission | undefine
   if (path.endsWith('/reveal')) {
     return 'viewSecrets'
   }
-  if (method === 'GET' || path.startsWith('/api/profile/') || /^\/api\/projects\/[^/]+\/export$/.test(path)) {
+  if (method === 'GET' || path.startsWith('/api/profile/') || /^\/api\/projects\/[^/]+\/(export|pin)$/.test(path)) {
     return undefined
   }
   if (path.startsWith('/api/tech-stacks')) {

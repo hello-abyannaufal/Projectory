@@ -1,4 +1,4 @@
-import { asc, desc, eq, isNull } from 'drizzle-orm'
+import { and, asc, desc, eq, isNull } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   const id = getIdParam(event)
@@ -37,8 +37,17 @@ export default defineEventHandler(async (event) => {
     notFound()
   }
 
+  const userId = (event.context.user as { id: string }).id
+  const visitedAt = new Date()
+  const [, pin] = await Promise.all([
+    useDb().insert(tables.projectVisits).values({ userId, projectId: id, visitedAt })
+      .onConflictDoUpdate({ target: [tables.projectVisits.userId, tables.projectVisits.projectId], set: { visitedAt } }),
+    useDb().query.projectPins.findFirst({ where: and(eq(tables.projectPins.userId, userId), eq(tables.projectPins.projectId, id)) })
+  ])
+
   return {
     ...project,
+    pinned: !!pin,
     apps: project.apps.map(({ techStacks, deployments, ...app }) => ({
       ...app,
       techStacks: techStacks.map(({ techStack }) => techStack),

@@ -50,6 +50,12 @@ async function deleteProject() {
   }
 }
 
+async function togglePin() {
+  if (await api(() => request(`/api/projects/${projectId.value}/pin`, { method: project.value?.pinned ? 'DELETE' : 'POST' }))) {
+    await refresh()
+  }
+}
+
 // Cover
 const coverInput = ref<HTMLInputElement>()
 
@@ -186,6 +192,15 @@ async function saveNotes() {
             <UBreadcrumb :items="[{ label: t('nav.projects'), to: '/projects' }, { label: project.group.name, to: '/projects' }, { label: project.name }]" />
           </template>
           <template #right>
+            <UTooltip :text="project.pinned ? t('projects.unpin') : t('projects.pin')">
+              <UButton
+                :icon="project.pinned ? 'i-lucide-pin-off' : 'i-lucide-pin'"
+                :color="project.pinned ? 'primary' : 'neutral'"
+                variant="ghost"
+                :aria-label="project.pinned ? t('projects.unpin') : t('projects.pin')"
+                @click="togglePin"
+              />
+            </UTooltip>
             <UButton
               icon="i-lucide-download"
               color="neutral"

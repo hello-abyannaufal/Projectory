@@ -61,7 +61,11 @@
     "environmentCount": "belum ada env | 1 env | {count} env",
     "uploadCover": "Unggah logo",
     "removeCover": "Hapus logo",
-    "noMatch": "Tidak ada proyek yang cocok dengan pencarian."
+    "noMatch": "Tidak ada proyek yang cocok dengan pencarian.",
+    "pin": "Sematkan di atas",
+    "unpin": "Lepas sematan",
+    "pinned": "Disematkan",
+    "recent": "Terakhir dibuka"
   },
   "fields": {
     "name": "Nama",
