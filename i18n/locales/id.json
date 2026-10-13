@@ -460,5 +460,19 @@
       "delete_all": "Semua dihapus",
       "restore": "Dipulihkan"
     }
+  },
+  "envCompare": {
+    "compareWith": "Bandingkan dengan",
+    "title": "{left} vs {right}",
+    "description": "Nilai dibandingkan persis. Membuka nilai tercatat di log audit.",
+    "keysOnly": "Hanya keberadaan key yang dibandingkan; nilainya tetap tersembunyi.",
+    "onlyDifferences": "Hanya yang berbeda",
+    "identical": "Kedua environment punya variabel yang sama.",
+    "onlyIn": "Hanya di {name}",
+    "status": {
+      "same": "Sama",
+      "different": "Berbeda",
+      "both": "Ada di keduanya"
+    }
   }
 }

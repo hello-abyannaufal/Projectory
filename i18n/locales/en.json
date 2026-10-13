@@ -460,5 +460,19 @@
       "delete_all": "Deleted all",
       "restore": "Restored"
     }
+  },
+  "envCompare": {
+    "compareWith": "Compare with",
+    "title": "{left} vs {right}",
+    "description": "Values are compared exactly. Revealing them is recorded in the audit log.",
+    "keysOnly": "Only which keys exist is compared; values stay hidden.",
+    "onlyDifferences": "Only differences",
+    "identical": "Both environments have the same variables.",
+    "onlyIn": "Only in {name}",
+    "status": {
+      "same": "Same",
+      "different": "Different",
+      "both": "In both"
+    }
   }
 }

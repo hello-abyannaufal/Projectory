@@ -380,6 +380,8 @@ const copyItems = computed(() => [[
                 :env-vars="deployment.envVars"
                 :editable="can('edit')"
                 :can-reveal="can('viewSecrets')"
+                :environment-name="deployment.environment.name"
+                :siblings="deployment.siblings"
                 title=".env"
                 @changed="refresh()"
               />
