@@ -27,7 +27,8 @@
     "reorder": "Drag to reorder",
     "more": "More",
     "moveUp": "Move up",
-    "moveDown": "Move down"
+    "moveDown": "Move down",
+    "close": "Close"
   },
   "validation": {
     "required": "Required",
@@ -408,7 +409,8 @@
       "reveal": "Revealed account secrets"
     },
     "env": {
-      "reveal": "Revealed .env"
+      "reveal": "Revealed .env",
+      "restore": "Restored .env version"
     },
     "project": {
       "export": "Exported project",
@@ -437,5 +439,26 @@
     "purgeDescription": "All apps, environments, accounts and .env values in this project will be deleted. This can't be undone.",
     "deletedBy": "Deleted by {name} {time}",
     "purgeAt": "deleted for good {time}"
+  },
+  "envHistory": {
+    "title": "History",
+    "description": "A version is saved after every change. The last {count} are kept.",
+    "empty": "No changes recorded yet.",
+    "current": "Current",
+    "keyCount": "{count} variables in this version",
+    "noChanges": "No keys changed in this version.",
+    "restore": "Restore this version",
+    "restoreTitle": "Restore the version from {time}?",
+    "restoreDescription": "The .env is replaced with this version's values. The current values stay in the history.",
+    "restored": ".env restored",
+    "action": {
+      "baseline": "Before history",
+      "edit": "Edited",
+      "delete": "Deleted variable",
+      "import": "Imported",
+      "raw_edit": "Edited as text",
+      "delete_all": "Deleted all",
+      "restore": "Restored"
+    }
   }
 }

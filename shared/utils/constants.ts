@@ -44,6 +44,7 @@ export const AUDIT_ACTIONS = [
   'user.delete',
   'account.reveal',
   'env.reveal',
+  'env.restore',
   'project.export',
   'project.import',
   'project.delete',
@@ -65,3 +66,10 @@ export const STALE_ACCOUNT_DAYS = 30
 
 // Deleted projects stay restorable in the trash this long.
 export const TRASH_RETENTION_DAYS = 30
+
+// What produced a .env version (server/utils/env-vars.ts).
+export const ENV_VERSION_ACTIONS = ['baseline', 'edit', 'delete', 'import', 'raw_edit', 'delete_all', 'restore'] as const
+export type EnvVersionAction = typeof ENV_VERSION_ACTIONS[number]
+
+// Older .env versions of a deployment are dropped beyond this many.
+export const ENV_HISTORY_LIMIT = 50

@@ -36,6 +36,13 @@
       "when": 1791879515139,
       "tag": "0004_project_trash",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791879747652,
+      "tag": "0005_env_var_versions",
+      "breakpoints": true
     }
   ]
 }

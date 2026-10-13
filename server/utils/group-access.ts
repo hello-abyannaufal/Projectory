@@ -30,7 +30,7 @@ export function accessCodeMatches(stored: string, input: string) {
   return timingSafeEqual(digest(decryptSecret(stored)), digest(input))
 }
 
-const ENTITY_PATH = /^\/api\/(projects|apps|environments|links|deployments|releases|env-vars|accounts)\/([0-9a-f-]{36})(?:\/|$)/i
+const ENTITY_PATH = /^\/api\/(projects|apps|environments|links|deployments|releases|env-vars|env-versions|accounts)\/([0-9a-f-]{36})(?:\/|$)/i
 
 // The project a /api/<entity>/<id> route belongs to, if any: its group, and
 // whether it is in the trash.
@@ -41,7 +41,7 @@ export async function projectScopeForPath(path: string) {
   }
   const [, kind, id] = match as unknown as [string, string, string]
   const db = useDb()
-  const { projects, apps, environments, links, deployments, releases, envVars, testAccounts } = tables
+  const { projects, apps, environments, links, deployments, releases, envVars, envVarVersions, testAccounts } = tables
   const scope = { groupId: projects.groupId, deletedAt: projects.deletedAt }
 
   const byProject = (table: typeof environments | typeof links | typeof apps) =>
@@ -49,7 +49,7 @@ export async function projectScopeForPath(path: string) {
       .innerJoin(projects, eq(projects.id, table.projectId))
       .where(eq(table.id, id))
 
-  const byDeployment = (table: typeof releases | typeof envVars | typeof testAccounts) =>
+  const byDeployment = (table: typeof releases | typeof envVars | typeof envVarVersions | typeof testAccounts) =>
     db.select(scope).from(table)
       .innerJoin(deployments, eq(deployments.id, table.deploymentId))
       .innerJoin(apps, eq(apps.id, deployments.appId))
@@ -67,6 +67,7 @@ export async function projectScopeForPath(path: string) {
       .where(eq(deployments.id, id)),
     'releases': () => byDeployment(releases),
     'env-vars': () => byDeployment(envVars),
+    'env-versions': () => byDeployment(envVarVersions),
     'accounts': () => byDeployment(testAccounts)
   }[kind.toLowerCase()]
 

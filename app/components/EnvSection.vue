@@ -112,6 +112,8 @@ async function removeAll() {
   }
 }
 
+const historyOpen = ref(false)
+
 // Import, and raw editing (saved through the same preview)
 const importOpen = ref(false)
 const rawEditing = ref(false)
@@ -184,10 +186,12 @@ function onApplied() {
           @click="openImport"
         />
         <UDropdownMenu
-          v-if="canReveal"
           :items="[[
-            { label: t('env.copyAll'), icon: 'i-lucide-copy', onSelect: copyAll },
-            { label: t('env.download'), icon: 'i-lucide-download', onSelect: download }
+            ...(canReveal ? [
+              { label: t('env.copyAll'), icon: 'i-lucide-copy', onSelect: copyAll },
+              { label: t('env.download'), icon: 'i-lucide-download', onSelect: download }
+            ] : []),
+            { label: t('envHistory.title'), icon: 'i-lucide-history', onSelect: () => { historyOpen = true } }
           ], ...(envVars.length && editable ? [[
             { label: t('env.deleteAll'), icon: 'i-lucide-trash-2', color: 'error' as const, onSelect: removeAll }
           ]] : [])]"
@@ -309,6 +313,13 @@ function onApplied() {
     :deployment-id="deploymentId"
     :env-var="editing"
     @saved="emit('changed')"
+  />
+  <EnvHistoryModal
+    v-model:open="historyOpen"
+    :deployment-id="deploymentId"
+    :editable="editable"
+    :can-reveal="canReveal"
+    @restored="emit('changed')"
   />
   <EnvImportModal
     v-model:open="importOpen"

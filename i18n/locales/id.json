@@ -27,7 +27,8 @@
     "reorder": "Geser untuk mengurutkan",
     "more": "Lainnya",
     "moveUp": "Naikkan",
-    "moveDown": "Turunkan"
+    "moveDown": "Turunkan",
+    "close": "Tutup"
   },
   "validation": {
     "required": "Wajib diisi",
@@ -408,7 +409,8 @@
       "reveal": "Membuka secret akun"
     },
     "env": {
-      "reveal": "Membuka .env"
+      "reveal": "Membuka .env",
+      "restore": "Memulihkan versi .env"
     },
     "project": {
       "export": "Mengekspor proyek",
@@ -437,5 +439,26 @@
     "purgeDescription": "Semua app, environment, akun, dan nilai .env di proyek ini akan dihapus. Tindakan ini tidak bisa dibatalkan.",
     "deletedBy": "Dihapus oleh {name} {time}",
     "purgeAt": "dihapus permanen {time}"
+  },
+  "envHistory": {
+    "title": "Riwayat",
+    "description": "Satu versi disimpan setiap ada perubahan. Hanya {count} versi terakhir yang disimpan.",
+    "empty": "Belum ada perubahan yang tercatat.",
+    "current": "Saat ini",
+    "keyCount": "{count} variabel di versi ini",
+    "noChanges": "Tidak ada key yang berubah di versi ini.",
+    "restore": "Pulihkan versi ini",
+    "restoreTitle": "Pulihkan versi dari {time}?",
+    "restoreDescription": ".env akan diganti dengan nilai dari versi ini. Nilai saat ini tetap tersimpan di riwayat.",
+    "restored": ".env dipulihkan",
+    "action": {
+      "baseline": "Sebelum riwayat",
+      "edit": "Diubah",
+      "delete": "Variabel dihapus",
+      "import": "Diimpor",
+      "raw_edit": "Diubah sebagai teks",
+      "delete_all": "Semua dihapus",
+      "restore": "Dipulihkan"
+    }
   }
 }

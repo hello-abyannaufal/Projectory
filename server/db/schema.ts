@@ -257,6 +257,21 @@ export const envVars = pgTable('env_vars', {
   ...timestamps
 }, t => [unique('env_vars_deployment_key_unique').on(t.deploymentId, t.key)])
 
+// Snapshot of a deployment's whole .env after each change, newest kept up to
+// ENV_HISTORY_LIMIT. The first snapshot ('baseline') holds the values from
+// before history was recorded and has no user.
+export const envVarVersions = pgTable('env_var_versions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  deploymentId: uuid('deployment_id').notNull().references(() => deployments.id, { onDelete: 'cascade' }),
+  // Ciphertext of a JSON array of { key, value }
+  content: text('content').notNull(),
+  // One of ENV_VERSION_ACTIONS
+  action: text('action').notNull(),
+  userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
+  userName: text('user_name'),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+}, t => [index('env_var_versions_deployment_idx').on(t.deploymentId, t.createdAt)])
+
 // ---------------------------------------------------------------------------
 // Per-user project shortcuts
 // ---------------------------------------------------------------------------
