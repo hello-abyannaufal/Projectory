@@ -69,6 +69,7 @@ Group
 └─ projects[]
 Project
 ├─ links[]
+├─ infra_items[]           ← server, Rancher, DB per environment (tanpa kredensial)
 ├─ environments[]          ← didefinisikan sekali per project
 └─ apps[]
      ├─ links[]
@@ -117,6 +118,12 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 
 **Environment**
 - `project_id`, `name`, `order`, `is_production`
+
+**InfraItem**
+- `project_id`, `environment_id` (null = dipakai semua environment)
+- `type`: `server` | `kubernetes` | `database` | `vpn` | `registry` | `other`
+- `name`, `host` (IP, hostname, host:port, atau URL), `notes`
+- Hanya inventaris: **tidak ada field secret**. Kredensial server/Rancher/DB tidak disimpan di Projectory; tempatnya di vault/PAM kantor. Karena tanpa secret, environment production juga boleh dicatat dan semua role bisa melihat.
 
 **App**
 - `project_id`, `name`, `description`, `icon`
@@ -272,6 +279,7 @@ Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai
 - [x] Version history `.env` dengan diff dan restore
 - [x] Trash untuk project
 - [x] Bandingkan `.env` antar environment dalam satu app
+- [x] Inventaris infra (server, Rancher/k8s, DB, VPN, registry) per environment, tanpa kredensial
 
 ### Ditunda
 - 2FA

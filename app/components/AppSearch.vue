@@ -2,7 +2,7 @@
 import type { CommandPaletteGroup, CommandPaletteItem } from '@nuxt/ui'
 
 interface Result { id: string, label: string, description: string | null, to: string, external?: boolean }
-type Results = Record<'projects' | 'apps' | 'deployments' | 'accounts' | 'links' | 'envKeys', Result[]>
+type Results = Record<'projects' | 'apps' | 'deployments' | 'accounts' | 'infra' | 'links' | 'envKeys', Result[]>
 
 const { t } = useI18n()
 const { can } = usePermissions()
@@ -47,6 +47,7 @@ const RESULT_GROUPS = [
   { key: 'projects', icon: 'i-lucide-folder' },
   { key: 'deployments', icon: 'i-lucide-server' },
   { key: 'accounts', icon: 'i-lucide-key-round' },
+  { key: 'infra', icon: 'i-lucide-server-cog' },
   { key: 'envKeys', icon: 'i-lucide-file-key' },
   { key: 'apps', icon: 'i-lucide-app-window' },
   { key: 'links', icon: 'i-lucide-link' }

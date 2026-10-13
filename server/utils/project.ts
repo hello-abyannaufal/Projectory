@@ -1,4 +1,4 @@
-import { eq, inArray } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 
 // Bumps the project's updatedAt so "updated x ago" reflects changes to its children.
 export async function touchProject(projectId: string) {
@@ -50,5 +50,19 @@ export async function setAppTechStacks(appId: string, techStackIds: string[]) {
     if (existing.length) {
       await db.insert(tables.appTechStacks).values(existing.map(({ id }) => ({ appId, techStackId: id })))
     }
+  }
+}
+
+// An environment id sent by the client must belong to the same project.
+export async function assertProjectEnvironment(projectId: string, environmentId: string | null | undefined) {
+  if (!environmentId) {
+    return
+  }
+  const environment = await useDb().query.environments.findFirst({
+    where: and(eq(tables.environments.id, environmentId), eq(tables.environments.projectId, projectId)),
+    columns: { id: true }
+  })
+  if (!environment) {
+    notFound()
   }
 }

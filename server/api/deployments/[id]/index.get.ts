@@ -1,4 +1,4 @@
-import { asc, desc, eq } from 'drizzle-orm'
+import { and, asc, desc, eq, isNull, or } from 'drizzle-orm'
 
 // Secret values are never returned here; use the reveal endpoints.
 export default defineEventHandler(async (event) => {
@@ -36,9 +36,19 @@ export default defineEventHandler(async (event) => {
     notFound()
   }
 
+  // Infra of this environment plus items shared by every environment.
+  const infraItems = await db.query.infraItems.findMany({
+    where: and(
+      eq(tables.infraItems.projectId, deployment.app.projectId),
+      or(eq(tables.infraItems.environmentId, deployment.environmentId), isNull(tables.infraItems.environmentId))
+    ),
+    orderBy: asc(tables.infraItems.name)
+  })
+
   const { app, testAccounts, ...rest } = deployment
   return {
     ...rest,
+    infraItems,
     app: { id: app.id, name: app.name },
     project: app.project,
     siblings: app.deployments

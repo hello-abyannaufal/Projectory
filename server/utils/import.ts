@@ -27,6 +27,8 @@ const fileSchema = z.object({
   })),
   environments: z.array(z.object({ ref: z.string(), name: z.string().min(1).max(40), isProduction: z.boolean() })),
   links: z.array(z.object({ app: text, type: z.enum(LINK_TYPES), label: z.string().min(1), url: httpUrl })),
+  // Missing in files exported before infra existed.
+  infra: z.array(z.object({ environment: text, type: z.enum(INFRA_TYPES), name: z.string().min(1).max(120), host: z.string().min(1).max(255), notes: text })).default([]),
   apps: z.array(z.object({
     ref: z.string(),
     name: z.string().min(1).max(120),
@@ -209,6 +211,15 @@ export async function importProjectZip(zip: Uint8Array, groupId: string, passphr
           url: link.url,
           sortOrder: index
         })))
+      }
+
+      // An item whose environment isn't in the file is skipped rather than shared by all.
+      const infra = data.infra.flatMap(({ environment, ...item }) => {
+        const environmentId = environment ? envIds.get(environment) : null
+        return environmentId === undefined ? [] : [{ ...item, projectId, environmentId }]
+      })
+      if (infra.length) {
+        await tx.insert(tables.infraItems).values(infra)
       }
 
       return { id: projectId }

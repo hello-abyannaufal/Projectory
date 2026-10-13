@@ -63,3 +63,17 @@ export function auditActionColor(action: string): BadgeColor {
   }
   return 'neutral'
 }
+
+export const infraTypeIcon: Record<InfraType, string> = {
+  server: 'i-lucide-server',
+  kubernetes: 'i-lucide-ship-wheel',
+  database: 'i-lucide-database',
+  vpn: 'i-lucide-shield',
+  registry: 'i-lucide-package',
+  other: 'i-lucide-box'
+}
+
+// Only http(s) hosts are rendered as links.
+export function isHttpUrl(value: string) {
+  return /^https?:\/\//i.test(value)
+}

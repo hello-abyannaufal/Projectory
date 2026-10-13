@@ -22,6 +22,7 @@ export async function loadProjectTree(projectId: string) {
     where: eq(tables.projects.id, projectId),
     with: {
       links: { orderBy: asc(tables.links.sortOrder) },
+      infraItems: { orderBy: asc(tables.infraItems.name) },
       environments: { orderBy: [asc(tables.environments.sortOrder), asc(tables.environments.createdAt)] },
       apps: {
         orderBy: [asc(tables.apps.sortOrder), asc(tables.apps.createdAt)],
@@ -94,6 +95,7 @@ export async function buildProjectZip(tree: ProjectTree, passphrase?: string) {
     }))),
     environments: tree.environments.map(env => ({ ref: env.id, name: env.name, isProduction: env.isProduction })),
     links: tree.links.map(link => ({ app: link.appId, type: link.type, label: link.label, url: link.url })),
+    infra: tree.infraItems.map(item => ({ environment: item.environmentId, type: item.type, name: item.name, host: item.host, notes: item.notes })),
     apps: tree.apps.map(app => ({
       ref: app.id,
       name: app.name,
@@ -139,6 +141,12 @@ export function buildProjectMarkdown(tree: ProjectTree, withSecrets: boolean) {
   const projectLinks = tree.links.filter(link => !link.appId)
   if (projectLinks.length) {
     lines.push('', '## Links', ...projectLinks.map(link => `- [${link.label}](${link.url})`))
+  }
+  if (tree.infraItems.length) {
+    lines.push('', '## Infra', ...tree.infraItems.map((item) => {
+      const scope = item.environmentId ? envName.get(item.environmentId)?.name : null
+      return `- ${item.name}${scope ? ` (${scope})` : ''}: \`${item.host}\`${item.notes ? ` — ${item.notes}` : ''}`
+    }))
   }
   for (const app of tree.apps) {
     lines.push('', `## ${app.name}`)

@@ -5,14 +5,14 @@ const LIMIT = 8
 
 const searchQuery = z.object({ q: z.string().trim().min(2).max(100) })
 
-// Searches names, URLs, branches, account labels/tags/plain fields and .env keys.
+// Searches names, URLs, branches, account labels/tags/plain fields, infra and .env keys.
 // Secret values are never searched. Locked groups and the trash are left out.
 export default defineEventHandler(async (event) => {
   const { q } = await getValidatedQuery(event, query => searchQuery.parse(query))
   const pattern = `%${q.replace(/[\\%_]/g, '\\$&')}%`
   const locked = [...await lockedGroupIds(event)]
   const db = useDb()
-  const { groups, projects, apps, environments, deployments, links, testAccounts, testAccountFields, envVars } = tables
+  const { groups, projects, apps, environments, deployments, links, infraItems, testAccounts, testAccountFields, envVars } = tables
   const visible = and(isNull(projects.deletedAt), locked.length ? notInArray(projects.groupId, locked) : undefined)
   const deploymentScope = {
     deploymentId: deployments.id,
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     environmentName: environments.name
   }
 
-  const [projectRows, appRows, deploymentRows, accountRows, linkRows, envRows] = await Promise.all([
+  const [projectRows, appRows, deploymentRows, accountRows, linkRows, infraRows, envRows] = await Promise.all([
     db.select({ id: projects.id, name: projects.name, description: projects.description, groupName: groups.name }).from(projects)
       .innerJoin(groups, eq(groups.id, projects.groupId))
       .where(and(visible, or(ilike(projects.name, pattern), ilike(projects.description, pattern))))
@@ -52,6 +52,11 @@ export default defineEventHandler(async (event) => {
       .innerJoin(projects, eq(projects.id, links.projectId))
       .where(and(visible, or(ilike(links.label, pattern), ilike(links.url, pattern))))
       .limit(LIMIT),
+    db.select({ id: infraItems.id, name: infraItems.name, host: infraItems.host, environmentName: environments.name, projectId: projects.id, projectName: projects.name }).from(infraItems)
+      .innerJoin(projects, eq(projects.id, infraItems.projectId))
+      .leftJoin(environments, eq(environments.id, infraItems.environmentId))
+      .where(and(visible, or(ilike(infraItems.name, pattern), ilike(infraItems.host, pattern), ilike(infraItems.notes, pattern))))
+      .limit(LIMIT),
     db.select({ key: envVars.key, ...deploymentScope }).from(envVars)
       .innerJoin(deployments, eq(deployments.id, envVars.deploymentId))
       .innerJoin(apps, eq(apps.id, deployments.appId))
@@ -70,6 +75,7 @@ export default defineEventHandler(async (event) => {
     deployments: deploymentRows.map(row => ({ id: row.deploymentId, label: deploymentName(row), description: [row.url, row.branch].filter(Boolean).join(' · '), to: deploymentPath(row) })),
     accounts: accountRows.map(row => ({ id: row.id, label: row.label, description: [deploymentName(row), row.tags.join(', ')].filter(Boolean).join(' · '), to: deploymentPath(row) })),
     links: linkRows.map(row => ({ id: row.id, label: row.label, description: `${row.projectName} · ${row.url}`, to: row.url, external: true })),
+    infra: infraRows.map(row => ({ id: row.id, label: `${row.name} · ${row.host}`, description: [row.projectName, row.environmentName].filter(Boolean).join(' / '), to: `/projects/${row.projectId}?tab=infra` })),
     envKeys: envRows.map(row => ({ id: `${row.deploymentId}-${row.key}`, label: row.key, description: deploymentName(row), to: deploymentPath(row) }))
   }
 })

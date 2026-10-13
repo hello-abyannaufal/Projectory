@@ -13,6 +13,9 @@ export default defineEventHandler(async (event) => {
       environments: {
         orderBy: [asc(tables.environments.sortOrder), asc(tables.environments.createdAt)]
       },
+      infraItems: {
+        orderBy: [asc(tables.infraItems.name)]
+      },
       apps: {
         orderBy: [asc(tables.apps.sortOrder), asc(tables.apps.createdAt)],
         with: {

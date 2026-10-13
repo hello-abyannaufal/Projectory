@@ -30,7 +30,7 @@ export function accessCodeMatches(stored: string, input: string) {
   return timingSafeEqual(digest(decryptSecret(stored)), digest(input))
 }
 
-const ENTITY_PATH = /^\/api\/(projects|apps|environments|links|deployments|releases|env-vars|env-versions|accounts)\/([0-9a-f-]{36})(?:\/|$)/i
+const ENTITY_PATH = /^\/api\/(projects|apps|environments|links|infra|deployments|releases|env-vars|env-versions|accounts)\/([0-9a-f-]{36})(?:\/|$)/i
 
 // The project a /api/<entity>/<id> route belongs to, if any: its group, and
 // whether it is in the trash.
@@ -41,10 +41,10 @@ export async function projectScopeForPath(path: string) {
   }
   const [, kind, id] = match as unknown as [string, string, string]
   const db = useDb()
-  const { projects, apps, environments, links, deployments, releases, envVars, envVarVersions, testAccounts } = tables
+  const { projects, apps, environments, links, infraItems, deployments, releases, envVars, envVarVersions, testAccounts } = tables
   const scope = { groupId: projects.groupId, deletedAt: projects.deletedAt }
 
-  const byProject = (table: typeof environments | typeof links | typeof apps) =>
+  const byProject = (table: typeof environments | typeof links | typeof infraItems | typeof apps) =>
     db.select(scope).from(table)
       .innerJoin(projects, eq(projects.id, table.projectId))
       .where(eq(table.id, id))
@@ -61,6 +61,7 @@ export async function projectScopeForPath(path: string) {
     'apps': () => byProject(apps),
     'environments': () => byProject(environments),
     'links': () => byProject(links),
+    'infra': () => byProject(infraItems),
     'deployments': () => db.select(scope).from(deployments)
       .innerJoin(apps, eq(apps.id, deployments.appId))
       .innerJoin(projects, eq(projects.id, apps.projectId))

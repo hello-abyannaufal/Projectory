@@ -1,5 +1,6 @@
 import * as z from 'zod'
 import {
+  INFRA_TYPES,
   LINK_TYPES,
   PLATFORMS,
   PROJECT_STATUSES,
@@ -40,6 +41,15 @@ export const linkInput = z.object({
   label: z.string().trim().min(1).max(120),
   url: httpUrl,
   appId: z.uuid().nullish()
+})
+
+export const infraInput = z.object({
+  type: z.enum(INFRA_TYPES).default('server'),
+  name: z.string().trim().min(1).max(120),
+  host: z.string().trim().min(1).max(255),
+  // Null: shared by every environment
+  environmentId: z.uuid().nullish().transform(v => v ?? null),
+  notes: optionalText(2000)
 })
 
 export const environmentInput = z.object({

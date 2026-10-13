@@ -9,6 +9,7 @@ export type ProjectDetail = NonNullable<Awaited<ReturnType<typeof useProject>>['
 export type ProjectApp = ProjectDetail['apps'][number]
 export type ProjectEnvironment = ProjectDetail['environments'][number]
 export type ProjectLink = ProjectDetail['links'][number]
+export type ProjectInfraItem = ProjectDetail['infraItems'][number]
 
 export function useTechStacks() {
   return useFetch('/api/tech-stacks', { key: 'tech-stacks', default: () => [] })

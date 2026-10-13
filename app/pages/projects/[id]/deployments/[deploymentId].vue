@@ -462,6 +462,32 @@ const copyItems = computed(() => [[
                 </p>
               </section>
 
+              <section
+                v-if="deployment.infraItems.length"
+                class="flex flex-col gap-2 rounded-lg border border-default bg-default p-4"
+              >
+                <div class="mb-1 flex items-center justify-between gap-2">
+                  <h2 class="font-semibold text-highlighted">
+                    {{ t('infra.title') }}
+                  </h2>
+                  <UButton
+                    v-if="can('edit')"
+                    icon="i-lucide-settings-2"
+                    color="neutral"
+                    variant="ghost"
+                    size="sm"
+                    :label="t('overview.manage')"
+                    :to="`${projectPath}?tab=infra`"
+                  />
+                </div>
+                <InfraItemRow
+                  v-for="item in deployment.infraItems"
+                  :key="item.id"
+                  :item="item"
+                  :scope="item.environmentId ? undefined : null"
+                />
+              </section>
+
               <section class="flex flex-col gap-3 rounded-lg border border-default bg-default p-4">
                 <h2 class="font-semibold text-highlighted">
                   {{ t('fields.notes') }}

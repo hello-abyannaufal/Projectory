@@ -31,10 +31,12 @@ const tabs = computed<TabsItem[]>(() => [
   { label: t('deployments.title'), slot: 'deployments' as const, value: 'deployments' },
   { label: `${t('apps.title')} (${project.value?.apps.length ?? 0})`, slot: 'apps' as const, value: 'apps' },
   { label: `${t('environments.title')} (${project.value?.environments.length ?? 0})`, slot: 'environments' as const, value: 'environments' },
+  { label: `${t('infra.title')} (${project.value?.infraItems.length ?? 0})`, slot: 'infra' as const, value: 'infra' },
   { label: t('links.title'), slot: 'links' as const, value: 'links' },
   { label: t('fields.notes'), slot: 'notes' as const, value: 'notes' }
 ])
-const activeTab = ref('overview')
+// ?tab= opens a tab directly, e.g. from search results.
+const activeTab = ref(typeof route.query.tab === 'string' ? route.query.tab : 'overview')
 
 // Edit / delete / export project
 const editOpen = ref(false)
@@ -161,6 +163,31 @@ function openLink(link?: AnyLink) {
 async function deleteLink(link: AnyLink) {
   if (await confirm({ title: t('links.deleteTitle', { name: link.label }) })
     && await api(() => request(`/api/links/${link.id}`, { method: 'DELETE' }))) {
+    await refresh()
+  }
+}
+
+// Infra, grouped by environment; items shared by every environment come first.
+const infraOpen = ref(false)
+const editingInfra = ref<ProjectInfraItem>()
+
+const infraGroups = computed(() => [
+  { id: null, name: t('infra.allEnvironments'), items: project.value?.infraItems.filter(item => !item.environmentId) ?? [] },
+  ...(project.value?.environments ?? []).map(environment => ({
+    id: environment.id,
+    name: environment.name,
+    items: project.value?.infraItems.filter(item => item.environmentId === environment.id) ?? []
+  }))
+].filter(group => group.items.length))
+
+function openInfra(item?: ProjectInfraItem) {
+  editingInfra.value = item
+  infraOpen.value = true
+}
+
+async function deleteInfra(item: ProjectInfraItem) {
+  if (await confirm({ title: t('infra.deleteTitle', { name: item.name }) })
+    && await api(() => request(`/api/infra/${item.id}`, { method: 'DELETE' }))) {
     await refresh()
   }
 }
@@ -633,6 +660,45 @@ async function saveNotes() {
               </div>
             </template>
 
+            <template #infra>
+              <div class="flex flex-col gap-5">
+                <p class="text-sm text-muted">
+                  {{ t('infra.description') }}
+                </p>
+                <section
+                  v-for="group in infraGroups"
+                  :key="group.id ?? 'all'"
+                  class="flex flex-col gap-2"
+                >
+                  <h3 class="text-sm font-semibold text-muted">
+                    {{ group.name }}
+                  </h3>
+                  <InfraItemRow
+                    v-for="item in group.items"
+                    :key="item.id"
+                    :item="item"
+                    :editable="can('edit')"
+                    @edit="openInfra(item)"
+                    @delete="deleteInfra(item)"
+                  />
+                </section>
+                <p
+                  v-if="!infraGroups.length"
+                  class="rounded-lg border border-dashed border-accented px-5 py-4 text-sm text-muted"
+                >
+                  {{ t('infra.empty') }}
+                </p>
+                <UButton
+                  v-if="can('edit')"
+                  icon="i-lucide-plus"
+                  variant="ghost"
+                  class="self-start"
+                  :label="t('infra.new')"
+                  @click="openInfra()"
+                />
+              </div>
+            </template>
+
             <template #notes>
               <div class="flex flex-col gap-3">
                 <UAlert
@@ -683,6 +749,14 @@ async function saveNotes() {
       v-model:open="environmentOpen"
       :project-id="projectId"
       :environment="editingEnvironment"
+      @saved="refresh()"
+    />
+    <InfraFormModal
+      v-if="project"
+      v-model:open="infraOpen"
+      :project-id="projectId"
+      :environments="project.environments"
+      :item="editingInfra"
       @saved="refresh()"
     />
     <LinkFormModal

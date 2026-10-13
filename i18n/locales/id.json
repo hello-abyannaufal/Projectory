@@ -485,7 +485,31 @@
       "accounts": "Akun",
       "envKeys": "Key .env",
       "apps": "App",
-      "links": "Link"
+      "links": "Link",
+      "infra": "Infra"
     }
+  },
+  "infra": {
+    "title": "Infra",
+    "description": "Tempat aplikasi berjalan: server, cluster, dan database. Hanya alamat dan catatan, tanpa password.",
+    "empty": "Belum ada infra yang dicatat.",
+    "new": "Tambah infra",
+    "edit": "Ubah infra",
+    "deleteTitle": "Hapus {name}?",
+    "noSecrets": "Jangan isi password atau key di sini. Infra terlihat oleh semua role dan tidak dienkripsi.",
+    "allEnvironments": "Semua environment",
+    "host": "Host / IP / URL",
+    "hostHint": "mis. 10.20.1.15, db-sit.bank.local:5432 atau https://rancher-sit.bank.local",
+    "namePlaceholder": "mis. Rancher SIT",
+    "notesPlaceholder": "mis. namespace ibb-sit, minta akses ke tim infra",
+    "environment": "Environment"
+  },
+  "infraType": {
+    "server": "Server",
+    "kubernetes": "Rancher / Kubernetes",
+    "database": "Database",
+    "vpn": "VPN",
+    "registry": "Registry",
+    "other": "Lainnya"
   }
 }

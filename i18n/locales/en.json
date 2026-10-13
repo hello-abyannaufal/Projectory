@@ -485,7 +485,31 @@
       "accounts": "Accounts",
       "envKeys": ".env keys",
       "apps": "Apps",
-      "links": "Links"
+      "links": "Links",
+      "infra": "Infra"
     }
+  },
+  "infra": {
+    "title": "Infra",
+    "description": "Where things run: servers, clusters and databases. Only addresses and notes, never passwords.",
+    "empty": "No infra recorded yet.",
+    "new": "Add infra",
+    "edit": "Edit infra",
+    "deleteTitle": "Delete {name}?",
+    "noSecrets": "Don't put passwords or keys here. Infra is visible to every role and isn't encrypted.",
+    "allEnvironments": "All environments",
+    "host": "Host / IP / URL",
+    "hostHint": "e.g. 10.20.1.15, db-sit.bank.local:5432 or https://rancher-sit.bank.local",
+    "namePlaceholder": "e.g. Rancher SIT",
+    "notesPlaceholder": "e.g. namespace ibb-sit, request access from the infra team",
+    "environment": "Environment"
+  },
+  "infraType": {
+    "server": "Server",
+    "kubernetes": "Rancher / Kubernetes",
+    "database": "Database",
+    "vpn": "VPN",
+    "registry": "Registry",
+    "other": "Other"
   }
 }

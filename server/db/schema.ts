@@ -14,6 +14,7 @@ import {
   uuid
 } from 'drizzle-orm/pg-core'
 import {
+  INFRA_TYPES,
   LINK_TYPES,
   PLATFORMS,
   PROJECT_STATUSES,
@@ -97,6 +98,8 @@ export const releaseStatus = pgEnum('release_status', RELEASE_STATUSES)
 
 export const testAccountStatus = pgEnum('test_account_status', TEST_ACCOUNT_STATUSES)
 
+export const infraType = pgEnum('infra_type', INFRA_TYPES)
+
 const timestamps = {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date())
@@ -172,6 +175,21 @@ export const links = pgTable('links', {
   sortOrder: integer('sort_order').notNull().default(0),
   ...timestamps
 }, t => [index('links_project_idx').on(t.projectId), index('links_app_idx').on(t.appId)])
+
+// Where things run: servers, clusters, databases. Addresses and notes only;
+// credentials are never stored here.
+export const infraItems = pgTable('infra_items', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  // Null means the item is shared by every environment.
+  environmentId: uuid('environment_id').references(() => environments.id, { onDelete: 'cascade' }),
+  type: infraType('type').notNull().default('server'),
+  name: text('name').notNull(),
+  // IP, hostname, host:port or URL
+  host: text('host').notNull(),
+  notes: text('notes'),
+  ...timestamps
+}, t => [index('infra_items_project_idx').on(t.projectId)])
 
 // ---------------------------------------------------------------------------
 // Tech stacks
@@ -321,7 +339,8 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   group: one(groups, { fields: [projects.groupId], references: [groups.id] }),
   environments: many(environments),
   apps: many(apps),
-  links: many(links)
+  links: many(links),
+  infraItems: many(infraItems)
 }))
 
 export const environmentsRelations = relations(environments, ({ one, many }) => ({
@@ -334,6 +353,11 @@ export const appsRelations = relations(apps, ({ one, many }) => ({
   links: many(links),
   techStacks: many(appTechStacks),
   deployments: many(deployments)
+}))
+
+export const infraItemsRelations = relations(infraItems, ({ one }) => ({
+  project: one(projects, { fields: [infraItems.projectId], references: [projects.id] }),
+  environment: one(environments, { fields: [infraItems.environmentId], references: [environments.id] })
 }))
 
 export const linksRelations = relations(links, ({ one }) => ({
