@@ -474,5 +474,18 @@
       "different": "Berbeda",
       "both": "Ada di keduanya"
     }
+  },
+  "search": {
+    "button": "Cari...",
+    "placeholder": "Cari proyek, URL, akun, key .env...",
+    "goTo": "Buka",
+    "groups": {
+      "projects": "Proyek",
+      "deployments": "Deployment",
+      "accounts": "Akun",
+      "envKeys": "Key .env",
+      "apps": "App",
+      "links": "Link"
+    }
   }
 }

@@ -36,6 +36,11 @@ const links = computed<NavigationMenuItem[]>(() => [
       </template>
 
       <template #default="{ collapsed }">
+        <UDashboardSearchButton
+          :collapsed="collapsed"
+          :label="t('search.button')"
+          class="bg-transparent ring-default"
+        />
         <UNavigationMenu
           :collapsed="collapsed"
           :items="links"
@@ -49,5 +54,7 @@ const links = computed<NavigationMenuItem[]>(() => [
     </UDashboardSidebar>
 
     <slot />
+
+    <AppSearch />
   </UDashboardGroup>
 </template>

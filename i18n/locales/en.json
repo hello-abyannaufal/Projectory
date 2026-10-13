@@ -474,5 +474,18 @@
       "different": "Different",
       "both": "In both"
     }
+  },
+  "search": {
+    "button": "Search...",
+    "placeholder": "Search projects, URLs, accounts, .env keys...",
+    "goTo": "Go to",
+    "groups": {
+      "projects": "Projects",
+      "deployments": "Deployments",
+      "accounts": "Accounts",
+      "envKeys": ".env keys",
+      "apps": "Apps",
+      "links": "Links"
+    }
   }
 }
