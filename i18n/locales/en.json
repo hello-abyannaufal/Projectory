@@ -3,7 +3,8 @@
     "projects": "Projects",
     "techStacks": "Tech stacks",
     "settings": "Settings",
-    "users": "Users"
+    "users": "Users",
+    "auditLog": "Audit log"
   },
   "common": {
     "error": "Something went wrong",
@@ -377,5 +378,39 @@
     "manage": "Manage",
     "noLinks": "No links yet.",
     "noNotes": "No notes yet."
+  },
+  "auditLog": {
+    "description": "Who revealed secrets, exported projects, changed users or opened locked groups.",
+    "searchPlaceholder": "Search by target or user...",
+    "allActions": "All actions",
+    "allUsers": "All users",
+    "empty": "No entries yet"
+  },
+  "auditAction": {
+    "user": {
+      "sign_in": "Signed in",
+      "create": "Created user",
+      "role_change": "Changed role",
+      "password_reset": "Reset password",
+      "delete": "Deleted user"
+    },
+    "account": {
+      "reveal": "Revealed account secrets"
+    },
+    "env": {
+      "reveal": "Revealed .env"
+    },
+    "project": {
+      "export": "Exported project",
+      "import": "Imported project",
+      "delete": "Deleted project"
+    },
+    "group": {
+      "unlock": "Unlocked group",
+      "unlock_failed": "Wrong access code",
+      "access_code_view": "Viewed access code",
+      "access_code_change": "Changed access code",
+      "delete": "Deleted group"
+    }
   }
 }

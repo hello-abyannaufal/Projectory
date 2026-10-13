@@ -12,5 +12,6 @@ export default defineEventHandler(async (event) => {
   if (!group) {
     notFound()
   }
+  await logAudit(event, { action: 'group.delete', target: group.name })
   return { ok: true }
 })

@@ -18,5 +18,7 @@ export default defineEventHandler(async (event) => {
   }
   await requireGroup(groupId)
   await assertGroupOpen(event, groupId)
-  return importProjectZip(new Uint8Array(file.data), groupId, passphrase)
+  const project = await importProjectZip(new Uint8Array(file.data), groupId, passphrase)
+  await logAudit(event, { action: 'project.import', ...await describeProject(project.id), metadata: { withSecrets: !!passphrase } })
+  return project
 })

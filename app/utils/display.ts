@@ -52,3 +52,14 @@ export function timeAgo(value: string | Date, locale: string) {
   }
   return rtf.format(0, 'minute')
 }
+
+// Destructive or failed actions stand out from routine ones.
+export function auditActionColor(action: string): BadgeColor {
+  if (action.endsWith('delete') || action.endsWith('failed')) {
+    return 'error'
+  }
+  if (action.endsWith('reveal') || action.startsWith('group.access_code') || action === 'project.export') {
+    return 'warning'
+  }
+  return 'neutral'
+}

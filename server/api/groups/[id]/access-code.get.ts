@@ -8,5 +8,6 @@ export default defineEventHandler(async (event) => {
   if (!group) {
     notFound()
   }
+  await logAudit(event, { action: 'group.access_code_view', target: await describeGroup(id) })
   return { accessCode: group.accessCode ? decryptSecret(group.accessCode) : null }
 })

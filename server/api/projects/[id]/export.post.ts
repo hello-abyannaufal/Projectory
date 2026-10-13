@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
   const tree = await loadProjectTree(id)
   const slug = tree.name.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '') || 'project'
   setResponseHeader(event, 'Cache-Control', 'no-store')
+  await logAudit(event, { action: 'project.export', ...await describeProject(id), metadata: { format: input.format, secrets: input.secrets } })
 
   if (input.format === 'markdown') {
     setResponseHeader(event, 'Content-Type', 'text/markdown; charset=utf-8')

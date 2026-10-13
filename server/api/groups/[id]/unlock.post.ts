@@ -13,10 +13,12 @@ export default defineEventHandler(async (event) => {
   }
   if (group.accessCode) {
     if (!accessCodeMatches(group.accessCode, accessCode.trim())) {
+      await logAudit(event, { action: 'group.unlock_failed', target: await describeGroup(id) })
       throw createError({ statusCode: 403, statusMessage: 'INVALID_ACCESS_CODE' })
     }
     const sessionId = (event.context.session as { id: string }).id
     await db.insert(tables.groupUnlocks).values({ sessionId, groupId: id }).onConflictDoNothing()
+    await logAudit(event, { action: 'group.unlock', target: await describeGroup(id) })
   }
   return { ok: true }
 })

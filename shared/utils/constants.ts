@@ -34,3 +34,23 @@ export const SECRET_MASK = '••••••••'
 
 export const ROLES = ['super_user', 'maintainer', 'viewer'] as const
 export type Role = typeof ROLES[number]
+
+// Events recorded in the audit log (server/utils/audit.ts).
+export const AUDIT_ACTIONS = [
+  'user.sign_in',
+  'user.create',
+  'user.role_change',
+  'user.password_reset',
+  'user.delete',
+  'account.reveal',
+  'env.reveal',
+  'project.export',
+  'project.import',
+  'project.delete',
+  'group.unlock',
+  'group.unlock_failed',
+  'group.access_code_view',
+  'group.access_code_change',
+  'group.delete'
+] as const
+export type AuditAction = typeof AUDIT_ACTIONS[number]

@@ -3,7 +3,8 @@
     "projects": "Proyek",
     "techStacks": "Tech stack",
     "settings": "Pengaturan",
-    "users": "Pengguna"
+    "users": "Pengguna",
+    "auditLog": "Log audit"
   },
   "common": {
     "error": "Terjadi kesalahan",
@@ -377,5 +378,39 @@
     "manage": "Kelola",
     "noLinks": "Belum ada link.",
     "noNotes": "Belum ada catatan."
+  },
+  "auditLog": {
+    "description": "Siapa yang membuka secret, mengekspor proyek, mengubah pengguna, atau membuka grup terkunci.",
+    "searchPlaceholder": "Cari berdasarkan target atau pengguna...",
+    "allActions": "Semua aksi",
+    "allUsers": "Semua pengguna",
+    "empty": "Belum ada catatan"
+  },
+  "auditAction": {
+    "user": {
+      "sign_in": "Masuk",
+      "create": "Membuat pengguna",
+      "role_change": "Mengubah role",
+      "password_reset": "Mereset password",
+      "delete": "Menghapus pengguna"
+    },
+    "account": {
+      "reveal": "Membuka secret akun"
+    },
+    "env": {
+      "reveal": "Membuka .env"
+    },
+    "project": {
+      "export": "Mengekspor proyek",
+      "import": "Mengimpor proyek",
+      "delete": "Menghapus proyek"
+    },
+    "group": {
+      "unlock": "Membuka grup",
+      "unlock_failed": "Kode akses salah",
+      "access_code_view": "Melihat kode akses",
+      "access_code_change": "Mengubah kode akses",
+      "delete": "Menghapus grup"
+    }
   }
 }

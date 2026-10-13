@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
   // A new code locks the group again for everyone who entered the old one.
   if (codeChanged) {
     await db.delete(tables.groupUnlocks).where(eq(tables.groupUnlocks.groupId, id))
+    await logAudit(event, { action: 'group.access_code_change', target: await describeGroup(id), metadata: { removed: !accessCode } })
   }
   return group
 })

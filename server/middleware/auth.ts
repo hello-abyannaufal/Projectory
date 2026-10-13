@@ -9,6 +9,9 @@ function requiredPermission(path: string, method: string): Permission | undefine
     const open = (method === 'GET' && path === '/api/groups') || /^\/api\/groups\/[^/]+\/unlock$/.test(path)
     return open ? undefined : 'manageGroups'
   }
+  if (path.startsWith('/api/audit-logs')) {
+    return 'viewAuditLog'
+  }
   if (path.endsWith('/reveal')) {
     return 'viewSecrets'
   }

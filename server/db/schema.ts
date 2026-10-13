@@ -254,6 +254,26 @@ export const envVars = pgTable('env_vars', {
 }, t => [unique('env_vars_deployment_key_unique').on(t.deploymentId, t.key)])
 
 // ---------------------------------------------------------------------------
+// Audit log
+// ---------------------------------------------------------------------------
+
+// Who did what to which secret or security setting. Rows outlive the user and
+// the target, so names are copied in rather than referenced.
+export const auditLogs = pgTable('audit_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
+  userName: text('user_name').notNull(),
+  // One of AUDIT_ACTIONS
+  action: text('action').notNull(),
+  // Readable path to the target, e.g. "Project / App / UAT / maker1"
+  target: text('target'),
+  projectId: uuid('project_id'),
+  metadata: jsonb('metadata'),
+  ipAddress: text('ip_address'),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+}, t => [index('audit_logs_created_idx').on(t.createdAt), index('audit_logs_user_idx').on(t.userId)])
+
+// ---------------------------------------------------------------------------
 // Relations
 // ---------------------------------------------------------------------------
 
