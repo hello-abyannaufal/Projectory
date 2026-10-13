@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
           deployments: {
             columns: { notes: false },
             with: {
-              testAccounts: { columns: { id: true } },
+              testAccounts: { columns: { status: true, lastVerifiedAt: true } },
               releases: {
                 columns: { version: true },
                 orderBy: desc(tables.releases.createdAt),
@@ -45,6 +45,7 @@ export default defineEventHandler(async (event) => {
       deployments: deployments.map(({ testAccounts, releases, ...deployment }) => ({
         ...deployment,
         accountCount: testAccounts.length,
+        attentionCount: testAccounts.filter(account => accountAttention(account)).length,
         latestVersion: releases[0]?.version ?? null
       }))
     }))

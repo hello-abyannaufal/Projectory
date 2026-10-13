@@ -87,6 +87,18 @@ async function addDeployment(appId: string, environmentId: string) {
             <span class="flex flex-wrap gap-x-3 text-xs text-muted">
               <span v-if="environment.isProduction">{{ t('deployments.noCredentials') }}</span>
               <span v-else>{{ t('deployments.accountCount', cellFor(app, environment.id)!.accountCount) }}</span>
+              <UTooltip
+                v-if="!environment.isProduction && cellFor(app, environment.id)!.attentionCount"
+                :text="t('accounts.attentionCount', cellFor(app, environment.id)!.attentionCount)"
+              >
+                <span class="inline-flex items-center gap-1 text-warning">
+                  <UIcon
+                    name="i-lucide-triangle-alert"
+                    class="size-3"
+                  />
+                  {{ cellFor(app, environment.id)!.attentionCount }}
+                </span>
+              </UTooltip>
               <span v-if="cellFor(app, environment.id)!.latestVersion">{{ cellFor(app, environment.id)!.latestVersion }}</span>
             </span>
           </NuxtLink>

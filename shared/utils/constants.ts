@@ -57,3 +57,6 @@ export type AuditAction = typeof AUDIT_ACTIONS[number]
 
 // Signed out after this long without keyboard, mouse or touch input.
 export const IDLE_TIMEOUT_MS = 60 * 60 * 1000
+
+// A test account not verified for this long is flagged for a re-check.
+export const STALE_ACCOUNT_DAYS = 30

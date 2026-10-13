@@ -75,6 +75,26 @@ const accountSort = useDragSort(() => deployment.value?.testAccounts ?? [], asyn
   await refresh()
 })
 
+async function setAccountStatus(account: DeploymentAccount, status: TestAccountStatus) {
+  if (await api(() => request(`/api/accounts/${account.id}`, { method: 'PATCH', body: { status } }))) {
+    await reload()
+  }
+}
+
+// Locked, expired or not verified recently.
+const accountFilter = ref<'all' | 'attention'>('all')
+const attentionCount = computed(() => deployment.value?.testAccounts.filter(account => accountAttention(account)).length ?? 0)
+
+watch(attentionCount, (count) => {
+  if (!count) {
+    accountFilter.value = 'all'
+  }
+})
+
+function accountVisible(account: DeploymentAccount) {
+  return accountFilter.value === 'all' || !!accountAttention(account)
+}
+
 async function verifyAccount(account: DeploymentAccount) {
   if (await api(() => request(`/api/accounts/${account.id}`, { method: 'PATCH', body: { lastVerifiedAt: new Date().toISOString() } }))) {
     await reload()
@@ -304,6 +324,17 @@ const copyItems = computed(() => [[
                     {{ t('accounts.title') }}
                     <span class="font-normal text-muted">· {{ deployment.testAccounts.length }}</span>
                   </h2>
+                  <UTabs
+                    v-if="attentionCount"
+                    v-model="accountFilter"
+                    :items="[
+                      { label: t('common.all'), value: 'all' },
+                      { label: t('accounts.attentionCount', attentionCount), value: 'attention', icon: 'i-lucide-triangle-alert' }
+                    ]"
+                    :content="false"
+                    size="xs"
+                    class="mr-auto"
+                  />
                   <UButton
                     v-if="can('edit')"
                     icon="i-lucide-plus"
@@ -320,10 +351,11 @@ const copyItems = computed(() => [[
                 >
                   <AccountCard
                     v-for="(account, index) in deployment.testAccounts"
+                    v-show="accountVisible(account)"
                     :key="account.id"
                     v-bind="accountSort.item(index)"
                     :account="account"
-                    :drag-handle="can('edit') ? accountSort.handle(index) : undefined"
+                    :drag-handle="can('edit') && accountFilter === 'all' ? accountSort.handle(index) : undefined"
                     :editable="can('edit')"
                     :can-reveal="can('viewSecrets')"
                     :class="accountSort.dragging.value === index && 'opacity-50'"
@@ -331,6 +363,7 @@ const copyItems = computed(() => [[
                     @edit="openAccount(account)"
                     @delete="deleteAccount(account)"
                     @verify="verifyAccount(account)"
+                    @status="status => setAccountStatus(account, status)"
                   />
                 </div>
                 <p

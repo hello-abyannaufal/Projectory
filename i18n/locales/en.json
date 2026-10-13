@@ -189,7 +189,10 @@
     "fieldValue": "Value",
     "keepSecret": "Leave empty to keep",
     "secret": "Secret",
-    "addField": "Add field"
+    "addField": "Add field",
+    "setStatus": "Set status",
+    "needsCheck": "Needs check",
+    "attentionCount": "No accounts need attention | 1 needs attention | {count} need attention"
   },
   "accountStatus": {
     "active": "Active",

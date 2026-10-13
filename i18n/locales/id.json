@@ -189,7 +189,10 @@
     "fieldValue": "Nilai",
     "keepSecret": "Kosongkan untuk tetap",
     "secret": "Rahasia",
-    "addField": "Tambah field"
+    "addField": "Tambah field",
+    "setStatus": "Ubah status",
+    "needsCheck": "Perlu dicek",
+    "attentionCount": "Tidak ada akun yang perlu dicek | 1 perlu dicek | {count} perlu dicek"
   },
   "accountStatus": {
     "active": "Aktif",
