@@ -23,6 +23,15 @@ Open http://localhost:4747 and create the first account. It becomes the **Super 
 
 Projects live in **groups** (Group → Project → App). A group can have an access code; maintainers and viewers enter it once per session to open the group.
 
+Other things worth knowing:
+
+- **Ctrl+K** searches projects, URLs, branches, accounts and `.env` keys. Secret values are never searched.
+- Deleted projects go to the **Trash** and can be restored for 30 days.
+- Every `.env` change is kept in its **history** (last 50 versions) and can be restored.
+- The **Audit log** (Super User) records secret reveals, exports, project deletes, access code use and user changes.
+- Users are signed out after an hour without activity.
+- Retention and timeout values live in `shared/utils/constants.ts`.
+
 ```bash
 docker compose up -d            # start
 docker compose down             # stop (data is kept)

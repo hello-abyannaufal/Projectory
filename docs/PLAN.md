@@ -107,6 +107,7 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 **Project**
 - `group_id`, `name`, `description`, `cover` (logo), `status` (`active` | `maintenance` | `on_hold` | `archived`)
 - `notes` (TipTap JSON)
+- `deleted_at`, `deleted_by`: diisi saat project dipindah ke Trash (lihat 4.4)
 - `created_at`, `updated_at`
 - Platform dan tech stack level project **diturunkan** dari gabungan semua App, tidak disimpan.
 
@@ -157,6 +158,17 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
   - Sebelum disimpan tampil preview: key baru, key yang berubah, key yang sama. User memilih *overwrite* atau *skip* untuk key yang sudah ada.
 - **Export `.env`**: copy atau download sebagai file `.env`.
 
+**EnvVarVersion**
+- `deployment_id`, `content` (seluruh isi `.env` sebagai JSON, dienkripsi), `action`, `user_id`, `user_name`, `created_at`
+- Disimpan setelah setiap perubahan `.env`. Perubahan pertama juga menyimpan versi `baseline` (isi sebelum riwayat dicatat). Maksimal `ENV_HISTORY_LIMIT` (50) versi per deployment.
+
+**ProjectPin / ProjectVisit** (per user)
+- Pin project ke atas halaman Projects, dan waktu terakhir user membuka tiap project.
+
+**AuditLog**
+- `user_id`, `user_name`, `action`, `target` (path yang bisa dibaca, mis. `Project / App / UAT / maker1`), `project_id`, `metadata`, `ip_address`, `created_at`
+- Nama disalin, bukan direferensikan, supaya log tetap terbaca setelah user atau target dihapus.
+
 ### 4.3 Role & Permission
 
 Role berlaku global (satu role per user untuk seluruh instance).
@@ -171,6 +183,16 @@ Role berlaku global (satu role per user untuk seluruh instance).
 | Kelola Tech stack | ✅ | ❌ | ❌ |
 | Kelola Users | ✅ | ❌ | ❌ |
 | Buka group berkode tanpa memasukkan kode | ✅ | ❌ | ❌ |
+| Lihat Audit log | ✅ | ❌ | ❌ |
+| Trash: restore / hapus permanen | ✅ | ✅ | ❌ |
+| Pin project | ✅ | ✅ | ✅ |
+
+### 4.4 Trash
+
+- Menghapus project memindahkannya ke Trash (`deleted_at`). Project di Trash dan semua isinya tidak bisa dibuka; middleware mengembalikan 404 kecuali untuk restore.
+- Bisa dipulihkan selama `TRASH_RETENTION_DAYS` (30 hari), setelah itu dihapus permanen saat Trash dibuka atau server start.
+- Group baru bisa dihapus kalau tidak ada project, termasuk yang ada di Trash.
+- Hanya project yang punya Trash; App, Deployment, dan lainnya tetap langsung terhapus.
 
 Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai server maupun UI.
 
@@ -184,6 +206,8 @@ Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai
 - **Rich text**: dirender dari JSON TipTap, tidak pernah `v-html` dari HTML mentah.
 - **Notes**: tampilkan warning agar user tidak menyimpan password di notes (notes tidak dienkripsi).
 - **Environment production**: section Accounts dan `.env` disembunyikan.
+- **Audit log**: reveal secret akun/`.env`, export/import, hapus/restore project, kode akses group, login, dan pengelolaan user dicatat.
+- **Auto-logout**: setelah `IDLE_TIMEOUT_MS` (1 jam) tanpa input keyboard/mouse/touch, dihitung lintas tab.
 - **Registrasi**: hanya lewat halaman setup saat pertama kali jalan. Setelah itu akun hanya bisa dibuat Super User.
 
 ### Operasional
@@ -239,17 +263,24 @@ Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai
 - [x] Role (Super User, Maintainer, Viewer) & halaman Users
 - [x] Group dengan kode akses opsional
 
+### Iterasi 2
+- [x] Search lintas project + command palette (Ctrl+K): project, app, URL/branch, akun (label, tag, field non-secret), link, key `.env`
+- [x] Audit log (halaman khusus Super User)
+- [x] Auto-logout setelah idle 1 jam
+- [x] Status akun testing: badge "perlu dicek" (belum diverifikasi > `STALE_ACCOUNT_DAYS`), filter, ganti status cepat, indikator di matriks
+- [x] Pin project + "terakhir dibuka"
+- [x] Version history `.env` dengan diff dan restore
+- [x] Trash untuk project
+- [x] Bandingkan `.env` antar environment dalam satu app
+
 ### Ditunda
 - 2FA
-- Auto-lock setelah idle
-- Audit log (reveal/copy secret)
+- Health check URL deployment
+- Share link read-only sementara
+- Permission per group
 - Export/import `.zip` level App/Deployment
 - Export PDF
 - Merge saat import
-- Soft delete / trash
-- Command palette (Ctrl+K)
-- Search & filter lintas project
-- Version history `.env`
 
 ## 8. Catatan Implementasi
 
