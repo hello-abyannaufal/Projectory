@@ -74,7 +74,7 @@ async function submit() {
             class="size-8 text-primary"
           />
           <span class="font-semibold text-highlighted">{{ file?.name ?? t('import.chooseFile') }}</span>
-          <span class="text-xs text-muted">.biblodrive.zip</span>
+          <span class="text-xs text-muted">.projectory.zip</span>
           <input
             type="file"
             accept=".zip,application/zip"

@@ -9,7 +9,7 @@ useHead({
   link: [
     { rel: 'icon', href: '/favicon.ico' }
   ],
-  titleTemplate: title => title ? `${title} · BibloDrive` : 'BibloDrive'
+  titleTemplate: title => title ? `${title} · Projectory` : 'Projectory'
 })
 </script>
 

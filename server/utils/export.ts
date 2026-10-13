@@ -49,7 +49,7 @@ export async function loadProjectTree(projectId: string) {
 
 type ProjectTree = Awaited<ReturnType<typeof loadProjectTree>>
 
-// Builds <project>.biblodrive.zip: project.json plus uploaded images under assets/.
+// Builds <project>.projectory.zip: project.json plus uploaded images under assets/.
 export async function buildProjectZip(tree: ProjectTree, passphrase?: string) {
   const salt = randomBytes(16)
   const key = passphrase ? deriveKey(passphrase, salt) : undefined
@@ -128,7 +128,7 @@ export async function buildProjectZip(tree: ProjectTree, passphrase?: string) {
   return zipSync({ 'project.json': strToU8(JSON.stringify(data, null, 2)), ...assets })
 }
 
-// Human-readable summary for people without BibloDrive.
+// Human-readable summary for people without Projectory.
 export function buildProjectMarkdown(tree: ProjectTree, withSecrets: boolean) {
   const reveal = (stored: string) => withSecrets && stored ? decryptSecret(stored) : SECRET_MASK
   const envName = new Map(tree.environments.map(env => [env.id, env]))

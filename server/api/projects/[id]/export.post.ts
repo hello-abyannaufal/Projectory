@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   const zip = await buildProjectZip(tree, input.secrets === 'passphrase' ? input.passphrase : undefined)
   setResponseHeaders(event, {
     'Content-Type': 'application/zip',
-    'Content-Disposition': `attachment; filename="${slug}.biblodrive.zip"`
+    'Content-Disposition': `attachment; filename="${slug}.projectory.zip"`
   })
   return Buffer.from(zip)
 })

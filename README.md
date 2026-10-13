@@ -1,4 +1,4 @@
-# BibloDrive
+# Projectory
 
 Self-hosted, single-user notebook for app projects: repositories, mockups, environments, deployment URLs, releases, test accounts and `.env` files. Secrets are encrypted at rest.
 
@@ -59,7 +59,7 @@ Colors live in `app/app.config.ts` (semantic colors) and `app/assets/css/main.cs
 
 ## Backups
 
-- Database: `docker compose exec postgres pg_dump -U biblodrive biblodrive > backup.sql`
+- Database: `docker compose exec postgres pg_dump -U projectory projectory > backup.sql`
 - Uploads: copy `./data/uploads`
 - Keep `NUXT_MASTER_KEY` somewhere safe and **separate** from the backups. Without it, stored secrets can't be decrypted.
 

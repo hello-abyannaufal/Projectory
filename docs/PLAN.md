@@ -1,8 +1,8 @@
-# BibloDrive — Plan
+# Projectory — Plan
 
 Aplikasi self-hosted untuk menyimpan data project aplikasi (Web, Mobile, Backend, Desktop, dll): repository, mockup, environment, URL, release, akun testing, dan `.env`.
 
-**Mockup:** [BibloDrive Mockup](https://claude.ai/artifact/Pter2uUxg4sQ9G1k7Hu97H). Kalau plan berubah, mockup ikut di-update agar keduanya tetap sinkron.
+**Mockup:** [Projectory Mockup](https://claude.ai/artifact/Pter2uUxg4sQ9G1k7Hu97H). Kalau plan berubah, mockup ikut di-update agar keduanya tetap sinkron.
 
 ---
 
@@ -167,9 +167,9 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 
 ### 6.1 Format
 
-**File BibloDrive (`.zip`)**: untuk dipindah atau di-import ke instance lain.
+**File Projectory (`.zip`)**: untuk dipindah atau di-import ke instance lain.
 ```
-<project>.biblodrive.zip
+<project>.projectory.zip
 ├─ project.json     ← semua data + "schemaVersion"
 └─ assets/          ← cover, icon, logo tech stack custom
 ```

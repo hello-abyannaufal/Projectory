@@ -38,7 +38,7 @@ async function onSubmit({ data }: FormSubmitEvent<Schema>) {
 <template>
   <UAuthForm
     :title="t('auth.signIn')"
-    description="BibloDrive"
+    description="Projectory"
     icon="i-lucide-lock"
     :fields="fields"
     :schema="schema"

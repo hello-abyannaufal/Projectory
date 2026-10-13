@@ -25,7 +25,7 @@ const links = computed<NavigationMenuItem[]>(() => [
           <span
             v-if="!collapsed"
             class="font-bold text-highlighted"
-          >BibloDrive</span>
+          >Projectory</span>
         </NuxtLink>
       </template>
 

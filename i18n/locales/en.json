@@ -34,7 +34,7 @@
     "passwordMismatch": "Passwords don't match"
   },
   "auth": {
-    "setupTitle": "Set up BibloDrive",
+    "setupTitle": "Set up Projectory",
     "setupDescription": "Create the account for this instance. Only one account can exist.",
     "createAccount": "Create account",
     "signIn": "Sign in",
@@ -148,10 +148,10 @@
     "button": "Export",
     "title": "Export project",
     "format": "Format",
-    "zipTitle": "BibloDrive file (.zip)",
-    "zipDescription": "All data plus logos. Can be imported into another BibloDrive instance.",
+    "zipTitle": "Projectory file (.zip)",
+    "zipDescription": "All data plus logos. Can be imported into another Projectory instance.",
     "textTitle": "Copy as text / Markdown",
-    "textDescription": "Readable summary for people without BibloDrive, e.g. to paste in chat.",
+    "textDescription": "Readable summary for people without Projectory, e.g. to paste in chat.",
     "secrets": "Secrets (passwords, .env)",
     "withoutSecrets": "Without secrets",
     "withoutSecretsZip": "Secret values are left empty. Structure stays complete.",
@@ -312,19 +312,19 @@
     "updatePassword": "Update password",
     "passwordChanged": "Password updated",
     "session": "Session",
-    "sessionHint": "Sign out of BibloDrive on this browser."
+    "sessionHint": "Sign out of Projectory on this browser."
   },
   "import": {
     "button": "Import",
     "title": "Import project",
-    "description": "Creates a new project from a BibloDrive export.",
-    "chooseFile": "Choose a .biblodrive.zip file",
+    "description": "Creates a new project from a Projectory export.",
+    "chooseFile": "Choose a .projectory.zip file",
     "hint": "Imports always create a new project; nothing existing is changed.",
     "done": "Project imported",
     "errors": {
       "PASSPHRASE_REQUIRED": "This file contains encrypted secrets. Enter the passphrase.",
       "INVALID_PASSPHRASE": "Wrong passphrase.",
-      "INVALID_FILE": "This isn't a valid BibloDrive export."
+      "INVALID_FILE": "This isn't a valid Projectory export."
     }
   }
 }

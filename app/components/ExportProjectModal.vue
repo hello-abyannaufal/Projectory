@@ -73,7 +73,7 @@ async function run() {
     if (format.value === 'markdown') {
       await copy(await response.text())
     } else {
-      const name = /filename="([^"]+)"/.exec(response.headers.get('Content-Disposition') ?? '')?.[1] ?? 'project.biblodrive.zip'
+      const name = /filename="([^"]+)"/.exec(response.headers.get('Content-Disposition') ?? '')?.[1] ?? 'project.projectory.zip'
       const url = URL.createObjectURL(await response.blob())
       const link = document.createElement('a')
       link.href = url

@@ -34,7 +34,7 @@
     "passwordMismatch": "Kata sandi tidak sama"
   },
   "auth": {
-    "setupTitle": "Siapkan BibloDrive",
+    "setupTitle": "Siapkan Projectory",
     "setupDescription": "Buat akun untuk instance ini. Hanya boleh ada satu akun.",
     "createAccount": "Buat akun",
     "signIn": "Masuk",
@@ -148,10 +148,10 @@
     "button": "Ekspor",
     "title": "Ekspor proyek",
     "format": "Format",
-    "zipTitle": "File BibloDrive (.zip)",
-    "zipDescription": "Semua data beserta logo. Bisa diimpor ke instance BibloDrive lain.",
+    "zipTitle": "File Projectory (.zip)",
+    "zipDescription": "Semua data beserta logo. Bisa diimpor ke instance Projectory lain.",
     "textTitle": "Salin sebagai teks / Markdown",
-    "textDescription": "Ringkasan untuk orang yang tidak memakai BibloDrive, misal untuk ditempel di chat.",
+    "textDescription": "Ringkasan untuk orang yang tidak memakai Projectory, misal untuk ditempel di chat.",
     "secrets": "Rahasia (kata sandi, .env)",
     "withoutSecrets": "Tanpa rahasia",
     "withoutSecretsZip": "Nilai rahasia dikosongkan. Struktur tetap lengkap.",
@@ -312,19 +312,19 @@
     "updatePassword": "Perbarui kata sandi",
     "passwordChanged": "Kata sandi diperbarui",
     "session": "Sesi",
-    "sessionHint": "Keluar dari BibloDrive di browser ini."
+    "sessionHint": "Keluar dari Projectory di browser ini."
   },
   "import": {
     "button": "Impor",
     "title": "Impor proyek",
-    "description": "Membuat proyek baru dari file ekspor BibloDrive.",
-    "chooseFile": "Pilih file .biblodrive.zip",
+    "description": "Membuat proyek baru dari file ekspor Projectory.",
+    "chooseFile": "Pilih file .projectory.zip",
     "hint": "Impor selalu membuat proyek baru; data yang sudah ada tidak diubah.",
     "done": "Proyek berhasil diimpor",
     "errors": {
       "PASSPHRASE_REQUIRED": "File ini berisi rahasia terenkripsi. Masukkan passphrase.",
       "INVALID_PASSPHRASE": "Passphrase salah.",
-      "INVALID_FILE": "Ini bukan file ekspor BibloDrive yang valid."
+      "INVALID_FILE": "Ini bukan file ekspor Projectory yang valid."
     }
   }
 }
