@@ -371,5 +371,11 @@
     "resetPassword": "Reset password",
     "deleteTitle": "Delete {name}?",
     "deleteDescription": "The user is signed out and can no longer sign in. Project data is not affected."
+  },
+  "overview": {
+    "title": "Overview",
+    "manage": "Manage",
+    "noLinks": "No links yet.",
+    "noNotes": "No notes yet."
   }
 }

@@ -27,13 +27,14 @@ const techStacks = computed(() => {
 const platforms = computed(() => [...new Set(project.value?.apps.flatMap(app => app.platforms) ?? [])])
 
 const tabs = computed<TabsItem[]>(() => [
+  { label: t('overview.title'), slot: 'overview' as const, value: 'overview' },
   { label: t('deployments.title'), slot: 'deployments' as const, value: 'deployments' },
   { label: `${t('apps.title')} (${project.value?.apps.length ?? 0})`, slot: 'apps' as const, value: 'apps' },
   { label: `${t('environments.title')} (${project.value?.environments.length ?? 0})`, slot: 'environments' as const, value: 'environments' },
   { label: t('links.title'), slot: 'links' as const, value: 'links' },
   { label: t('fields.notes'), slot: 'notes' as const, value: 'notes' }
 ])
-const activeTab = ref('deployments')
+const activeTab = ref('overview')
 
 // Edit / delete / export project
 const editOpen = ref(false)
@@ -142,6 +143,15 @@ async function deleteLink(link: AnyLink) {
     await refresh()
   }
 }
+
+// Overview shows every link in one list, labelled with its app.
+const allLinks = computed(() => linkGroups.value.flatMap(group => group.links.map(link => ({ ...link, owner: group.id ? group.name : null }))))
+
+// An empty editor still saves a doc with one empty paragraph.
+const hasNotes = computed(() => {
+  const content = (asDoc(project.value?.notes) as { content?: { content?: unknown[] }[] } | null)?.content ?? []
+  return content.some(node => node.content?.length)
+})
 
 // Notes
 const notes = ref<Record<string, unknown> | null>(null)
@@ -270,6 +280,100 @@ async function saveNotes() {
             variant="link"
             :ui="{ list: 'overflow-x-auto', content: 'pt-4' }"
           >
+            <template #overview>
+              <div class="flex flex-col gap-6">
+                <section class="flex flex-col gap-3">
+                  <h2 class="font-semibold text-highlighted">
+                    {{ t('deployments.title') }}
+                  </h2>
+                  <DeploymentMatrix
+                    v-if="project.apps.length && project.environments.length"
+                    :project="project"
+                  />
+                  <p
+                    v-else
+                    class="rounded-lg border border-dashed border-accented px-5 py-4 text-sm text-muted"
+                  >
+                    {{ t('deployments.emptyDescription') }}
+                  </p>
+                </section>
+
+                <div class="grid items-start gap-5 lg:grid-cols-2">
+                  <section class="flex flex-col gap-1 rounded-lg border border-default bg-default p-4">
+                    <div class="mb-2 flex items-center justify-between gap-2">
+                      <h2 class="font-semibold text-highlighted">
+                        {{ t('links.title') }}
+                      </h2>
+                      <UButton
+                        v-if="can('edit')"
+                        icon="i-lucide-settings-2"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        :label="t('overview.manage')"
+                        @click="activeTab = 'links'"
+                      />
+                    </div>
+                    <a
+                      v-for="link in allLinks"
+                      :key="link.id"
+                      :href="link.url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="group flex items-center gap-3 border-t border-default py-2.5"
+                    >
+                      <UBadge
+                        color="neutral"
+                        variant="soft"
+                        :label="t(`linkType.${link.type}`)"
+                      />
+                      <span class="min-w-0 flex-1 truncate text-sm text-highlighted group-hover:text-primary">{{ link.label }}</span>
+                      <span
+                        v-if="link.owner"
+                        class="shrink-0 text-xs text-muted"
+                      >{{ link.owner }}</span>
+                    </a>
+                    <p
+                      v-if="!allLinks.length"
+                      class="border-t border-default pt-3 text-sm text-muted"
+                    >
+                      {{ t('overview.noLinks') }}
+                    </p>
+                  </section>
+
+                  <section class="flex flex-col gap-1 rounded-lg border border-default bg-default p-4">
+                    <div class="mb-2 flex items-center justify-between gap-2">
+                      <h2 class="font-semibold text-highlighted">
+                        {{ t('fields.notes') }}
+                      </h2>
+                      <UButton
+                        v-if="can('edit')"
+                        icon="i-lucide-pencil"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        :label="t('common.edit')"
+                        @click="activeTab = 'notes'"
+                      />
+                    </div>
+                    <div class="border-t border-default pt-3">
+                      <RichTextEditor
+                        v-if="hasNotes"
+                        :model-value="asDoc(project.notes)"
+                        :editable="false"
+                      />
+                      <p
+                        v-else
+                        class="text-sm text-muted"
+                      >
+                        {{ t('overview.noNotes') }}
+                      </p>
+                    </div>
+                  </section>
+                </div>
+              </div>
+            </template>
+
             <template #deployments>
               <UEmpty
                 v-if="!project.apps.length || !project.environments.length"

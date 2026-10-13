@@ -371,5 +371,11 @@
     "resetPassword": "Reset password",
     "deleteTitle": "Hapus {name}?",
     "deleteDescription": "Pengguna akan dikeluarkan dan tidak bisa masuk lagi. Data proyek tidak terpengaruh."
+  },
+  "overview": {
+    "title": "Ringkasan",
+    "manage": "Kelola",
+    "noLinks": "Belum ada link.",
+    "noNotes": "Belum ada catatan."
   }
 }
