@@ -13,6 +13,14 @@ export async function requireProject(projectId: string) {
   return project
 }
 
+export async function requireGroup(groupId: string) {
+  const group = await useDb().query.groups.findFirst({ where: eq(tables.groups.id, groupId), columns: { id: true } })
+  if (!group) {
+    throw createError({ statusCode: 400, statusMessage: 'Group not found' })
+  }
+  return group
+}
+
 export async function findDeployment(id: string) {
   const deployment = await useDb().query.deployments.findFirst({
     where: eq(tables.deployments.id, id),

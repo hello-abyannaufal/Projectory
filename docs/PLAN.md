@@ -11,7 +11,8 @@ Aplikasi self-hosted untuk menyimpan data project aplikasi (Web, Mobile, Backend
 - Satu tempat untuk semua informasi project, dari level project sampai akun login per environment.
 - Struktur cukup generik untuk berbagai jenis project, mulai dari app sederhana (Web + Backend) sampai project banking multi-channel (IBB Corporate, IBB Admin, IB Personal, dll).
 - Self-hosted dan jalan lokal via Docker. Data tetap di tangan pemilik instance.
-- Single user: satu instance untuk satu orang. Berbagi data dilakukan lewat export/import, bukan lewat akun bersama.
+- Multi-user dengan role (Super User, Maintainer, Viewer). Project dikelompokkan dalam Group yang bisa dikunci dengan kode akses.
+- Berbagi ke instance lain tetap lewat export/import.
 
 ## 2. Keputusan Utama
 
@@ -19,8 +20,8 @@ Aplikasi self-hosted untuk menyimpan data project aplikasi (Web, Mobile, Backend
 |---|---|
 | Model distribusi | Self-hosted, tiap orang menjalankan instance sendiri |
 | Deploy | Lokal, Docker Compose (`app` + `postgres`) |
-| User | Single user. Login hanya untuk melindungi data, tanpa role, member, atau owner |
-| Hierarki | Project → App → Deployment (App × Environment) |
+| User | Multi-user, role global: `super_user`, `maintainer`, `viewer` (lihat 4.3) |
+| Hierarki | Group → Project → App → Deployment (App × Environment) |
 | Akun | Disimpan per Deployment |
 | Kredensial production | Tidak disimpan. Environment production menyembunyikan Accounts dan `.env` |
 | Berbagi data | Lewat export/import file `.zip` atau copy text |
@@ -64,6 +65,8 @@ Aplikasi self-hosted untuk menyimpan data project aplikasi (Web, Mobile, Backend
 ### 4.1 Gambaran
 
 ```
+Group
+└─ projects[]
 Project
 ├─ links[]
 ├─ environments[]          ← didefinisikan sekali per project
@@ -89,13 +92,20 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 
 ### 4.2 Entitas
 
-**User** (dikelola Better Auth)
-- Hanya satu akun per instance.
-- Saat pertama kali dijalankan, aplikasi menampilkan halaman **setup** untuk membuat akun. Setelah akun dibuat, registrasi tertutup permanen.
+**User** (dikelola Better Auth + plugin `admin`)
+- `role`: `super_user` | `maintainer` | `viewer`.
+- Saat pertama kali dijalankan, aplikasi menampilkan halaman **setup** untuk membuat akun pertama, yang otomatis menjadi `super_user`. Setelah itu registrasi publik tertutup; user lain dibuat Super User di halaman **Users** (nama, email, password awal, role).
+- Super User tidak bisa mengubah role atau menghapus akunnya sendiri, jadi instance selalu punya minimal satu Super User.
 - Preferensi: `locale` (`en` | `id`), `theme` (`light` | `dark` | `system`).
 
+**Group**
+- `name`, `description`
+- `access_code` (opsional, dienkripsi). Kalau diisi, Maintainer dan Viewer harus memasukkan kode sekali per sesi login sebelum bisa membuka isi group. Mengganti kode mengunci ulang group untuk semua sesi. Super User selalu bisa membuka dan melihat kodenya.
+- Hanya bisa dihapus kalau sudah kosong (tidak ada project).
+- Project lama dari sebelum fitur ini masuk ke group **General**.
+
 **Project**
-- `name`, `description`, `cover` (logo), `status` (`active` | `maintenance` | `on_hold` | `archived`)
+- `group_id`, `name`, `description`, `cover` (logo), `status` (`active` | `maintenance` | `on_hold` | `archived`)
 - `notes` (TipTap JSON)
 - `created_at`, `updated_at`
 - Platform dan tech stack level project **diturunkan** dari gabungan semua App, tidak disimpan.
@@ -147,17 +157,34 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
   - Sebelum disimpan tampil preview: key baru, key yang berubah, key yang sama. User memilih *overwrite* atau *skip* untuk key yang sudah ada.
 - **Export `.env`**: copy atau download sebagai file `.env`.
 
+### 4.3 Role & Permission
+
+Role berlaku global (satu role per user untuk seluruh instance).
+
+| Aksi | Super User | Maintainer | Viewer |
+|---|---|---|---|
+| Buat/edit/hapus Group, atur kode akses | ✅ | ❌ | ❌ |
+| Buat/edit/hapus Project, App, Environment, Deployment, Release, Account, `.env` | ✅ | ✅ | ❌ |
+| Lihat/copy password & `.env` | ✅ | ✅ | ❌ |
+| Export | ✅ | ✅ | ✅ tanpa secret |
+| Import project | ✅ | ✅ | ❌ |
+| Kelola Tech stack | ✅ | ❌ | ❌ |
+| Kelola Users | ✅ | ❌ | ❌ |
+| Buka group berkode tanpa memasukkan kode | ✅ | ❌ | ❌ |
+
+Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai server maupun UI.
+
 ## 5. Keamanan
 
 ### MVP
 - **Enkripsi at rest**: secret (`AccountField` dengan `is_secret`, semua `EnvVar`) dienkripsi AES-256-GCM dengan `MASTER_KEY` dari environment variable.
 - **Secret tidak ikut SSR payload**: endpoint list/detail hanya mengembalikan nilai ter-mask. Nilai asli diambil client-side lewat endpoint `/reveal` dengan header `Cache-Control: no-store`.
-- **Semua endpoint wajib login**: dicek di satu server middleware, bukan per endpoint.
+- **Semua endpoint wajib login**: dicek di satu server middleware, bukan per endpoint. Middleware yang sama mengecek role dan kunci group.
 - **Validasi URL**: semua field URL hanya menerima `http`/`https`.
 - **Rich text**: dirender dari JSON TipTap, tidak pernah `v-html` dari HTML mentah.
 - **Notes**: tampilkan warning agar user tidak menyimpan password di notes (notes tidak dienkripsi).
 - **Environment production**: section Accounts dan `.env` disembunyikan.
-- **Registrasi**: hanya lewat halaman setup saat pertama kali jalan. Setelah ada akun, endpoint registrasi ditolak.
+- **Registrasi**: hanya lewat halaman setup saat pertama kali jalan. Setelah itu akun hanya bisa dibuat Super User.
 
 ### Operasional
 - Backup DB via `pg_dump` dan backup folder uploads.
@@ -209,6 +236,8 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 - [x] Export/import `.zip` level project (tanpa secret / dengan passphrase)
 - [x] Copy text per Deployment
 - [x] Docker Compose (`app` + `postgres`)
+- [x] Role (Super User, Maintainer, Viewer) & halaman Users
+- [x] Group dengan kode akses opsional
 
 ### Ditunda
 - 2FA

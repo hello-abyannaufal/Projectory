@@ -2,7 +2,8 @@
   "nav": {
     "projects": "Projects",
     "techStacks": "Tech stacks",
-    "settings": "Settings"
+    "settings": "Settings",
+    "users": "Users"
   },
   "common": {
     "error": "Something went wrong",
@@ -35,7 +36,7 @@
   },
   "auth": {
     "setupTitle": "Set up Projectory",
-    "setupDescription": "Create the account for this instance. Only one account can exist.",
+    "setupDescription": "Create the first account. It becomes the super user and can add other users.",
     "createAccount": "Create account",
     "signIn": "Sign in",
     "signOut": "Sign out",
@@ -57,7 +58,8 @@
     "appCount": "no apps | 1 app | {count} apps",
     "environmentCount": "no envs | 1 env | {count} envs",
     "uploadCover": "Upload logo",
-    "removeCover": "Remove logo"
+    "removeCover": "Remove logo",
+    "noMatch": "No projects match your search."
   },
   "fields": {
     "name": "Name",
@@ -326,5 +328,48 @@
       "INVALID_PASSPHRASE": "Wrong passphrase.",
       "INVALID_FILE": "This isn't a valid Projectory export."
     }
+  },
+  "groups": {
+    "group": "Group",
+    "new": "New group",
+    "edit": "Edit group",
+    "delete": "Delete group",
+    "deleteTitle": "Delete {name}?",
+    "deleteNotEmpty": "Move or delete its projects to delete this group",
+    "empty": "No groups yet",
+    "emptyDescription": "Projects live in groups. Create a group to get started.",
+    "emptyDescriptionAsk": "Projects live in groups. Ask a super user to create one.",
+    "projectCount": "no projects | 1 project | {count} projects",
+    "protected": "Protected by an access code",
+    "noProjects": "No projects in this group yet.",
+    "lockedDescription": "This group is locked. Enter its access code to see its projects.",
+    "unlock": "Unlock",
+    "unlockTitle": "Unlock {name}",
+    "unlockDescription": "Ask a super user for the access code. It stays unlocked until you sign out.",
+    "accessCode": "Access code",
+    "accessCodeHint": "Optional. Maintainers and viewers must enter it to open the group. Leave empty to keep the group open.",
+    "invalidAccessCode": "Wrong access code"
+  },
+  "roles": {
+    "super_user": "Super User",
+    "maintainer": "Maintainer",
+    "viewer": "Viewer"
+  },
+  "roleDescription": {
+    "super_user": "Full access: groups, projects, tech stacks and users.",
+    "maintainer": "Creates, edits and deletes projects and everything inside them. Can see passwords and .env.",
+    "viewer": "Read only. Cannot see passwords or .env values."
+  },
+  "users": {
+    "new": "Add user",
+    "you": "you",
+    "joined": "Added {time}",
+    "role": "Role",
+    "created": "User added",
+    "initialPassword": "Initial password",
+    "initialPasswordHint": "Share it with the user; they can change it in Settings.",
+    "resetPassword": "Reset password",
+    "deleteTitle": "Delete {name}?",
+    "deleteDescription": "The user is signed out and can no longer sign in. Project data is not affected."
   }
 }

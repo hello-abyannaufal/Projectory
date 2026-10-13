@@ -11,7 +11,10 @@ export default defineEventHandler(async (event) => {
       app: {
         columns: { id: true, name: true, projectId: true },
         with: {
-          project: { columns: { id: true, name: true } },
+          project: {
+            columns: { id: true, name: true },
+            with: { group: { columns: { id: true, name: true } } }
+          },
           deployments: {
             columns: { id: true },
             with: { environment: { columns: { name: true, isProduction: true, sortOrder: true } } }

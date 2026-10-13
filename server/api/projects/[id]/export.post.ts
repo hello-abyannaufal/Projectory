@@ -1,6 +1,9 @@
 export default defineEventHandler(async (event) => {
   const id = getIdParam(event)
   const input = await readInput(event, exportInput)
+  if (input.secrets !== 'none' && !hasPermission((event.context.user as { role: string }).role, 'viewSecrets')) {
+    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+  }
   const tree = await loadProjectTree(id)
   const slug = tree.name.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '') || 'project'
   setResponseHeader(event, 'Cache-Control', 'no-store')

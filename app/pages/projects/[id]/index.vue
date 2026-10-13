@@ -6,12 +6,16 @@ const { t } = useI18n()
 const api = useApi()
 const confirm = useConfirm()
 const toast = useToast()
+const { can } = usePermissions()
 
 const projectId = computed(() => route.params.id as string)
 const { data: project, refresh, error } = await useProject(projectId)
 
 if (error.value?.statusCode === 404) {
   throw createError({ statusCode: 404, statusMessage: 'Project not found', fatal: true })
+}
+if (error.value?.statusCode === 403) {
+  throw createError({ statusCode: 403, statusMessage: 'This group is locked. Enter its access code on the Projects page.', fatal: true })
 }
 
 useHead({ title: () => project.value?.name ?? '' })
@@ -169,7 +173,7 @@ async function saveNotes() {
             <UDashboardSidebarCollapse />
           </template>
           <template #title>
-            <UBreadcrumb :items="[{ label: t('nav.projects'), to: '/projects' }, { label: project.name }]" />
+            <UBreadcrumb :items="[{ label: t('nav.projects'), to: '/projects' }, { label: project.group.name, to: '/projects' }, { label: project.name }]" />
           </template>
           <template #right>
             <UButton
@@ -179,20 +183,22 @@ async function saveNotes() {
               :label="t('export.button')"
               @click="exportOpen = true"
             />
-            <UButton
-              icon="i-lucide-pencil"
-              color="neutral"
-              :label="t('projects.edit')"
-              @click="editOpen = true"
-            />
-            <UDropdownMenu :items="[[{ label: t('projects.delete'), icon: 'i-lucide-trash-2', color: 'error', onSelect: deleteProject }]]">
+            <template v-if="can('edit')">
               <UButton
-                icon="i-lucide-ellipsis-vertical"
+                icon="i-lucide-pencil"
                 color="neutral"
-                variant="ghost"
-                :aria-label="t('common.more')"
+                :label="t('projects.edit')"
+                @click="editOpen = true"
               />
-            </UDropdownMenu>
+              <UDropdownMenu :items="[[{ label: t('projects.delete'), icon: 'i-lucide-trash-2', color: 'error', onSelect: deleteProject }]]">
+                <UButton
+                  icon="i-lucide-ellipsis-vertical"
+                  color="neutral"
+                  variant="ghost"
+                  :aria-label="t('common.more')"
+                />
+              </UDropdownMenu>
+            </template>
           </template>
         </UDashboardNavbar>
       </template>
@@ -200,7 +206,10 @@ async function saveNotes() {
       <template #body>
         <div class="flex flex-col gap-6">
           <div class="flex flex-wrap items-start gap-4">
-            <UDropdownMenu :items="coverItems">
+            <UDropdownMenu
+              :items="coverItems"
+              :disabled="!can('edit')"
+            >
               <button
                 type="button"
                 class="rounded-lg focus-visible:outline-2 focus-visible:outline-primary"
@@ -267,14 +276,17 @@ async function saveNotes() {
                 icon="i-lucide-grid-2x2"
                 :title="t('deployments.emptyTitle')"
                 :description="t('deployments.emptyDescription')"
-                :actions="[
+                :actions="can('edit') ? [
                   { label: t('apps.new'), icon: 'i-lucide-plus', onClick: () => openApp() },
                   { label: t('environments.new'), icon: 'i-lucide-plus', color: 'neutral', variant: 'outline', onClick: () => openEnvironment() }
-                ]"
+                ] : []"
               />
               <template v-else>
                 <DeploymentMatrix :project="project" />
-                <div class="mt-3 flex flex-wrap gap-2">
+                <div
+                  v-if="can('edit')"
+                  class="mt-3 flex flex-wrap gap-2"
+                >
                   <UButton
                     icon="i-lucide-plus"
                     variant="ghost"
@@ -322,7 +334,10 @@ async function saveNotes() {
                       </span>
                     </div>
                   </div>
-                  <div class="flex items-center gap-1">
+                  <div
+                    v-if="can('edit')"
+                    class="flex items-center gap-1"
+                  >
                     <UButton
                       icon="i-lucide-arrow-up"
                       color="neutral"
@@ -356,6 +371,7 @@ async function saveNotes() {
                   </div>
                 </div>
                 <UButton
+                  v-if="can('edit')"
                   icon="i-lucide-plus"
                   variant="ghost"
                   class="self-start"
@@ -380,38 +396,41 @@ async function saveNotes() {
                     icon="i-lucide-lock"
                     :label="t('environments.production')"
                   />
-                  <UButton
-                    icon="i-lucide-arrow-up"
-                    color="neutral"
-                    variant="ghost"
-                    :disabled="index === 0"
-                    :aria-label="t('common.moveUp')"
-                    @click="move('environments', index, -1)"
-                  />
-                  <UButton
-                    icon="i-lucide-arrow-down"
-                    color="neutral"
-                    variant="ghost"
-                    :disabled="index === project.environments.length - 1"
-                    :aria-label="t('common.moveDown')"
-                    @click="move('environments', index, 1)"
-                  />
-                  <UButton
-                    icon="i-lucide-pencil"
-                    color="neutral"
-                    variant="ghost"
-                    :aria-label="t('common.edit')"
-                    @click="openEnvironment(environment)"
-                  />
-                  <UButton
-                    icon="i-lucide-trash-2"
-                    color="error"
-                    variant="ghost"
-                    :aria-label="t('common.delete')"
-                    @click="deleteEnvironment(environment)"
-                  />
+                  <template v-if="can('edit')">
+                    <UButton
+                      icon="i-lucide-arrow-up"
+                      color="neutral"
+                      variant="ghost"
+                      :disabled="index === 0"
+                      :aria-label="t('common.moveUp')"
+                      @click="move('environments', index, -1)"
+                    />
+                    <UButton
+                      icon="i-lucide-arrow-down"
+                      color="neutral"
+                      variant="ghost"
+                      :disabled="index === project.environments.length - 1"
+                      :aria-label="t('common.moveDown')"
+                      @click="move('environments', index, 1)"
+                    />
+                    <UButton
+                      icon="i-lucide-pencil"
+                      color="neutral"
+                      variant="ghost"
+                      :aria-label="t('common.edit')"
+                      @click="openEnvironment(environment)"
+                    />
+                    <UButton
+                      icon="i-lucide-trash-2"
+                      color="error"
+                      variant="ghost"
+                      :aria-label="t('common.delete')"
+                      @click="deleteEnvironment(environment)"
+                    />
+                  </template>
                 </div>
                 <UButton
+                  v-if="can('edit')"
                   icon="i-lucide-plus"
                   variant="ghost"
                   class="self-start"
@@ -450,24 +469,27 @@ async function saveNotes() {
                         rel="noopener noreferrer"
                         class="min-w-0 flex-1 truncate text-sm text-highlighted hover:text-primary"
                       >{{ link.label }}</a>
-                      <UButton
-                        icon="i-lucide-pencil"
-                        color="neutral"
-                        variant="ghost"
-                        :aria-label="t('common.edit')"
-                        @click="openLink(link)"
-                      />
-                      <UButton
-                        icon="i-lucide-trash-2"
-                        color="error"
-                        variant="ghost"
-                        :aria-label="t('common.delete')"
-                        @click="deleteLink(link)"
-                      />
+                      <template v-if="can('edit')">
+                        <UButton
+                          icon="i-lucide-pencil"
+                          color="neutral"
+                          variant="ghost"
+                          :aria-label="t('common.edit')"
+                          @click="openLink(link)"
+                        />
+                        <UButton
+                          icon="i-lucide-trash-2"
+                          color="error"
+                          variant="ghost"
+                          :aria-label="t('common.delete')"
+                          @click="deleteLink(link)"
+                        />
+                      </template>
                     </div>
                   </section>
                 </template>
                 <UButton
+                  v-if="can('edit')"
                   icon="i-lucide-plus"
                   variant="ghost"
                   class="self-start"
@@ -480,6 +502,7 @@ async function saveNotes() {
             <template #notes>
               <div class="flex flex-col gap-3">
                 <UAlert
+                  v-if="can('edit')"
                   color="warning"
                   variant="subtle"
                   icon="i-lucide-triangle-alert"
@@ -487,9 +510,11 @@ async function saveNotes() {
                 />
                 <RichTextEditor
                   v-model="notes"
+                  :editable="can('edit')"
                   :placeholder="t('notes.placeholder')"
                 />
                 <UButton
+                  v-if="can('edit')"
                   class="self-start"
                   :loading="notesSaving"
                   :label="t('common.save')"

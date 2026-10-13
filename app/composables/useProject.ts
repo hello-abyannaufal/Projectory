@@ -15,3 +15,9 @@ export function useTechStacks() {
 }
 
 export type TechStack = Awaited<ReturnType<typeof useTechStacks>>['data']['value'][number]
+
+export function useGroups() {
+  return useFetch('/api/groups', { key: 'groups', default: () => [] })
+}
+
+export type Group = Awaited<ReturnType<typeof useGroups>>['data']['value'][number]

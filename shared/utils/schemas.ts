@@ -17,7 +17,15 @@ const optionalText = (max: number) => z.string().trim().max(max).nullish().trans
 // TipTap document JSON
 export const richText = z.object({ type: z.literal('doc') }).loose().nullish()
 
+export const groupInput = z.object({
+  name: z.string().trim().min(1).max(120),
+  description: optionalText(500),
+  // Empty or null means anyone can open the group.
+  accessCode: z.string().trim().min(4).max(64).nullish().or(z.literal('')).transform(v => v || null)
+})
+
 export const projectInput = z.object({
+  groupId: z.uuid(),
   name: z.string().trim().min(1).max(120),
   description: optionalText(500),
   status: z.enum(PROJECT_STATUSES).default('active')

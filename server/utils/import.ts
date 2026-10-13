@@ -65,7 +65,7 @@ function fail(code: 'INVALID_FILE' | 'PASSPHRASE_REQUIRED' | 'INVALID_PASSPHRASE
   throw createError({ statusCode: 400, statusMessage: code })
 }
 
-export async function importProjectZip(zip: Uint8Array, passphrase?: string) {
+export async function importProjectZip(zip: Uint8Array, groupId: string, passphrase?: string) {
   let files: Record<string, Uint8Array>
   let data: z.output<typeof fileSchema>
   try {
@@ -124,7 +124,7 @@ export async function importProjectZip(zip: Uint8Array, passphrase?: string) {
         created.forEach(stack => stackIds.set(stack.slug, stack.id))
       }
 
-      const [project] = await tx.insert(tables.projects).values({ ...data.project, cover }).returning()
+      const [project] = await tx.insert(tables.projects).values({ ...data.project, groupId, cover }).returning()
       const projectId = project!.id
 
       const envIds = new Map<string, string>()

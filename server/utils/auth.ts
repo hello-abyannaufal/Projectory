@@ -1,6 +1,7 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { APIError } from 'better-auth/api'
+import { APIError, createAuthMiddleware, getSessionFromCtx } from 'better-auth/api'
+import { admin } from 'better-auth/plugins'
 import type { H3Event } from 'h3'
 
 let auth: ReturnType<typeof createAuth> | undefined
@@ -22,16 +23,35 @@ function createAuth() {
       minPasswordLength: 8
     },
     user: {
-      // No mail server: the single local user can change their email directly.
+      // No mail server: users can change their email directly.
       changeEmail: { enabled: true, updateEmailWithoutVerification: true }
+    },
+    plugins: [
+      admin({ ac: authAccessControl, roles: authRoles, adminRoles: ['super_user'], defaultRole: 'viewer' })
+    ],
+    hooks: {
+      // A super user can't demote themselves, so the instance always keeps one.
+      before: createAuthMiddleware(async (ctx) => {
+        if (ctx.path !== '/admin/set-role' && ctx.path !== '/admin/update-user') {
+          return
+        }
+        const session = await getSessionFromCtx(ctx)
+        if (session && ctx.body?.userId === session.user.id) {
+          throw new APIError('BAD_REQUEST', { message: 'You cannot change your own role.' })
+        }
+      })
     },
     databaseHooks: {
       user: {
         create: {
-          // Single-user instance: only the first account can ever be created.
-          before: async () => {
-            if (await hasUser()) {
-              throw new APIError('FORBIDDEN', { message: 'This instance already has an account.' })
+          // The setup page creates the first account, which becomes the super user.
+          // After that, accounts are only created by a super user.
+          before: async (user, ctx) => {
+            if (!await hasUser()) {
+              return { data: { ...user, role: 'super_user' } }
+            }
+            if (ctx?.path !== '/admin/create-user') {
+              throw new APIError('FORBIDDEN', { message: 'Sign up is closed. Ask a super user for an account.' })
             }
           }
         }
@@ -50,7 +70,6 @@ export async function hasUser() {
   return row.length > 0
 }
 
-export async function getSessionUser(event: H3Event) {
-  const session = await useServerAuth().api.getSession({ headers: event.headers })
-  return session?.user ?? null
+export function getAuthSession(event: H3Event) {
+  return useServerAuth().api.getSession({ headers: event.headers })
 }

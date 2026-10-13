@@ -33,6 +33,11 @@ export const user = pgTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
   image: text('image'),
+  // Admin plugin fields; role is one of ROLES
+  role: text('role').notNull().default('viewer'),
+  banned: boolean('banned').default(false),
+  banReason: text('ban_reason'),
+  banExpires: timestamp('ban_expires'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 })
@@ -45,6 +50,7 @@ export const session = pgTable('session', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
+  impersonatedBy: text('impersonated_by'),
   userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' })
 })
 
@@ -97,11 +103,29 @@ const timestamps = {
 }
 
 // ---------------------------------------------------------------------------
-// Projects
+// Groups & projects
 // ---------------------------------------------------------------------------
+
+export const groups = pgTable('groups', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  description: text('description'),
+  // Ciphertext (see server/utils/crypto.ts). When set, maintainers and viewers
+  // must enter it once per session before they can open the group.
+  accessCode: text('access_code'),
+  ...timestamps
+})
+
+// Groups a session has unlocked with the access code.
+export const groupUnlocks = pgTable('group_unlocks', {
+  sessionId: text('session_id').notNull().references(() => session.id, { onDelete: 'cascade' }),
+  groupId: uuid('group_id').notNull().references(() => groups.id, { onDelete: 'cascade' })
+}, t => [primaryKey({ columns: [t.sessionId, t.groupId] })])
 
 export const projects = pgTable('projects', {
   id: uuid('id').primaryKey().defaultRandom(),
+  // A group can only be deleted once it is empty.
+  groupId: uuid('group_id').notNull().references(() => groups.id, { onDelete: 'restrict' }),
   name: text('name').notNull(),
   description: text('description'),
   // Path of the uploaded cover/logo inside the upload dir
@@ -110,7 +134,7 @@ export const projects = pgTable('projects', {
   // TipTap JSON
   notes: jsonb('notes'),
   ...timestamps
-})
+}, t => [index('projects_group_idx').on(t.groupId)])
 
 export const environments = pgTable('environments', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -233,7 +257,12 @@ export const envVars = pgTable('env_vars', {
 // Relations
 // ---------------------------------------------------------------------------
 
-export const projectsRelations = relations(projects, ({ many }) => ({
+export const groupsRelations = relations(groups, ({ many }) => ({
+  projects: many(projects)
+}))
+
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+  group: one(groups, { fields: [projects.groupId], references: [groups.id] }),
   environments: many(environments),
   apps: many(apps),
   links: many(links)

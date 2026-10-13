@@ -5,6 +5,10 @@ const props = defineProps<{
   loadSecrets: () => Promise<Record<string, string> | undefined>
   // Attributes from useDragSort().handle(), bound on the grip
   dragHandle?: Record<string, unknown>
+  // Show the edit/delete menu
+  editable?: boolean
+  // Allow revealing and copying secret fields
+  canReveal?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -93,7 +97,10 @@ const menu = computed(() => [[
           :aria-label="t('common.reorder')"
           class="size-4 cursor-grab text-dimmed"
         />
-        <UDropdownMenu :items="menu">
+        <UDropdownMenu
+          v-if="editable"
+          :items="menu"
+        >
           <UButton
             icon="i-lucide-ellipsis-vertical"
             color="neutral"
@@ -123,7 +130,7 @@ const menu = computed(() => [[
         <span class="w-24 shrink-0 truncate text-xs text-muted">{{ field.key }}</span>
         <span class="min-w-0 flex-1 truncate font-mono text-sm text-highlighted">{{ display(field) }}</span>
         <UButton
-          v-if="field.isSecret"
+          v-if="field.isSecret && canReveal"
           :icon="shown.has(field.id) ? 'i-lucide-eye-off' : 'i-lucide-eye'"
           color="neutral"
           variant="ghost"
@@ -132,6 +139,7 @@ const menu = computed(() => [[
           @click="toggle(field.id)"
         />
         <UButton
+          v-if="!field.isSecret || canReveal"
           icon="i-lucide-copy"
           color="neutral"
           variant="ghost"

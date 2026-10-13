@@ -5,12 +5,16 @@ const api = useApi()
 const confirm = useConfirm()
 const copy = useCopy()
 const toast = useToast()
+const { can } = usePermissions()
 
 const deploymentId = computed(() => route.params.deploymentId as string)
 const { data: deployment, refresh, error } = await useDeployment(deploymentId)
 
 if (error.value?.statusCode === 404) {
   throw createError({ statusCode: 404, statusMessage: 'Deployment not found', fatal: true })
+}
+if (error.value?.statusCode === 403) {
+  throw createError({ statusCode: 403, statusMessage: 'This group is locked. Enter its access code on the Projects page.', fatal: true })
 }
 
 useHead({ title: () => deployment.value ? `${deployment.value.app.name} · ${deployment.value.environment.name}` : '' })
@@ -139,7 +143,7 @@ async function copyAsText(withSecrets: boolean) {
 
 const copyItems = computed(() => [[
   { label: t('deployments.copyWithoutSecrets'), icon: 'i-lucide-shield', onSelect: () => copyAsText(false) },
-  ...(isProduction.value ? [] : [{ label: t('deployments.copyWithSecrets'), icon: 'i-lucide-shield-alert', onSelect: () => copyAsText(true) }])
+  ...(isProduction.value || !can('viewSecrets') ? [] : [{ label: t('deployments.copyWithSecrets'), icon: 'i-lucide-shield-alert', onSelect: () => copyAsText(true) }])
 ]])
 </script>
 
@@ -158,6 +162,7 @@ const copyItems = computed(() => [[
             <UBreadcrumb
               :items="[
                 { label: t('nav.projects'), to: '/projects' },
+                { label: deployment.project.group.name, to: '/projects' },
                 { label: deployment.project.name, to: projectPath },
                 { label: deployment.app.name },
                 { label: deployment.environment.name }
@@ -182,6 +187,7 @@ const copyItems = computed(() => [[
               rel="noopener noreferrer"
             />
             <UDropdownMenu
+              v-if="can('edit')"
               :items="[[
                 { label: t('deployments.edit'), icon: 'i-lucide-pencil', onSelect: () => { editOpen = true } },
                 { label: t('deployments.delete'), icon: 'i-lucide-trash-2', color: 'error', onSelect: deleteDeployment }
@@ -249,7 +255,7 @@ const copyItems = computed(() => [[
                 />
               </span>
               <UButton
-                v-else
+                v-else-if="can('edit')"
                 icon="i-lucide-plus"
                 variant="ghost"
                 size="sm"
@@ -267,7 +273,7 @@ const copyItems = computed(() => [[
                 <code class="font-mono">{{ deployment.branch }}</code>
               </span>
               <UButton
-                v-if="deployment.url"
+                v-if="deployment.url && can('edit')"
                 icon="i-lucide-pencil"
                 color="neutral"
                 variant="ghost"
@@ -299,6 +305,7 @@ const copyItems = computed(() => [[
                     <span class="font-normal text-muted">· {{ deployment.testAccounts.length }}</span>
                   </h2>
                   <UButton
+                    v-if="can('edit')"
                     icon="i-lucide-plus"
                     color="neutral"
                     variant="outline"
@@ -316,7 +323,9 @@ const copyItems = computed(() => [[
                     :key="account.id"
                     v-bind="accountSort.item(index)"
                     :account="account"
-                    :drag-handle="accountSort.handle(index)"
+                    :drag-handle="can('edit') ? accountSort.handle(index) : undefined"
+                    :editable="can('edit')"
+                    :can-reveal="can('viewSecrets')"
                     :class="accountSort.dragging.value === index && 'opacity-50'"
                     :load-secrets="loadSecrets(account.id)"
                     @edit="openAccount(account)"
@@ -336,6 +345,8 @@ const copyItems = computed(() => [[
                 v-if="!isProduction"
                 :deployment-id="deployment.id"
                 :env-vars="deployment.envVars"
+                :editable="can('edit')"
+                :can-reveal="can('viewSecrets')"
                 title=".env"
                 @changed="refresh()"
               />
@@ -348,6 +359,7 @@ const copyItems = computed(() => [[
                     {{ t('releases.title') }}
                   </h2>
                   <UButton
+                    v-if="can('edit')"
                     icon="i-lucide-plus"
                     color="neutral"
                     variant="outline"
@@ -381,6 +393,7 @@ const copyItems = computed(() => [[
                         :label="t(`releaseStatus.${release.status}`)"
                       />
                       <UDropdownMenu
+                        v-if="can('edit')"
                         :items="[[
                           { label: t('common.edit'), icon: 'i-lucide-pencil', onSelect: () => openRelease(release) },
                           { label: t('common.delete'), icon: 'i-lucide-trash-2', color: 'error', onSelect: () => deleteRelease(release) }
@@ -420,18 +433,21 @@ const copyItems = computed(() => [[
                 </h2>
                 <RichTextEditor
                   v-model="notes"
+                  :editable="can('edit')"
                   :placeholder="t('notes.placeholder')"
                 />
-                <p class="text-xs text-warning">
-                  {{ t('notes.warning') }}
-                </p>
-                <UButton
-                  class="self-start"
-                  size="sm"
-                  :loading="notesSaving"
-                  :label="t('common.save')"
-                  @click="saveNotes"
-                />
+                <template v-if="can('edit')">
+                  <p class="text-xs text-warning">
+                    {{ t('notes.warning') }}
+                  </p>
+                  <UButton
+                    class="self-start"
+                    size="sm"
+                    :loading="notesSaving"
+                    :label="t('common.save')"
+                    @click="saveNotes"
+                  />
+                </template>
               </section>
             </aside>
           </div>

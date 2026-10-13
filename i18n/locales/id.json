@@ -2,7 +2,8 @@
   "nav": {
     "projects": "Proyek",
     "techStacks": "Tech stack",
-    "settings": "Pengaturan"
+    "settings": "Pengaturan",
+    "users": "Pengguna"
   },
   "common": {
     "error": "Terjadi kesalahan",
@@ -35,7 +36,7 @@
   },
   "auth": {
     "setupTitle": "Siapkan Projectory",
-    "setupDescription": "Buat akun untuk instance ini. Hanya boleh ada satu akun.",
+    "setupDescription": "Buat akun pertama. Akun ini menjadi super user dan bisa menambahkan pengguna lain.",
     "createAccount": "Buat akun",
     "signIn": "Masuk",
     "signOut": "Keluar",
@@ -57,7 +58,8 @@
     "appCount": "belum ada app | 1 app | {count} app",
     "environmentCount": "belum ada env | 1 env | {count} env",
     "uploadCover": "Unggah logo",
-    "removeCover": "Hapus logo"
+    "removeCover": "Hapus logo",
+    "noMatch": "Tidak ada proyek yang cocok dengan pencarian."
   },
   "fields": {
     "name": "Nama",
@@ -326,5 +328,48 @@
       "INVALID_PASSPHRASE": "Passphrase salah.",
       "INVALID_FILE": "Ini bukan file ekspor Projectory yang valid."
     }
+  },
+  "groups": {
+    "group": "Grup",
+    "new": "Grup baru",
+    "edit": "Ubah grup",
+    "delete": "Hapus grup",
+    "deleteTitle": "Hapus {name}?",
+    "deleteNotEmpty": "Pindahkan atau hapus proyeknya untuk menghapus grup ini",
+    "empty": "Belum ada grup",
+    "emptyDescription": "Proyek disimpan di dalam grup. Buat grup untuk memulai.",
+    "emptyDescriptionAsk": "Proyek disimpan di dalam grup. Minta super user untuk membuatnya.",
+    "projectCount": "belum ada proyek | 1 proyek | {count} proyek",
+    "protected": "Dilindungi kode akses",
+    "noProjects": "Belum ada proyek di grup ini.",
+    "lockedDescription": "Grup ini terkunci. Masukkan kode akses untuk melihat proyeknya.",
+    "unlock": "Buka",
+    "unlockTitle": "Buka {name}",
+    "unlockDescription": "Minta kode akses ke super user. Grup tetap terbuka sampai kamu keluar.",
+    "accessCode": "Kode akses",
+    "accessCodeHint": "Opsional. Maintainer dan viewer wajib memasukkannya untuk membuka grup. Kosongkan agar grup terbuka.",
+    "invalidAccessCode": "Kode akses salah"
+  },
+  "roles": {
+    "super_user": "Super User",
+    "maintainer": "Maintainer",
+    "viewer": "Viewer"
+  },
+  "roleDescription": {
+    "super_user": "Akses penuh: grup, proyek, tech stack, dan pengguna.",
+    "maintainer": "Membuat, mengubah, dan menghapus proyek beserta isinya. Bisa melihat password dan .env.",
+    "viewer": "Hanya melihat. Tidak bisa melihat password atau isi .env."
+  },
+  "users": {
+    "new": "Tambah pengguna",
+    "you": "kamu",
+    "joined": "Ditambahkan {time}",
+    "role": "Role",
+    "created": "Pengguna ditambahkan",
+    "initialPassword": "Password awal",
+    "initialPasswordHint": "Bagikan ke pengguna; mereka bisa menggantinya di Pengaturan.",
+    "resetPassword": "Reset password",
+    "deleteTitle": "Hapus {name}?",
+    "deleteDescription": "Pengguna akan dikeluarkan dan tidak bisa masuk lagi. Data proyek tidak terpengaruh."
   }
 }

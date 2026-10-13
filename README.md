@@ -1,6 +1,6 @@
 # Projectory
 
-Self-hosted, single-user notebook for app projects: repositories, mockups, environments, deployment URLs, releases, test accounts and `.env` files. Secrets are encrypted at rest.
+Self-hosted notebook for a team's app projects: repositories, mockups, environments, deployment URLs, releases, test accounts and `.env` files. Secrets are encrypted at rest.
 
 Plan and decisions: [docs/PLAN.md](docs/PLAN.md).
 
@@ -13,7 +13,15 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Open http://localhost:4747 and create your account. Only one account can exist per instance.
+Open http://localhost:4747 and create the first account. It becomes the **Super User**, who adds everyone else on the **Users** page:
+
+| Role | Can |
+|---|---|
+| Super User | Everything: groups and their access codes, projects, tech stacks, users |
+| Maintainer | Create, edit and delete projects and everything inside them; see passwords and `.env` |
+| Viewer | Read only; no passwords or `.env` values; export without secrets |
+
+Projects live in **groups** (Group → Project → App). A group can have an access code; maintainers and viewers enter it once per session to open the group.
 
 ```bash
 docker compose up -d            # start

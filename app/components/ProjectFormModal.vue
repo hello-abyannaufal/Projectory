@@ -3,7 +3,9 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import type * as z from 'zod'
 
 const props = defineProps<{
-  project?: { id: string, name: string, description: string | null, status: ProjectStatus }
+  project?: { id: string, groupId: string, name: string, description: string | null, status: ProjectStatus }
+  // Preselected group for a new project
+  groupId?: string
 }>()
 
 const emit = defineEmits<{ saved: [id: string] }>()
@@ -13,11 +15,15 @@ const open = defineModel<boolean>('open', { default: false })
 const { t } = useI18n()
 const toast = useToast()
 
-const state = reactive({ name: '', description: '', status: 'active' as ProjectStatus })
+const { data: groups } = useGroups()
+const groupItems = computed(() => groups.value.filter(group => !group.locked).map(group => ({ value: group.id, label: group.name })))
+
+const state = reactive({ groupId: '', name: '', description: '', status: 'active' as ProjectStatus })
 
 watch(open, (value) => {
   if (value) {
     Object.assign(state, {
+      groupId: props.project?.groupId ?? props.groupId ?? groupItems.value[0]?.value ?? '',
       name: props.project?.name ?? '',
       description: props.project?.description ?? '',
       status: props.project?.status ?? 'active'
@@ -58,6 +64,17 @@ async function onSubmit({ data }: FormSubmitEvent<z.output<typeof projectInput>>
         class="space-y-4"
         @submit="onSubmit"
       >
+        <UFormField
+          :label="t('groups.group')"
+          name="groupId"
+          required
+        >
+          <USelect
+            v-model="state.groupId"
+            :items="groupItems"
+            class="w-full"
+          />
+        </UFormField>
         <UFormField
           :label="t('fields.name')"
           name="name"

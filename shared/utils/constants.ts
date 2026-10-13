@@ -31,3 +31,6 @@ export type TestAccountStatus = typeof TEST_ACCOUNT_STATUSES[number]
 
 // Shown instead of a secret value until it is revealed.
 export const SECRET_MASK = '••••••••'
+
+export const ROLES = ['super_user', 'maintainer', 'viewer'] as const
+export type Role = typeof ROLES[number]

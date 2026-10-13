@@ -5,6 +5,7 @@ export default defineEventHandler(async (event) => {
   const project = await useDb().query.projects.findFirst({
     where: eq(tables.projects.id, id),
     with: {
+      group: { columns: { id: true, name: true } },
       links: {
         where: isNull(tables.links.appId),
         orderBy: asc(tables.links.sortOrder)

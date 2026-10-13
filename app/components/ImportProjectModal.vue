@@ -1,9 +1,18 @@
 <script setup lang="ts">
+const props = defineProps<{
+  // Preselected target group
+  groupId?: string
+}>()
+
 const emit = defineEmits<{ imported: [id: string] }>()
 const open = defineModel<boolean>('open', { default: false })
 
 const { t } = useI18n()
 const toast = useToast()
+
+const { data: groups } = useGroups()
+const groupItems = computed(() => groups.value.filter(group => !group.locked).map(group => ({ value: group.id, label: group.name })))
+const selectedGroupId = ref('')
 
 const file = ref<File>()
 const passphrase = ref('')
@@ -14,6 +23,7 @@ const loading = ref(false)
 watch(open, (value) => {
   if (value) {
     file.value = undefined
+    selectedGroupId.value = props.groupId ?? groupItems.value[0]?.value ?? ''
     passphrase.value = ''
     needsPassphrase.value = false
     error.value = undefined
@@ -27,11 +37,12 @@ function onFile(event: Event) {
 }
 
 async function submit() {
-  if (!file.value) {
+  if (!file.value || !selectedGroupId.value) {
     return
   }
   const body = new FormData()
   body.append('file', file.value)
+  body.append('groupId', selectedGroupId.value)
   if (passphrase.value) {
     body.append('passphrase', passphrase.value)
   }
@@ -82,6 +93,13 @@ async function submit() {
             @change="onFile"
           >
         </label>
+        <UFormField :label="t('groups.group')">
+          <USelect
+            v-model="selectedGroupId"
+            :items="groupItems"
+            class="w-full"
+          />
+        </UFormField>
         <UFormField
           v-if="needsPassphrase"
           :label="t('export.passphrase')"
@@ -117,7 +135,7 @@ async function submit() {
           form="import-form"
           icon="i-lucide-upload"
           :loading="loading"
-          :disabled="!file"
+          :disabled="!file || !selectedGroupId"
           :label="t('import.button')"
         />
       </div>

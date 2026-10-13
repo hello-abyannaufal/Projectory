@@ -1,7 +1,10 @@
-import { desc } from 'drizzle-orm'
+import { desc, notInArray } from 'drizzle-orm'
 
-export default defineEventHandler(async () => {
+// Projects in groups this session hasn't unlocked are left out.
+export default defineEventHandler(async (event) => {
+  const locked = [...await lockedGroupIds(event)]
   const rows = await useDb().query.projects.findMany({
+    where: locked.length ? notInArray(tables.projects.groupId, locked) : undefined,
     orderBy: desc(tables.projects.updatedAt),
     columns: { notes: false },
     with: {

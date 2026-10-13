@@ -7,6 +7,7 @@ defineProps<{
 
 const { t } = useI18n()
 const session = authClient.useSession()
+const { role } = usePermissions()
 
 const user = computed(() => session.value.data?.user)
 
@@ -16,7 +17,7 @@ async function signOut() {
 }
 
 const items = computed<DropdownMenuItem[][]>(() => [
-  [{ label: user.value?.email ?? '', type: 'label' }],
+  [{ label: user.value?.email ?? '', type: 'label' }, ...(role.value ? [{ label: t(`roles.${role.value}`), icon: 'i-lucide-shield-user', type: 'label' as const }] : [])],
   [{ label: t('nav.settings'), icon: 'i-lucide-settings-2', to: '/settings' }],
   [{ label: t('auth.signOut'), icon: 'i-lucide-log-out', onSelect: signOut }]
 ])

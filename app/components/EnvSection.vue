@@ -3,6 +3,9 @@ const props = defineProps<{
   deploymentId: string
   envVars: DeploymentEnvVar[]
   title: string
+  editable?: boolean
+  // Without it only the keys are shown, values stay masked.
+  canReveal?: boolean
 }>()
 
 const emit = defineEmits<{ changed: [] }>()
@@ -163,7 +166,7 @@ function onApplied() {
           size="xs"
         />
         <UButton
-          v-if="!rawEditing"
+          v-if="!rawEditing && canReveal"
           :icon="visible ? 'i-lucide-eye-off' : 'i-lucide-eye'"
           color="neutral"
           variant="outline"
@@ -172,6 +175,7 @@ function onApplied() {
           @click="toggleVisible"
         />
         <UButton
+          v-if="editable"
           icon="i-lucide-upload"
           color="neutral"
           variant="outline"
@@ -180,10 +184,11 @@ function onApplied() {
           @click="openImport"
         />
         <UDropdownMenu
+          v-if="canReveal"
           :items="[[
             { label: t('env.copyAll'), icon: 'i-lucide-copy', onSelect: copyAll },
             { label: t('env.download'), icon: 'i-lucide-download', onSelect: download }
-          ], ...(envVars.length ? [[
+          ], ...(envVars.length && editable ? [[
             { label: t('env.deleteAll'), icon: 'i-lucide-trash-2', color: 'error' as const, onSelect: removeAll }
           ]] : [])]"
         >
@@ -211,6 +216,7 @@ function onApplied() {
           <span class="w-72 shrink-0 truncate font-medium text-highlighted">{{ envVar.key }}</span>
           <span class="min-w-0 flex-1 truncate text-toned">{{ valueOf(envVar.id) }}</span>
           <UButton
+            v-if="canReveal"
             icon="i-lucide-copy"
             color="neutral"
             variant="ghost"
@@ -218,22 +224,24 @@ function onApplied() {
             :aria-label="t('common.copy')"
             @click="copyValue(envVar.id)"
           />
-          <UButton
-            icon="i-lucide-pencil"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            :aria-label="t('common.edit')"
-            @click="openForm(envVar)"
-          />
-          <UButton
-            icon="i-lucide-trash-2"
-            color="error"
-            variant="ghost"
-            size="sm"
-            :aria-label="t('common.delete')"
-            @click="remove(envVar)"
-          />
+          <template v-if="editable">
+            <UButton
+              icon="i-lucide-pencil"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              :aria-label="t('common.edit')"
+              @click="openForm(envVar)"
+            />
+            <UButton
+              icon="i-lucide-trash-2"
+              color="error"
+              variant="ghost"
+              size="sm"
+              :aria-label="t('common.delete')"
+              @click="remove(envVar)"
+            />
+          </template>
         </div>
         <p
           v-if="!envVars.length"
@@ -242,6 +250,7 @@ function onApplied() {
           {{ t('env.empty') }}
         </p>
         <UButton
+          v-if="editable"
           icon="i-lucide-plus"
           variant="ghost"
           class="m-2 font-sans"
@@ -278,7 +287,10 @@ function onApplied() {
       </template>
       <template v-else>
         <pre class="overflow-x-auto rounded-md bg-inverted p-4 font-mono text-sm leading-relaxed text-inverted">{{ rawText || t('env.empty') }}</pre>
-        <div class="flex flex-wrap items-center gap-3">
+        <div
+          v-if="editable"
+          class="flex flex-wrap items-center gap-3"
+        >
           <UButton
             icon="i-lucide-pencil"
             color="neutral"
