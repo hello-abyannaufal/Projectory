@@ -10,4 +10,5 @@ export default defineNitroPlugin(async () => {
     await migrate(useDb(), { migrationsFolder: resolve('server/db/migrations') })
   }
   await seedTechStacks()
+  await purgeExpiredTrash()
 })

@@ -95,10 +95,10 @@ function groupMenu(group: Group) {
   return [[
     { label: t('groups.edit'), icon: 'i-lucide-pencil', onSelect: () => openGroupForm(group) },
     {
-      label: group.projectCount ? t('groups.deleteNotEmpty') : t('groups.delete'),
+      label: group.projectCount ? t('groups.deleteNotEmpty') : group.trashedCount ? t('groups.deleteHasTrash') : t('groups.delete'),
       icon: 'i-lucide-trash-2',
       color: 'error' as const,
-      disabled: group.projectCount > 0,
+      disabled: group.projectCount + group.trashedCount > 0,
       onSelect: () => deleteGroup(group)
     }
   ]]

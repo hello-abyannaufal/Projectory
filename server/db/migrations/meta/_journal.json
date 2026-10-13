@@ -29,6 +29,13 @@
       "when": 1791879404739,
       "tag": "0003_project_pins_and_visits",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791879515139,
+      "tag": "0004_project_trash",
+      "breakpoints": true
     }
   ]
 }

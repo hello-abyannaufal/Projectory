@@ -44,9 +44,24 @@ async function deleteProject() {
   if (!project.value) {
     return
   }
-  const ok = await confirm({ title: t('projects.deleteTitle', { name: project.value.name }), description: t('projects.deleteDescription') })
-  if (ok && await api(() => request(`/api/projects/${projectId.value}`, { method: 'DELETE' }))) {
+  const { id, name } = project.value
+  const ok = await confirm({ title: t('projects.deleteTitle', { name }), description: t('projects.deleteDescription', { days: TRASH_RETENTION_DAYS }) })
+  if (ok && await api(() => request(`/api/projects/${id}`, { method: 'DELETE' }))) {
+    // Group project counts are cached under this key.
+    await refreshNuxtData('groups')
     await navigateTo('/projects')
+    toast.add({
+      title: t('trash.moved', { name }),
+      icon: 'i-lucide-trash-2',
+      actions: [{ label: t('trash.undo'), color: 'neutral', variant: 'outline', onClick: () => restoreProject(id) }]
+    })
+  }
+}
+
+async function restoreProject(id: string) {
+  if (await api(() => request(`/api/projects/${id}/restore`, { method: 'POST' }))) {
+    await refreshNuxtData('groups')
+    await navigateTo(`/projects/${id}`)
   }
 }
 

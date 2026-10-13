@@ -32,8 +32,9 @@ export function accessCodeMatches(stored: string, input: string) {
 
 const ENTITY_PATH = /^\/api\/(projects|apps|environments|links|deployments|releases|env-vars|accounts)\/([0-9a-f-]{36})(?:\/|$)/i
 
-// The group that a /api/<entity>/<id> route belongs to, if any.
-export async function groupIdForPath(path: string) {
+// The project a /api/<entity>/<id> route belongs to, if any: its group, and
+// whether it is in the trash.
+export async function projectScopeForPath(path: string) {
   const match = ENTITY_PATH.exec(path)
   if (!match) {
     return undefined
@@ -41,25 +42,26 @@ export async function groupIdForPath(path: string) {
   const [, kind, id] = match as unknown as [string, string, string]
   const db = useDb()
   const { projects, apps, environments, links, deployments, releases, envVars, testAccounts } = tables
+  const scope = { groupId: projects.groupId, deletedAt: projects.deletedAt }
 
   const byProject = (table: typeof environments | typeof links | typeof apps) =>
-    db.select({ groupId: projects.groupId }).from(table)
+    db.select(scope).from(table)
       .innerJoin(projects, eq(projects.id, table.projectId))
       .where(eq(table.id, id))
 
   const byDeployment = (table: typeof releases | typeof envVars | typeof testAccounts) =>
-    db.select({ groupId: projects.groupId }).from(table)
+    db.select(scope).from(table)
       .innerJoin(deployments, eq(deployments.id, table.deploymentId))
       .innerJoin(apps, eq(apps.id, deployments.appId))
       .innerJoin(projects, eq(projects.id, apps.projectId))
       .where(eq(table.id, id))
 
   const query = {
-    'projects': () => db.select({ groupId: projects.groupId }).from(projects).where(eq(projects.id, id)),
+    'projects': () => db.select(scope).from(projects).where(eq(projects.id, id)),
     'apps': () => byProject(apps),
     'environments': () => byProject(environments),
     'links': () => byProject(links),
-    'deployments': () => db.select({ groupId: projects.groupId }).from(deployments)
+    'deployments': () => db.select(scope).from(deployments)
       .innerJoin(apps, eq(apps.id, deployments.appId))
       .innerJoin(projects, eq(projects.id, apps.projectId))
       .where(eq(deployments.id, id)),
@@ -69,5 +71,5 @@ export async function groupIdForPath(path: string) {
   }[kind.toLowerCase()]
 
   const [row] = await query!()
-  return row?.groupId
+  return row && { groupId: row.groupId, trashed: !!row.deletedAt }
 }

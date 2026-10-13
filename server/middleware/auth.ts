@@ -13,6 +13,9 @@ function requiredPermission(path: string, method: string): Permission | undefine
   if (path.startsWith('/api/audit-logs')) {
     return 'viewAuditLog'
   }
+  if (path.startsWith('/api/trash')) {
+    return 'edit'
+  }
   if (path.endsWith('/reveal')) {
     return 'viewSecrets'
   }
@@ -44,9 +47,13 @@ export default defineEventHandler(async (event) => {
   event.context.user = session.user
   event.context.session = session.session
 
-  // Anything inside a locked group needs its access code first.
-  const groupId = await groupIdForPath(path)
-  if (groupId) {
-    await assertGroupOpen(event, groupId)
+  // Anything inside a locked group needs its access code first. A project in
+  // the trash, and everything in it, is gone until it is restored.
+  const scope = await projectScopeForPath(path)
+  if (scope) {
+    await assertGroupOpen(event, scope.groupId)
+    if (scope.trashed && !/^\/api\/projects\/[^/]+\/restore$/.test(path)) {
+      notFound()
+    }
   }
 })

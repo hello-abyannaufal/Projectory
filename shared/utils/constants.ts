@@ -47,6 +47,8 @@ export const AUDIT_ACTIONS = [
   'project.export',
   'project.import',
   'project.delete',
+  'project.restore',
+  'project.purge',
   'group.unlock',
   'group.unlock_failed',
   'group.access_code_view',
@@ -60,3 +62,6 @@ export const IDLE_TIMEOUT_MS = 60 * 60 * 1000
 
 // A test account not verified for this long is flagged for a re-check.
 export const STALE_ACCOUNT_DAYS = 30
+
+// Deleted projects stay restorable in the trash this long.
+export const TRASH_RETENTION_DAYS = 30

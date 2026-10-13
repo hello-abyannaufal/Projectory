@@ -133,6 +133,10 @@ export const projects = pgTable('projects', {
   status: projectStatus('status').notNull().default('active'),
   // TipTap JSON
   notes: jsonb('notes'),
+  // Set while the project is in the trash; purged after TRASH_RETENTION_DAYS.
+  deletedAt: timestamp('deleted_at'),
+  // Name of the user who moved it there
+  deletedBy: text('deleted_by'),
   ...timestamps
 }, t => [index('projects_group_idx').on(t.groupId)])
 

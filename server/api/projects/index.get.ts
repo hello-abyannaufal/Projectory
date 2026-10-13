@@ -1,6 +1,6 @@
-import { desc, eq, notInArray } from 'drizzle-orm'
+import { and, desc, eq, isNull, notInArray } from 'drizzle-orm'
 
-// Projects in groups this session hasn't unlocked are left out.
+// Projects in the trash or in groups this session hasn't unlocked are left out.
 export default defineEventHandler(async (event) => {
   const locked = [...await lockedGroupIds(event)]
   const userId = (event.context.user as { id: string }).id
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   const pinnedAt = new Map(pins.map(pin => [pin.projectId, pin.createdAt]))
   const visitedAt = new Map(visits.map(visit => [visit.projectId, visit.visitedAt]))
   const rows = await db.query.projects.findMany({
-    where: locked.length ? notInArray(tables.projects.groupId, locked) : undefined,
+    where: and(isNull(tables.projects.deletedAt), locked.length ? notInArray(tables.projects.groupId, locked) : undefined),
     orderBy: desc(tables.projects.updatedAt),
     columns: { notes: false },
     with: {

@@ -1,4 +1,4 @@
-import { asc, count, eq, isNotNull } from 'drizzle-orm'
+import { asc, eq, isNotNull, sql } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   const { groups, projects } = tables
@@ -8,7 +8,9 @@ export default defineEventHandler(async (event) => {
       name: groups.name,
       description: groups.description,
       hasAccessCode: isNotNull(groups.accessCode),
-      projectCount: count(projects.id)
+      projectCount: sql<number>`count(${projects.id}) filter (where ${projects.deletedAt} is null)`.mapWith(Number),
+      // Projects in the trash still block deleting the group.
+      trashedCount: sql<number>`count(${projects.id}) filter (where ${projects.deletedAt} is not null)`.mapWith(Number)
     })
     .from(groups)
     .leftJoin(projects, eq(projects.groupId, groups.id))

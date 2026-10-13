@@ -4,7 +4,8 @@
     "techStacks": "Tech stack",
     "settings": "Pengaturan",
     "users": "Pengguna",
-    "auditLog": "Log audit"
+    "auditLog": "Log audit",
+    "trash": "Tempat sampah"
   },
   "common": {
     "error": "Terjadi kesalahan",
@@ -54,7 +55,7 @@
     "edit": "Ubah proyek",
     "delete": "Hapus proyek",
     "deleteTitle": "Hapus {name}?",
-    "deleteDescription": "Semua app, environment, akun, dan isi .env di proyek ini akan dihapus.",
+    "deleteDescription": "Proyek dipindahkan ke tempat sampah. Masih bisa dipulihkan selama {days} hari, setelah itu dihapus permanen.",
     "searchPlaceholder": "Cari proyek…",
     "emptyDescription": "Buat proyek untuk mulai menyimpan app, environment, dan akunnya.",
     "appCount": "belum ada app | 1 app | {count} app",
@@ -357,7 +358,8 @@
     "unlockDescription": "Minta kode akses ke super user. Grup tetap terbuka sampai kamu keluar.",
     "accessCode": "Kode akses",
     "accessCodeHint": "Opsional. Maintainer dan viewer wajib memasukkannya untuk membuka grup. Kosongkan agar grup terbuka.",
-    "invalidAccessCode": "Kode akses salah"
+    "invalidAccessCode": "Kode akses salah",
+    "deleteHasTrash": "Hapus dulu proyek grup ini dari tempat sampah"
   },
   "roles": {
     "super_user": "Super User",
@@ -411,7 +413,9 @@
     "project": {
       "export": "Mengekspor proyek",
       "import": "Mengimpor proyek",
-      "delete": "Menghapus proyek"
+      "delete": "Memindahkan proyek ke tempat sampah",
+      "restore": "Memulihkan proyek",
+      "purge": "Menghapus proyek permanen"
     },
     "group": {
       "unlock": "Membuka grup",
@@ -420,5 +424,18 @@
       "access_code_change": "Mengubah kode akses",
       "delete": "Menghapus grup"
     }
+  },
+  "trash": {
+    "description": "Proyek yang dihapus disimpan di sini selama {days} hari. Pulihkan untuk mengembalikan semua isinya.",
+    "empty": "Tempat sampah kosong",
+    "moved": "{name} dipindahkan ke tempat sampah",
+    "undo": "Urungkan",
+    "restore": "Pulihkan",
+    "restored": "Proyek dipulihkan",
+    "purge": "Hapus permanen",
+    "purgeTitle": "Hapus {name} secara permanen?",
+    "purgeDescription": "Semua app, environment, akun, dan nilai .env di proyek ini akan dihapus. Tindakan ini tidak bisa dibatalkan.",
+    "deletedBy": "Dihapus oleh {name} {time}",
+    "purgeAt": "dihapus permanen {time}"
   }
 }

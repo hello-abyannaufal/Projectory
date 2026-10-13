@@ -4,7 +4,8 @@
     "techStacks": "Tech stacks",
     "settings": "Settings",
     "users": "Users",
-    "auditLog": "Audit log"
+    "auditLog": "Audit log",
+    "trash": "Trash"
   },
   "common": {
     "error": "Something went wrong",
@@ -54,7 +55,7 @@
     "edit": "Edit project",
     "delete": "Delete project",
     "deleteTitle": "Delete {name}?",
-    "deleteDescription": "All apps, environments, accounts and .env values in this project will be deleted.",
+    "deleteDescription": "The project moves to the trash. It can be restored for {days} days, then it is deleted for good.",
     "searchPlaceholder": "Search projects…",
     "emptyDescription": "Create a project to start storing its apps, environments and accounts.",
     "appCount": "no apps | 1 app | {count} apps",
@@ -357,7 +358,8 @@
     "unlockDescription": "Ask a super user for the access code. It stays unlocked until you sign out.",
     "accessCode": "Access code",
     "accessCodeHint": "Optional. Maintainers and viewers must enter it to open the group. Leave empty to keep the group open.",
-    "invalidAccessCode": "Wrong access code"
+    "invalidAccessCode": "Wrong access code",
+    "deleteHasTrash": "Delete this group's projects from the trash first"
   },
   "roles": {
     "super_user": "Super User",
@@ -411,7 +413,9 @@
     "project": {
       "export": "Exported project",
       "import": "Imported project",
-      "delete": "Deleted project"
+      "delete": "Moved project to trash",
+      "restore": "Restored project",
+      "purge": "Deleted project forever"
     },
     "group": {
       "unlock": "Unlocked group",
@@ -420,5 +424,18 @@
       "access_code_change": "Changed access code",
       "delete": "Deleted group"
     }
+  },
+  "trash": {
+    "description": "Deleted projects stay here for {days} days. Restore one to bring back everything in it.",
+    "empty": "The trash is empty",
+    "moved": "{name} moved to the trash",
+    "undo": "Undo",
+    "restore": "Restore",
+    "restored": "Project restored",
+    "purge": "Delete forever",
+    "purgeTitle": "Delete {name} forever?",
+    "purgeDescription": "All apps, environments, accounts and .env values in this project will be deleted. This can't be undone.",
+    "deletedBy": "Deleted by {name} {time}",
+    "purgeAt": "deleted for good {time}"
   }
 }
