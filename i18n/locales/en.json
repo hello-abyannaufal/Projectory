@@ -486,17 +486,17 @@
       "envKeys": ".env keys",
       "apps": "Apps",
       "links": "Links",
-      "infra": "Infra"
+      "infra": "Infrastructure"
     }
   },
   "infra": {
-    "title": "Infra",
+    "title": "Infrastructure",
     "description": "Where things run: servers, clusters and databases. Only addresses and notes, never passwords.",
-    "empty": "No infra recorded yet.",
-    "new": "Add infra",
-    "edit": "Edit infra",
+    "empty": "No infrastructure recorded yet.",
+    "new": "Add infrastructure",
+    "edit": "Edit infrastructure",
     "deleteTitle": "Delete {name}?",
-    "noSecrets": "Don't put passwords or keys here. Infra is visible to every role and isn't encrypted.",
+    "noSecrets": "Don't put passwords or keys here. Infrastructure is visible to every role and isn't encrypted.",
     "allEnvironments": "All environments",
     "host": "Host / IP / URL",
     "hostHint": "e.g. 10.20.1.15, db-sit.bank.local:5432 or https://rancher-sit.bank.local",
