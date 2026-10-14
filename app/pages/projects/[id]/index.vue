@@ -150,9 +150,14 @@ type AnyLink = { id: string, type: LinkType, label: string, url: string, appId: 
 const linkOpen = ref(false)
 const editingLink = ref<AnyLink>()
 
+// Within an app, links sort by category (LINK_TYPES order), then by name.
+function byCategoryThenName(a: AnyLink, b: AnyLink) {
+  return LINK_TYPES.indexOf(a.type) - LINK_TYPES.indexOf(b.type) || a.label.localeCompare(b.label)
+}
+
 const linkGroups = computed(() => [
-  { id: null, name: t('links.wholeProject'), links: project.value?.links ?? [] },
-  ...(project.value?.apps ?? []).map(app => ({ id: app.id, name: app.name, links: app.links }))
+  { id: null, name: t('links.wholeProject'), links: [...project.value?.links ?? []].sort(byCategoryThenName) },
+  ...(project.value?.apps ?? []).map(app => ({ id: app.id, name: app.name, links: [...app.links].sort(byCategoryThenName) }))
 ])
 
 function openLink(link?: AnyLink) {
@@ -192,8 +197,8 @@ async function deleteInfra(item: ProjectInfraItem) {
   }
 }
 
-// Overview shows every link in one list, labelled with its app.
-const allLinks = computed(() => linkGroups.value.flatMap(group => group.links.map(link => ({ ...link, owner: group.id ? group.name : null }))))
+// Overview shows only the apps that have links.
+const overviewLinkGroups = computed(() => linkGroups.value.filter(group => group.links.length))
 
 // An empty editor still saves a doc with one empty paragraph.
 const hasNotes = computed(() => {
@@ -371,27 +376,32 @@ async function saveNotes() {
                         @click="activeTab = 'links'"
                       />
                     </div>
-                    <a
-                      v-for="link in allLinks"
-                      :key="link.id"
-                      :href="link.url"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="group flex items-center gap-3 border-t border-default py-2.5"
+                    <div
+                      v-for="group in overviewLinkGroups"
+                      :key="group.id ?? 'project'"
+                      class="flex flex-col border-t border-default pt-2.5 pb-1"
                     >
-                      <UBadge
-                        color="neutral"
-                        variant="soft"
-                        :label="t(`linkType.${link.type}`)"
-                      />
-                      <span class="min-w-0 flex-1 truncate text-sm text-highlighted group-hover:text-primary">{{ link.label }}</span>
-                      <span
-                        v-if="link.owner"
-                        class="shrink-0 text-xs text-muted"
-                      >{{ link.owner }}</span>
-                    </a>
+                      <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
+                        {{ group.name }}
+                      </h3>
+                      <a
+                        v-for="link in group.links"
+                        :key="link.id"
+                        :href="link.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="group flex items-center gap-3 py-1.5"
+                      >
+                        <UBadge
+                          color="neutral"
+                          variant="soft"
+                          :label="t(`linkType.${link.type}`)"
+                        />
+                        <span class="min-w-0 flex-1 truncate text-sm text-highlighted group-hover:text-primary">{{ link.label }}</span>
+                      </a>
+                    </div>
                     <p
-                      v-if="!allLinks.length"
+                      v-if="!overviewLinkGroups.length"
                       class="border-t border-default pt-3 text-sm text-muted"
                     >
                       {{ t('overview.noLinks') }}
