@@ -9,6 +9,7 @@ const open = defineModel<boolean>('open', { default: false })
 const { t } = useI18n()
 const toast = useToast()
 const copy = useCopy()
+const { can } = usePermissions()
 
 type Format = 'zip' | 'markdown'
 type Secrets = 'none' | 'passphrase' | 'plaintext'
@@ -36,7 +37,8 @@ const formatOptions = computed(() => [
   { value: 'markdown' as const, title: t('export.textTitle'), description: t('export.textDescription') }
 ])
 
-const secretOptions = computed(() => format.value === 'zip'
+// Without viewSecrets only the export without secrets is offered (and allowed by the server).
+const secretOptions = computed(() => (format.value === 'zip'
   ? [
       { value: 'none' as const, title: t('export.withoutSecrets'), description: t('export.withoutSecretsZip') },
       { value: 'passphrase' as const, title: t('export.encrypted'), description: t('export.encryptedDescription') }
@@ -44,7 +46,7 @@ const secretOptions = computed(() => format.value === 'zip'
   : [
       { value: 'none' as const, title: t('export.withoutSecrets'), description: t('export.withoutSecretsText') },
       { value: 'plaintext' as const, title: t('export.plaintext'), description: t('export.plaintextDescription') }
-    ])
+    ]).filter(option => option.value === 'none' || can('viewSecrets')))
 
 const passphraseError = computed(() => {
   if (secrets.value !== 'passphrase') {
@@ -73,7 +75,7 @@ async function run() {
     if (format.value === 'markdown') {
       await copy(await response.text())
     } else {
-      const name = /filename="([^"]+)"/.exec(response.headers.get('Content-Disposition') ?? '')?.[1] ?? 'project.biblodrive.zip'
+      const name = /filename="([^"]+)"/.exec(response.headers.get('Content-Disposition') ?? '')?.[1] ?? 'project.projectory.zip'
       const url = URL.createObjectURL(await response.blob())
       const link = document.createElement('a')
       link.href = url

@@ -9,6 +9,14 @@ const toast = useToast()
 
 useHead({ title: () => t('auth.signIn') })
 
+const route = useRoute()
+
+onMounted(() => {
+  if (route.query.idle) {
+    toast.add({ title: t('auth.signedOutIdle'), icon: 'i-lucide-timer-off', color: 'warning' })
+  }
+})
+
 const fields = computed<AuthFormField[]>(() => [
   { name: 'email', type: 'email', label: t('auth.email'), required: true },
   { name: 'password', type: 'password', label: t('auth.password'), required: true }
@@ -38,7 +46,7 @@ async function onSubmit({ data }: FormSubmitEvent<Schema>) {
 <template>
   <UAuthForm
     :title="t('auth.signIn')"
-    description="BibloDrive"
+    description="Projectory"
     icon="i-lucide-lock"
     :fields="fields"
     :schema="schema"

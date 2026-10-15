@@ -1,6 +1,6 @@
-# BibloDrive
+# Projectory
 
-Self-hosted, single-user notebook for app projects: repositories, mockups, environments, deployment URLs, releases, test accounts and `.env` files. Secrets are encrypted at rest.
+Self-hosted notebook for a team's app projects: repositories, mockups, environments, deployment URLs, releases, test accounts and `.env` files. Secrets are encrypted at rest.
 
 Plan and decisions: [docs/PLAN.md](docs/PLAN.md).
 
@@ -13,7 +13,25 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Open http://localhost:4747 and create your account. Only one account can exist per instance.
+Open http://localhost:4747 and create the first account. It becomes the **Super User**, who adds everyone else on the **Users** page:
+
+| Role | Can |
+|---|---|
+| Super User | Everything: groups and their access codes, projects, tech stacks, users |
+| Maintainer | Create, edit and delete projects and everything inside them; see passwords and `.env` |
+| Viewer | Read only; no passwords or `.env` values; export without secrets |
+
+Projects live in **groups** (Group → Project → App). A group can have an access code; maintainers and viewers enter it once per session to open the group.
+
+Other things worth knowing:
+
+- **Ctrl+K** searches projects, URLs, branches, accounts and `.env` keys. Secret values are never searched.
+- Deleted projects go to the **Trash** and can be restored for 30 days.
+- The **Infrastructure** tab lists servers, Rancher clusters, databases and VPNs per environment: addresses and notes only, never credentials.
+- Every `.env` change is kept in its **history** (last 50 versions) and can be restored.
+- The **Audit log** (Super User) records secret reveals, exports, project deletes, access code use and user changes.
+- Users are signed out after an hour without activity.
+- Retention and timeout values live in `shared/utils/constants.ts`.
 
 ```bash
 docker compose up -d            # start
@@ -59,7 +77,7 @@ Colors live in `app/app.config.ts` (semantic colors) and `app/assets/css/main.cs
 
 ## Backups
 
-- Database: `docker compose exec postgres pg_dump -U biblodrive biblodrive > backup.sql`
+- Database: `docker compose exec postgres pg_dump -U projectory projectory > backup.sql`
 - Uploads: copy `./data/uploads`
 - Keep `NUXT_MASTER_KEY` somewhere safe and **separate** from the backups. Without it, stored secrets can't be decrypted.
 

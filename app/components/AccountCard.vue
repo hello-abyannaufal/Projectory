@@ -5,12 +5,17 @@ const props = defineProps<{
   loadSecrets: () => Promise<Record<string, string> | undefined>
   // Attributes from useDragSort().handle(), bound on the grip
   dragHandle?: Record<string, unknown>
+  // Show the edit/delete menu
+  editable?: boolean
+  // Allow revealing and copying secret fields
+  canReveal?: boolean
 }>()
 
 const emit = defineEmits<{
   edit: []
   delete: []
   verify: []
+  status: [status: TestAccountStatus]
 }>()
 
 const { t, locale } = useI18n()
@@ -53,8 +58,20 @@ watch(() => props.account, () => {
   shown.value = new Set()
 })
 
+const stale = computed(() => accountAttention(props.account) === 'stale')
+
 const menu = computed(() => [[
   { label: t('accounts.markVerified'), icon: 'i-lucide-badge-check', onSelect: () => emit('verify') },
+  {
+    label: t('accounts.setStatus'),
+    icon: 'i-lucide-circle-dot',
+    children: TEST_ACCOUNT_STATUSES.map(status => ({
+      label: t(`accountStatus.${status}`),
+      type: 'checkbox' as const,
+      checked: props.account.status === status,
+      onSelect: () => emit('status', status)
+    }))
+  },
   { label: t('common.edit'), icon: 'i-lucide-pencil', onSelect: () => emit('edit') }
 ], [
   { label: t('common.delete'), icon: 'i-lucide-trash-2', color: 'error' as const, onSelect: () => emit('delete') }
@@ -83,6 +100,14 @@ const menu = computed(() => [[
             size="sm"
             :label="t(`accountStatus.${account.status}`)"
           />
+          <UBadge
+            v-if="stale"
+            color="warning"
+            variant="outline"
+            size="sm"
+            icon="i-lucide-clock-alert"
+            :label="t('accounts.needsCheck')"
+          />
         </div>
       </div>
       <div class="flex shrink-0 items-center">
@@ -93,7 +118,10 @@ const menu = computed(() => [[
           :aria-label="t('common.reorder')"
           class="size-4 cursor-grab text-dimmed"
         />
-        <UDropdownMenu :items="menu">
+        <UDropdownMenu
+          v-if="editable"
+          :items="menu"
+        >
           <UButton
             icon="i-lucide-ellipsis-vertical"
             color="neutral"
@@ -123,7 +151,7 @@ const menu = computed(() => [[
         <span class="w-24 shrink-0 truncate text-xs text-muted">{{ field.key }}</span>
         <span class="min-w-0 flex-1 truncate font-mono text-sm text-highlighted">{{ display(field) }}</span>
         <UButton
-          v-if="field.isSecret"
+          v-if="field.isSecret && canReveal"
           :icon="shown.has(field.id) ? 'i-lucide-eye-off' : 'i-lucide-eye'"
           color="neutral"
           variant="ghost"
@@ -132,6 +160,7 @@ const menu = computed(() => [[
           @click="toggle(field.id)"
         />
         <UButton
+          v-if="!field.isSecret || canReveal"
           icon="i-lucide-copy"
           color="neutral"
           variant="ghost"
@@ -142,7 +171,10 @@ const menu = computed(() => [[
       </div>
     </div>
 
-    <span class="text-xs text-muted">
+    <span
+      class="text-xs"
+      :class="stale ? 'text-warning' : 'text-muted'"
+    >
       {{ account.lastVerifiedAt ? t('accounts.verifiedAgo', { time: timeAgo(account.lastVerifiedAt, locale) }) : t('accounts.neverVerified') }}
     </span>
   </article>

@@ -2,7 +2,10 @@
   "nav": {
     "projects": "Projects",
     "techStacks": "Tech stacks",
-    "settings": "Settings"
+    "settings": "Settings",
+    "users": "Users",
+    "auditLog": "Audit log",
+    "trash": "Trash"
   },
   "common": {
     "error": "Something went wrong",
@@ -24,7 +27,8 @@
     "reorder": "Drag to reorder",
     "more": "More",
     "moveUp": "Move up",
-    "moveDown": "Move down"
+    "moveDown": "Move down",
+    "close": "Close"
   },
   "validation": {
     "required": "Required",
@@ -34,8 +38,8 @@
     "passwordMismatch": "Passwords don't match"
   },
   "auth": {
-    "setupTitle": "Set up BibloDrive",
-    "setupDescription": "Create the account for this instance. Only one account can exist.",
+    "setupTitle": "Set up Projectory",
+    "setupDescription": "Create the first account. It becomes the super user and can add other users.",
     "createAccount": "Create account",
     "signIn": "Sign in",
     "signOut": "Sign out",
@@ -43,7 +47,8 @@
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm password",
-    "invalidCredentials": "Invalid email or password"
+    "invalidCredentials": "Invalid email or password",
+    "signedOutIdle": "You were signed out after an hour of inactivity."
   },
   "projects": {
     "empty": "No projects yet",
@@ -51,13 +56,18 @@
     "edit": "Edit project",
     "delete": "Delete project",
     "deleteTitle": "Delete {name}?",
-    "deleteDescription": "All apps, environments, accounts and .env values in this project will be deleted.",
+    "deleteDescription": "The project moves to the trash. It can be restored for {days} days, then it is deleted for good.",
     "searchPlaceholder": "Search projects…",
     "emptyDescription": "Create a project to start storing its apps, environments and accounts.",
     "appCount": "no apps | 1 app | {count} apps",
     "environmentCount": "no envs | 1 env | {count} envs",
     "uploadCover": "Upload logo",
-    "removeCover": "Remove logo"
+    "removeCover": "Remove logo",
+    "noMatch": "No projects match your search.",
+    "pin": "Pin to top",
+    "unpin": "Unpin",
+    "pinned": "Pinned",
+    "recent": "Recently opened"
   },
   "fields": {
     "name": "Name",
@@ -117,7 +127,10 @@
     "wholeProject": "Whole project",
     "belongsTo": "Belongs to",
     "labelPlaceholder": "e.g. Backend API repo",
-    "deleteTitle": "Delete {name}?"
+    "deleteTitle": "Delete {name}?",
+    "environment": "Environment",
+    "anyEnvironment": "Not specific",
+    "environmentHint": "Also shown on the deployment page of that environment."
   },
   "deployments": {
     "title": "Deployments",
@@ -148,10 +161,10 @@
     "button": "Export",
     "title": "Export project",
     "format": "Format",
-    "zipTitle": "BibloDrive file (.zip)",
-    "zipDescription": "All data plus logos. Can be imported into another BibloDrive instance.",
+    "zipTitle": "Projectory file (.zip)",
+    "zipDescription": "All data plus logos. Can be imported into another Projectory instance.",
     "textTitle": "Copy as text / Markdown",
-    "textDescription": "Readable summary for people without BibloDrive, e.g. to paste in chat.",
+    "textDescription": "Readable summary for people without Projectory, e.g. to paste in chat.",
     "secrets": "Secrets (passwords, .env)",
     "withoutSecrets": "Without secrets",
     "withoutSecretsZip": "Secret values are left empty. Structure stays complete.",
@@ -185,7 +198,10 @@
     "fieldValue": "Value",
     "keepSecret": "Leave empty to keep",
     "secret": "Secret",
-    "addField": "Add field"
+    "addField": "Add field",
+    "setStatus": "Set status",
+    "needsCheck": "Needs check",
+    "attentionCount": "No accounts need attention | 1 needs attention | {count} need attention"
   },
   "accountStatus": {
     "active": "Active",
@@ -312,19 +328,191 @@
     "updatePassword": "Update password",
     "passwordChanged": "Password updated",
     "session": "Session",
-    "sessionHint": "Sign out of BibloDrive on this browser."
+    "sessionHint": "Sign out of Projectory on this browser."
   },
   "import": {
     "button": "Import",
     "title": "Import project",
-    "description": "Creates a new project from a BibloDrive export.",
-    "chooseFile": "Choose a .biblodrive.zip file",
+    "description": "Creates a new project from a Projectory export.",
+    "chooseFile": "Choose a .projectory.zip file",
     "hint": "Imports always create a new project; nothing existing is changed.",
     "done": "Project imported",
     "errors": {
       "PASSPHRASE_REQUIRED": "This file contains encrypted secrets. Enter the passphrase.",
       "INVALID_PASSPHRASE": "Wrong passphrase.",
-      "INVALID_FILE": "This isn't a valid BibloDrive export."
+      "INVALID_FILE": "This isn't a valid Projectory export."
     }
+  },
+  "groups": {
+    "group": "Group",
+    "new": "New group",
+    "edit": "Edit group",
+    "delete": "Delete group",
+    "deleteTitle": "Delete {name}?",
+    "deleteNotEmpty": "Move or delete its projects to delete this group",
+    "empty": "No groups yet",
+    "emptyDescription": "Projects live in groups. Create a group to get started.",
+    "emptyDescriptionAsk": "Projects live in groups. Ask a super user to create one.",
+    "projectCount": "no projects | 1 project | {count} projects",
+    "protected": "Protected by an access code",
+    "noProjects": "No projects in this group yet.",
+    "lockedDescription": "This group is locked. Enter its access code to see its projects.",
+    "unlock": "Unlock",
+    "unlockTitle": "Unlock {name}",
+    "unlockDescription": "Ask a super user for the access code. It stays unlocked until you sign out.",
+    "accessCode": "Access code",
+    "accessCodeHint": "Optional. Maintainers and viewers must enter it to open the group. Leave empty to keep the group open.",
+    "invalidAccessCode": "Wrong access code",
+    "deleteHasTrash": "Delete this group's projects from the trash first"
+  },
+  "roles": {
+    "super_user": "Super User",
+    "maintainer": "Maintainer",
+    "viewer": "Viewer"
+  },
+  "roleDescription": {
+    "super_user": "Full access: groups, projects, tech stacks and users.",
+    "maintainer": "Creates, edits and deletes projects and everything inside them. Can see passwords and .env.",
+    "viewer": "Read only. Cannot see passwords or .env values."
+  },
+  "users": {
+    "new": "Add user",
+    "you": "you",
+    "joined": "Added {time}",
+    "role": "Role",
+    "created": "User added",
+    "initialPassword": "Initial password",
+    "initialPasswordHint": "Share it with the user; they can change it in Settings.",
+    "resetPassword": "Reset password",
+    "deleteTitle": "Delete {name}?",
+    "deleteDescription": "The user is signed out and can no longer sign in. Project data is not affected."
+  },
+  "overview": {
+    "title": "Overview",
+    "manage": "Manage",
+    "noLinks": "No links yet.",
+    "noNotes": "No notes yet."
+  },
+  "auditLog": {
+    "description": "Who revealed secrets, exported projects, changed users or opened locked groups.",
+    "searchPlaceholder": "Search by target or user...",
+    "allActions": "All actions",
+    "allUsers": "All users",
+    "empty": "No entries yet"
+  },
+  "auditAction": {
+    "user": {
+      "sign_in": "Signed in",
+      "create": "Created user",
+      "role_change": "Changed role",
+      "password_reset": "Reset password",
+      "delete": "Deleted user"
+    },
+    "account": {
+      "reveal": "Revealed account secrets"
+    },
+    "env": {
+      "reveal": "Revealed .env",
+      "restore": "Restored .env version"
+    },
+    "project": {
+      "export": "Exported project",
+      "import": "Imported project",
+      "delete": "Moved project to trash",
+      "restore": "Restored project",
+      "purge": "Deleted project forever"
+    },
+    "group": {
+      "unlock": "Unlocked group",
+      "unlock_failed": "Wrong access code",
+      "access_code_view": "Viewed access code",
+      "access_code_change": "Changed access code",
+      "delete": "Deleted group"
+    }
+  },
+  "trash": {
+    "description": "Deleted projects stay here for {days} days. Restore one to bring back everything in it.",
+    "empty": "The trash is empty",
+    "moved": "{name} moved to the trash",
+    "undo": "Undo",
+    "restore": "Restore",
+    "restored": "Project restored",
+    "purge": "Delete forever",
+    "purgeTitle": "Delete {name} forever?",
+    "purgeDescription": "All apps, environments, accounts and .env values in this project will be deleted. This can't be undone.",
+    "deletedBy": "Deleted by {name} {time}",
+    "purgeAt": "deleted for good {time}"
+  },
+  "envHistory": {
+    "title": "History",
+    "description": "A version is saved after every change. The last {count} are kept.",
+    "empty": "No changes recorded yet.",
+    "current": "Current",
+    "keyCount": "{count} variables in this version",
+    "noChanges": "No keys changed in this version.",
+    "restore": "Restore this version",
+    "restoreTitle": "Restore the version from {time}?",
+    "restoreDescription": "The .env is replaced with this version's values. The current values stay in the history.",
+    "restored": ".env restored",
+    "action": {
+      "baseline": "Before history",
+      "edit": "Edited",
+      "delete": "Deleted variable",
+      "import": "Imported",
+      "raw_edit": "Edited as text",
+      "delete_all": "Deleted all",
+      "restore": "Restored"
+    }
+  },
+  "envCompare": {
+    "compareWith": "Compare with",
+    "title": "{left} vs {right}",
+    "description": "Values are compared exactly. Revealing them is recorded in the audit log.",
+    "keysOnly": "Only which keys exist is compared; values stay hidden.",
+    "onlyDifferences": "Only differences",
+    "identical": "Both environments have the same variables.",
+    "onlyIn": "Only in {name}",
+    "status": {
+      "same": "Same",
+      "different": "Different",
+      "both": "In both"
+    }
+  },
+  "search": {
+    "button": "Search...",
+    "placeholder": "Search projects, URLs, accounts, .env keys...",
+    "goTo": "Go to",
+    "groups": {
+      "projects": "Projects",
+      "deployments": "Deployments",
+      "accounts": "Accounts",
+      "envKeys": ".env keys",
+      "apps": "Apps",
+      "links": "Links",
+      "infra": "Infrastructure"
+    }
+  },
+  "infra": {
+    "title": "Infrastructure",
+    "description": "Where things run: servers, clusters and databases. Only addresses and notes, never passwords.",
+    "empty": "No infrastructure recorded yet.",
+    "new": "Add infrastructure",
+    "edit": "Edit infrastructure",
+    "deleteTitle": "Delete {name}?",
+    "noSecrets": "Don't put passwords or keys here. Infrastructure is visible to every role and isn't encrypted.",
+    "allEnvironments": "All environments",
+    "host": "Host / IP / URL",
+    "hostHint": "e.g. 10.20.1.15, db-sit.bank.local:5432 or https://rancher-sit.bank.local",
+    "namePlaceholder": "e.g. Rancher SIT",
+    "notesPlaceholder": "e.g. namespace ibb-sit, request access from the infra team",
+    "environment": "Environment"
+  },
+  "infraType": {
+    "server": "Server",
+    "kubernetes": "Rancher / Kubernetes",
+    "database": "Database",
+    "vpn": "VPN",
+    "registry": "Registry",
+    "other": "Other"
   }
 }

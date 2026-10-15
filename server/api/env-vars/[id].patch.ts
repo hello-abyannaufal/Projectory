@@ -11,9 +11,9 @@ export default defineEventHandler(async (event) => {
   assertNotProduction(deployment)
   const { key, value } = await readInput(event, envVarInput.partial())
   try {
-    await db.update(tables.envVars)
+    await withEnvHistory(event, existing.deploymentId, 'edit', () => db.update(tables.envVars)
       .set({ ...(key ? { key } : {}), ...(value !== undefined ? { value: encryptSecret(value) } : {}) })
-      .where(eq(tables.envVars.id, id))
+      .where(eq(tables.envVars.id, id)))
   } catch {
     throw createError({ statusCode: 409, statusMessage: `${key} already exists` })
   }

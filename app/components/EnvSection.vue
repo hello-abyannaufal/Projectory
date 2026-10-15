@@ -3,6 +3,12 @@ const props = defineProps<{
   deploymentId: string
   envVars: DeploymentEnvVar[]
   title: string
+  editable?: boolean
+  // Without it only the keys are shown, values stay masked.
+  canReveal?: boolean
+  // This deployment's environment and the app's other deployments, to compare with
+  environmentName?: string
+  siblings?: { id: string, name: string, isProduction: boolean }[]
 }>()
 
 const emit = defineEmits<{ changed: [] }>()
@@ -109,6 +115,18 @@ async function removeAll() {
   }
 }
 
+const historyOpen = ref(false)
+
+// Compare with another environment of the same app; production stores no .env.
+const compareOpen = ref(false)
+const compareWith = ref<{ id: string, name: string }>()
+const compareTargets = computed(() => (props.siblings ?? []).filter(sibling => sibling.id !== props.deploymentId && !sibling.isProduction))
+
+function openCompare(target: { id: string, name: string }) {
+  compareWith.value = target
+  compareOpen.value = true
+}
+
 // Import, and raw editing (saved through the same preview)
 const importOpen = ref(false)
 const rawEditing = ref(false)
@@ -163,7 +181,7 @@ function onApplied() {
           size="xs"
         />
         <UButton
-          v-if="!rawEditing"
+          v-if="!rawEditing && canReveal"
           :icon="visible ? 'i-lucide-eye-off' : 'i-lucide-eye'"
           color="neutral"
           variant="outline"
@@ -172,6 +190,7 @@ function onApplied() {
           @click="toggleVisible"
         />
         <UButton
+          v-if="editable"
           icon="i-lucide-upload"
           color="neutral"
           variant="outline"
@@ -181,9 +200,17 @@ function onApplied() {
         />
         <UDropdownMenu
           :items="[[
-            { label: t('env.copyAll'), icon: 'i-lucide-copy', onSelect: copyAll },
-            { label: t('env.download'), icon: 'i-lucide-download', onSelect: download }
-          ], ...(envVars.length ? [[
+            ...(canReveal ? [
+              { label: t('env.copyAll'), icon: 'i-lucide-copy', onSelect: copyAll },
+              { label: t('env.download'), icon: 'i-lucide-download', onSelect: download }
+            ] : []),
+            { label: t('envHistory.title'), icon: 'i-lucide-history', onSelect: () => { historyOpen = true } },
+            ...(compareTargets.length ? [{
+              label: t('envCompare.compareWith'),
+              icon: 'i-lucide-git-compare-arrows',
+              children: compareTargets.map(target => ({ label: target.name, onSelect: () => openCompare(target) }))
+            }] : [])
+          ], ...(envVars.length && editable ? [[
             { label: t('env.deleteAll'), icon: 'i-lucide-trash-2', color: 'error' as const, onSelect: removeAll }
           ]] : [])]"
         >
@@ -211,6 +238,7 @@ function onApplied() {
           <span class="w-72 shrink-0 truncate font-medium text-highlighted">{{ envVar.key }}</span>
           <span class="min-w-0 flex-1 truncate text-toned">{{ valueOf(envVar.id) }}</span>
           <UButton
+            v-if="canReveal"
             icon="i-lucide-copy"
             color="neutral"
             variant="ghost"
@@ -218,22 +246,24 @@ function onApplied() {
             :aria-label="t('common.copy')"
             @click="copyValue(envVar.id)"
           />
-          <UButton
-            icon="i-lucide-pencil"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            :aria-label="t('common.edit')"
-            @click="openForm(envVar)"
-          />
-          <UButton
-            icon="i-lucide-trash-2"
-            color="error"
-            variant="ghost"
-            size="sm"
-            :aria-label="t('common.delete')"
-            @click="remove(envVar)"
-          />
+          <template v-if="editable">
+            <UButton
+              icon="i-lucide-pencil"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              :aria-label="t('common.edit')"
+              @click="openForm(envVar)"
+            />
+            <UButton
+              icon="i-lucide-trash-2"
+              color="error"
+              variant="ghost"
+              size="sm"
+              :aria-label="t('common.delete')"
+              @click="remove(envVar)"
+            />
+          </template>
         </div>
         <p
           v-if="!envVars.length"
@@ -242,6 +272,7 @@ function onApplied() {
           {{ t('env.empty') }}
         </p>
         <UButton
+          v-if="editable"
           icon="i-lucide-plus"
           variant="ghost"
           class="m-2 font-sans"
@@ -278,7 +309,10 @@ function onApplied() {
       </template>
       <template v-else>
         <pre class="overflow-x-auto rounded-md bg-inverted p-4 font-mono text-sm leading-relaxed text-inverted">{{ rawText || t('env.empty') }}</pre>
-        <div class="flex flex-wrap items-center gap-3">
+        <div
+          v-if="editable"
+          class="flex flex-wrap items-center gap-3"
+        >
           <UButton
             icon="i-lucide-pencil"
             color="neutral"
@@ -297,6 +331,19 @@ function onApplied() {
     :deployment-id="deploymentId"
     :env-var="editing"
     @saved="emit('changed')"
+  />
+  <EnvHistoryModal
+    v-model:open="historyOpen"
+    :deployment-id="deploymentId"
+    :editable="editable"
+    :can-reveal="canReveal"
+    @restored="emit('changed')"
+  />
+  <EnvCompareModal
+    v-model:open="compareOpen"
+    :left="{ id: deploymentId, name: environmentName ?? title, keys: envVars.map(envVar => envVar.key) }"
+    :right="compareWith"
+    :can-reveal="canReveal"
   />
   <EnvImportModal
     v-model:open="importOpen"

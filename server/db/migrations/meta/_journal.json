@@ -8,6 +8,55 @@
       "when": 1791526876752,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791863418762,
+      "tag": "0001_groups_and_roles",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791878923011,
+      "tag": "0002_audit_logs",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791879404739,
+      "tag": "0003_project_pins_and_visits",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791879515139,
+      "tag": "0004_project_trash",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791879747652,
+      "tag": "0005_env_var_versions",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791885086410,
+      "tag": "0006_infra_items",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792036397434,
+      "tag": "0007_link_environment",
+      "breakpoints": true
     }
   ]
 }

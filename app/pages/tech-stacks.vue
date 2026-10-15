@@ -2,6 +2,7 @@
 const { t } = useI18n()
 const api = useApi()
 const confirm = useConfirm()
+const { can } = usePermissions()
 
 useHead({ title: () => t('nav.techStacks') })
 
@@ -48,7 +49,10 @@ async function remove(stack: TechStack) {
           <template #leading>
             <UDashboardSidebarCollapse />
           </template>
-          <template #right>
+          <template
+            v-if="can('manageTechStacks')"
+            #right
+          >
             <UButton
               icon="i-simple-icons-simpleicons"
               color="neutral"
@@ -118,6 +122,7 @@ async function remove(stack: TechStack) {
                 :label="t('techStacks.custom')"
               />
               <UDropdownMenu
+                v-if="can('manageTechStacks')"
                 :items="[[
                   { label: t('common.edit'), icon: 'i-lucide-pencil', onSelect: () => openForm(stack) },
                   { label: t('common.delete'), icon: 'i-lucide-trash-2', color: 'error', disabled: stack.appCount > 0, onSelect: () => remove(stack) }

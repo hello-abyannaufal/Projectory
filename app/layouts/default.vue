@@ -2,10 +2,16 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 const { t } = useI18n()
+const { can } = usePermissions()
+
+useIdleSignOut()
 
 const links = computed<NavigationMenuItem[]>(() => [
   { label: t('nav.projects'), icon: 'i-lucide-folder', to: '/projects' },
   { label: t('nav.techStacks'), icon: 'i-lucide-layers', to: '/tech-stacks' },
+  ...(can('manageUsers') ? [{ label: t('nav.users'), icon: 'i-lucide-users', to: '/users' }] : []),
+  ...(can('edit') ? [{ label: t('nav.trash'), icon: 'i-lucide-trash-2', to: '/trash' }] : []),
+  ...(can('viewAuditLog') ? [{ label: t('nav.auditLog'), icon: 'i-lucide-scroll-text', to: '/audit-log' }] : []),
   { label: t('nav.settings'), icon: 'i-lucide-settings-2', to: '/settings' }
 ])
 </script>
@@ -25,11 +31,16 @@ const links = computed<NavigationMenuItem[]>(() => [
           <span
             v-if="!collapsed"
             class="font-bold text-highlighted"
-          >BibloDrive</span>
+          >Projectory</span>
         </NuxtLink>
       </template>
 
       <template #default="{ collapsed }">
+        <UDashboardSearchButton
+          :collapsed="collapsed"
+          :label="t('search.button')"
+          class="bg-transparent ring-default"
+        />
         <UNavigationMenu
           :collapsed="collapsed"
           :items="links"
@@ -43,5 +54,7 @@ const links = computed<NavigationMenuItem[]>(() => [
     </UDashboardSidebar>
 
     <slot />
+
+    <AppSearch />
   </UDashboardGroup>
 </template>

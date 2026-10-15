@@ -17,10 +17,15 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const session = import.meta.server
     ? (await authClient.useSession(useFetch)).data.value
     : (await authClient.getSession()).data
+  // Read by usePermissions(); set here so SSR renders with the right role.
+  useRole().value = session?.user.role as Role | undefined
   if (!session && to.path !== '/login') {
     return navigateTo('/login')
   }
   if (session && to.path === '/login') {
+    return navigateTo('/projects')
+  }
+  if (to.meta.permission && !hasPermission(session?.user.role, to.meta.permission)) {
     return navigateTo('/projects')
   }
 })
