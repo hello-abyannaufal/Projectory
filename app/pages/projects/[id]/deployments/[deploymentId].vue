@@ -463,6 +463,41 @@ const copyItems = computed(() => [[
               </section>
 
               <section
+                v-if="deployment.links.length"
+                class="flex flex-col gap-1 rounded-lg border border-default bg-default p-4"
+              >
+                <div class="mb-2 flex items-center justify-between gap-2">
+                  <h2 class="font-semibold text-highlighted">
+                    {{ t('links.title') }}
+                  </h2>
+                  <UButton
+                    v-if="can('edit')"
+                    icon="i-lucide-settings-2"
+                    color="neutral"
+                    variant="ghost"
+                    size="sm"
+                    :label="t('overview.manage')"
+                    :to="`${projectPath}?tab=links`"
+                  />
+                </div>
+                <a
+                  v-for="link in deployment.links"
+                  :key="link.id"
+                  :href="link.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="group flex items-center gap-3 border-t border-default py-2.5"
+                >
+                  <UBadge
+                    color="neutral"
+                    variant="soft"
+                    :label="t(`linkType.${link.type}`)"
+                  />
+                  <span class="min-w-0 flex-1 truncate text-sm text-highlighted group-hover:text-primary">{{ link.label }}</span>
+                </a>
+              </section>
+
+              <section
                 v-if="deployment.infraItems.length"
                 class="flex flex-col gap-2 rounded-lg border border-default bg-default p-4"
               >

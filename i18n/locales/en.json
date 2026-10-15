@@ -127,7 +127,10 @@
     "wholeProject": "Whole project",
     "belongsTo": "Belongs to",
     "labelPlaceholder": "e.g. Backend API repo",
-    "deleteTitle": "Delete {name}?"
+    "deleteTitle": "Delete {name}?",
+    "environment": "Environment",
+    "anyEnvironment": "Not specific",
+    "environmentHint": "Also shown on the deployment page of that environment."
   },
   "deployments": {
     "title": "Deployments",

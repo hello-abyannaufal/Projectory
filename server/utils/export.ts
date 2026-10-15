@@ -94,7 +94,7 @@ export async function buildProjectZip(tree: ProjectTree, passphrase?: string) {
       logo: await addAsset(stack.logo)
     }))),
     environments: tree.environments.map(env => ({ ref: env.id, name: env.name, isProduction: env.isProduction })),
-    links: tree.links.map(link => ({ app: link.appId, type: link.type, label: link.label, url: link.url })),
+    links: tree.links.map(link => ({ app: link.appId, environment: link.environmentId, type: link.type, label: link.label, url: link.url })),
     infra: tree.infraItems.map(item => ({ environment: item.environmentId, type: item.type, name: item.name, host: item.host, notes: item.notes })),
     apps: tree.apps.map(app => ({
       ref: app.id,

@@ -40,7 +40,9 @@ export const linkInput = z.object({
   type: z.enum(LINK_TYPES).default('other'),
   label: z.string().trim().min(1).max(120),
   url: httpUrl,
-  appId: z.uuid().nullish()
+  appId: z.uuid().nullish(),
+  // Null: not tied to an environment
+  environmentId: z.uuid().nullish().transform(v => v ?? null)
 })
 
 export const infraInput = z.object({

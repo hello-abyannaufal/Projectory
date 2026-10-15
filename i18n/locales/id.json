@@ -127,7 +127,10 @@
     "wholeProject": "Seluruh proyek",
     "belongsTo": "Milik",
     "labelPlaceholder": "misal Repo Backend API",
-    "deleteTitle": "Hapus {name}?"
+    "deleteTitle": "Hapus {name}?",
+    "environment": "Environment",
+    "anyEnvironment": "Tidak spesifik",
+    "environmentHint": "Juga ditampilkan di halaman deployment environment tersebut."
   },
   "deployments": {
     "title": "Deployment",

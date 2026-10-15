@@ -26,7 +26,8 @@ const fileSchema = z.object({
     logo: asset
   })),
   environments: z.array(z.object({ ref: z.string(), name: z.string().min(1).max(40), isProduction: z.boolean() })),
-  links: z.array(z.object({ app: text, type: z.enum(LINK_TYPES), label: z.string().min(1), url: httpUrl })),
+  // environment is missing in files exported before links had one.
+  links: z.array(z.object({ app: text, environment: text, type: z.enum(LINK_TYPES), label: z.string().min(1), url: httpUrl })),
   // Missing in files exported before infra existed.
   infra: z.array(z.object({ environment: text, type: z.enum(INFRA_TYPES), name: z.string().min(1).max(120), host: z.string().min(1).max(255), notes: text })).default([]),
   apps: z.array(z.object({
@@ -206,6 +207,7 @@ export async function importProjectZip(zip: Uint8Array, groupId: string, passphr
         await tx.insert(tables.links).values(data.links.map((link, index) => ({
           projectId,
           appId: link.app ? appIds.get(link.app) ?? null : null,
+          environmentId: link.environment ? envIds.get(link.environment) ?? null : null,
           type: link.type,
           label: link.label,
           url: link.url,

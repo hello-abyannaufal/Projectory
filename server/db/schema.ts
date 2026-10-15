@@ -165,10 +165,12 @@ export const apps = pgTable('apps', {
 }, t => [index('apps_project_idx').on(t.projectId)])
 
 // Project-level links have appId = null; app-level links have both set.
+// A link with an environment also shows on that environment's deployment pages.
 export const links = pgTable('links', {
   id: uuid('id').primaryKey().defaultRandom(),
   projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
   appId: uuid('app_id').references(() => apps.id, { onDelete: 'cascade' }),
+  environmentId: uuid('environment_id').references(() => environments.id, { onDelete: 'cascade' }),
   type: linkType('type').notNull().default('other'),
   label: text('label').notNull(),
   url: text('url').notNull(),
@@ -362,7 +364,8 @@ export const infraItemsRelations = relations(infraItems, ({ one }) => ({
 
 export const linksRelations = relations(links, ({ one }) => ({
   project: one(projects, { fields: [links.projectId], references: [projects.id] }),
-  app: one(apps, { fields: [links.appId], references: [apps.id] })
+  app: one(apps, { fields: [links.appId], references: [apps.id] }),
+  environment: one(environments, { fields: [links.environmentId], references: [environments.id] })
 }))
 
 export const techStacksRelations = relations(techStacks, ({ many }) => ({

@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
       notFound()
     }
   }
+  await assertProjectEnvironment(projectId, input.environmentId)
   const [link] = await db.insert(tables.links).values({ ...input, projectId }).returning()
   await touchProject(projectId)
   return link

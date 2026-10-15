@@ -145,7 +145,7 @@ async function move(kind: 'environments' | 'apps', index: number, delta: number)
 }
 
 // Links
-type AnyLink = { id: string, type: LinkType, label: string, url: string, appId: string | null }
+type AnyLink = { id: string, type: LinkType, label: string, url: string, appId: string | null, environmentId: string | null }
 
 const linkOpen = ref(false)
 const editingLink = ref<AnyLink>()
@@ -159,6 +159,8 @@ const linkGroups = computed(() => [
   { id: null, name: t('links.wholeProject'), links: [...project.value?.links ?? []].sort(byCategoryThenName) },
   ...(project.value?.apps ?? []).map(app => ({ id: app.id, name: app.name, links: [...app.links].sort(byCategoryThenName) }))
 ])
+
+const environmentName = (id: string | null) => project.value?.environments.find(environment => environment.id === id)?.name
 
 function openLink(link?: AnyLink) {
   editingLink.value = link
@@ -398,6 +400,10 @@ async function saveNotes() {
                           :label="t(`linkType.${link.type}`)"
                         />
                         <span class="min-w-0 flex-1 truncate text-sm text-highlighted group-hover:text-primary">{{ link.label }}</span>
+                        <span
+                          v-if="link.environmentId"
+                          class="shrink-0 text-xs text-muted"
+                        >{{ environmentName(link.environmentId) }}</span>
                       </a>
                     </div>
                     <p
@@ -640,6 +646,10 @@ async function saveNotes() {
                         rel="noopener noreferrer"
                         class="min-w-0 flex-1 truncate text-sm text-highlighted hover:text-primary"
                       >{{ link.label }}</a>
+                      <span
+                        v-if="link.environmentId"
+                        class="shrink-0 text-xs text-muted"
+                      >{{ environmentName(link.environmentId) }}</span>
                       <template v-if="can('edit')">
                         <UButton
                           icon="i-lucide-pencil"
@@ -774,6 +784,7 @@ async function saveNotes() {
       v-model:open="linkOpen"
       :project-id="projectId"
       :apps="project.apps"
+      :environments="project.environments"
       :link="editingLink"
       @saved="refresh()"
     />

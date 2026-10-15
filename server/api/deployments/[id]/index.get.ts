@@ -45,10 +45,21 @@ export default defineEventHandler(async (event) => {
     orderBy: asc(tables.infraItems.name)
   })
 
+  // Links flagged with this environment, of this app or the whole project; category then name.
+  const links = await db.query.links.findMany({
+    where: and(
+      eq(tables.links.projectId, deployment.app.projectId),
+      eq(tables.links.environmentId, deployment.environmentId),
+      or(eq(tables.links.appId, deployment.appId), isNull(tables.links.appId))
+    ),
+    orderBy: [asc(tables.links.type), asc(tables.links.label)]
+  })
+
   const { app, testAccounts, ...rest } = deployment
   return {
     ...rest,
     infraItems,
+    links,
     app: { id: app.id, name: app.name },
     project: app.project,
     siblings: app.deployments
