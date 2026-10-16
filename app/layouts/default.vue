@@ -27,7 +27,11 @@ const links = computed<NavigationMenuItem[]>(() => [
           to="/projects"
           class="flex items-center gap-2.5 px-1"
         >
-          <span class="flex size-7 shrink-0 items-center justify-center rounded-md bg-inverted text-sm font-bold text-inverted">B</span>
+          <img
+            src="/logo.png"
+            :alt="collapsed ? 'Projectory' : ''"
+            class="size-8 shrink-0 [image-rendering:pixelated]"
+          >
           <span
             v-if="!collapsed"
             class="font-bold text-highlighted"
