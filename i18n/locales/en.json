@@ -50,6 +50,34 @@
     "invalidCredentials": "Invalid email or password",
     "signedOutIdle": "You were signed out after an hour of inactivity."
   },
+  "twoFactor": {
+    "title": "Two-factor authentication",
+    "codeHint": "Enter the 6-digit code from your authenticator app.",
+    "backupCodeHint": "Enter one of your backup codes. Each code works once.",
+    "trustDevice": "Trust this browser for {days} days",
+    "verify": "Verify",
+    "useApp": "Use the authenticator app",
+    "useBackupCode": "Use a backup code",
+    "invalidCode": "Wrong code",
+    "locked": "Too many wrong codes. Try again in 15 minutes.",
+    "signInAgain": "The code expired. Sign in again.",
+    "setupTitle": "Set up two-factor",
+    "setupStep": {
+      "password": "Every account needs two-factor authentication. Confirm your password to start.",
+      "scan": "Scan the QR code with Google Authenticator or another authenticator app, then enter the code it shows.",
+      "backup": "Two-factor is on. Save these backup codes somewhere safe."
+    },
+    "continue": "Continue",
+    "qrAlt": "QR code for the authenticator app",
+    "manualKey": "Can't scan? Enter this key in the app:",
+    "download": "Download",
+    "savedContinue": "I've saved them, continue",
+    "backupCodesHint": "Use a backup code to sign in when you don't have your phone. Each code works once.",
+    "settingsHint": "On for your account. If you lose your phone, sign in with a backup code or ask a super user to reset it.",
+    "newBackupCodes": "New backup codes",
+    "newBackupCodesHint": "Your current backup codes stop working. Confirm your password to continue.",
+    "generate": "Generate"
+  },
   "projects": {
     "empty": "No projects yet",
     "new": "New project",
@@ -386,7 +414,12 @@
     "initialPasswordHint": "Share it with the user; they can change it in Settings.",
     "resetPassword": "Reset password",
     "deleteTitle": "Delete {name}?",
-    "deleteDescription": "The user is signed out and can no longer sign in. Project data is not affected."
+    "deleteDescription": "The user is signed out and can no longer sign in. Project data is not affected.",
+    "resetTwoFactor": "Reset two-factor",
+    "resetTwoFactorTitle": "Reset two-factor for {name}?",
+    "resetTwoFactorDescription": "Use this when they lost their authenticator. They are signed out everywhere and set two-factor up again at their next sign-in.",
+    "twoFactorReset": "Two-factor reset",
+    "twoFactorPending": "Two-factor not set up"
   },
   "overview": {
     "title": "Overview",
@@ -407,7 +440,9 @@
       "create": "Created user",
       "role_change": "Changed role",
       "password_reset": "Reset password",
-      "delete": "Deleted user"
+      "delete": "Deleted user",
+      "two_factor_enable": "Set up two-factor",
+      "two_factor_reset": "Reset two-factor"
     },
     "account": {
       "reveal": "Revealed account secrets"

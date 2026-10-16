@@ -45,6 +45,8 @@ export const AUDIT_ACTIONS = [
   'user.role_change',
   'user.password_reset',
   'user.delete',
+  'user.two_factor_enable',
+  'user.two_factor_reset',
   'account.reveal',
   'env.reveal',
   'env.restore',
@@ -63,6 +65,10 @@ export type AuditAction = typeof AUDIT_ACTIONS[number]
 
 // Signed out after this long without keyboard, mouse or touch input.
 export const IDLE_TIMEOUT_MS = 60 * 60 * 1000
+
+// After a two-factor code, the browser can skip it at sign-in for this long.
+// The clock starts at the code and is not extended by later sign-ins.
+export const TWO_FACTOR_TRUST_DAYS = 30
 
 // Wrong access codes a user may enter for one group before it is blocked for
 // the rest of the window.

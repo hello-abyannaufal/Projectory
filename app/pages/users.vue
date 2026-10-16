@@ -5,6 +5,7 @@ const { t, locale } = useI18n()
 const toast = useToast()
 const confirm = useConfirm()
 const session = authClient.useSession()
+const api = useApi()
 
 useHead({ title: () => t('nav.users') })
 
@@ -16,6 +17,7 @@ interface User {
   email: string
   image?: string | null
   role?: string
+  twoFactorEnabled?: boolean | null
   createdAt: string
 }
 
@@ -26,7 +28,6 @@ const { data, refresh } = await useFetch<{ users: User[] }>('/api/auth/admin/lis
 const users = computed(() => data.value?.users ?? [])
 
 const roleItems = computed(() => ROLES.map(value => ({ value, label: t(`roles.${value}`), description: t(`roleDescription.${value}`) })))
-
 // Runs a Better Auth call and reports its error, if any. Returns true on success.
 async function run(call: Promise<{ error: { message?: string } | null }>, success?: string) {
   const { error } = await call
@@ -49,6 +50,14 @@ async function setRole(user: User, role: Role) {
 async function removeUser(user: User) {
   if (await confirm({ title: t('users.deleteTitle', { name: user.name }), description: t('users.deleteDescription') })
     && await run(authClient.admin.removeUser({ userId: user.id }))) {
+    await refresh()
+  }
+}
+
+// The user sets two-factor up again at their next sign-in.
+async function resetTwoFactor(user: User) {
+  if (await confirm({ title: t('users.resetTwoFactorTitle', { name: user.name }), description: t('users.resetTwoFactorDescription') })
+    && await api(() => request(`/api/users/${user.id}/two-factor`, { method: 'DELETE' }), t('users.twoFactorReset'))) {
     await refresh()
   }
 }
@@ -144,6 +153,14 @@ async function resetPassword() {
                 >({{ t('users.you') }})</span>
               </span>
               <span class="truncate text-sm text-muted">{{ user.email }}</span>
+              <UBadge
+                v-if="!user.twoFactorEnabled"
+                color="warning"
+                variant="subtle"
+                size="sm"
+                class="mt-1 self-start"
+                :label="t('users.twoFactorPending')"
+              />
               <span class="text-xs text-dimmed">{{ t('users.joined', { time: timeAgo(user.createdAt, locale) }) }}</span>
             </div>
             <USelect
@@ -156,7 +173,8 @@ async function resetPassword() {
             <UDropdownMenu
               v-if="user.id !== currentUserId"
               :items="[[
-                { label: t('users.resetPassword'), icon: 'i-lucide-key-round', onSelect: () => openReset(user) }
+                { label: t('users.resetPassword'), icon: 'i-lucide-key-round', onSelect: () => openReset(user) },
+                { label: t('users.resetTwoFactor'), icon: 'i-lucide-smartphone', disabled: !user.twoFactorEnabled, onSelect: () => resetTwoFactor(user) }
               ], [
                 { label: t('common.delete'), icon: 'i-lucide-trash-2', color: 'error', onSelect: () => removeUser(user) }
               ]]"
