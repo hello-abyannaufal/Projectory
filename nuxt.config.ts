@@ -10,6 +10,15 @@ export default defineNuxtConfig({
     enabled: true
   },
 
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }
+      ]
+    }
+  },
+
   // Same port as the Docker app; 3000 is usually taken by other projects.
   devServer: {
     port: 4747
