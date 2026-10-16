@@ -39,6 +39,8 @@ export const user = pgTable('user', {
   banned: boolean('banned').default(false),
   banReason: text('ban_reason'),
   banExpires: timestamp('ban_expires'),
+  // Two-factor plugin; every account must turn it on (server/middleware/auth.ts)
+  twoFactorEnabled: boolean('two_factor_enabled').default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 })
@@ -79,6 +81,18 @@ export const verification = pgTable('verification', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 })
+
+// Two-factor plugin: the encrypted TOTP secret and backup codes of each user.
+export const twoFactor = pgTable('two_factor', {
+  id: text('id').primaryKey(),
+  secret: text('secret').notNull(),
+  backupCodes: text('backup_codes').notNull(),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  // False until the first code from the authenticator app is confirmed.
+  verified: boolean('verified').default(true),
+  failedVerificationCount: integer('failed_verification_count').default(0),
+  lockedUntil: timestamp('locked_until')
+}, t => [index('two_factor_secret_idx').on(t.secret), index('two_factor_user_idx').on(t.userId)])
 
 // ---------------------------------------------------------------------------
 // Enums

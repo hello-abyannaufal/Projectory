@@ -10,6 +10,9 @@ function requiredPermission(path: string, method: string): Permission | undefine
     const open = (method === 'GET' && path === '/api/groups') || /^\/api\/groups\/[^/]+\/unlock$/.test(path)
     return open ? undefined : 'manageGroups'
   }
+  if (path.startsWith('/api/users')) {
+    return 'manageUsers'
+  }
   if (path.startsWith('/api/audit-logs')) {
     return 'viewAuditLog'
   }
@@ -39,6 +42,10 @@ export default defineEventHandler(async (event) => {
   const session = await getAuthSession(event)
   if (!session) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
+  }
+  // Every account must set up two-factor before it can use the app.
+  if (!session.user.twoFactorEnabled) {
+    throw createError({ statusCode: 403, statusMessage: 'TWO_FACTOR_REQUIRED' })
   }
   const permission = requiredPermission(path, event.method)
   if (permission && !hasPermission(session.user.role, permission)) {

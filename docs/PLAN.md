@@ -180,19 +180,22 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 
 Role berlaku global (satu role per user untuk seluruh instance).
 
-| Aksi | Super User | Maintainer | Viewer |
-|---|---|---|---|
-| Buat/edit/hapus Group, atur kode akses | ✅ | ❌ | ❌ |
-| Buat/edit/hapus Project, App, Environment, Deployment, Release, Account, `.env` | ✅ | ✅ | ❌ |
-| Lihat/copy password & `.env` | ✅ | ✅ | ❌ |
-| Export | ✅ | ✅ | ✅ tanpa secret |
-| Import project | ✅ | ✅ | ❌ |
-| Kelola Tech stack | ✅ | ❌ | ❌ |
-| Kelola Users | ✅ | ❌ | ❌ |
-| Buka group berkode tanpa memasukkan kode | ✅ | ❌ | ❌ |
-| Lihat Audit log | ✅ | ❌ | ❌ |
-| Trash: restore / hapus permanen | ✅ | ✅ | ❌ |
-| Pin project | ✅ | ✅ | ✅ |
+| Aksi | Master | Super User | Maintainer | Viewer |
+|---|---|---|---|---|
+| Buat/edit/hapus Group, atur kode akses | ✅ | ✅ | ❌ | ❌ |
+| Buat/edit/hapus Project, App, Environment, Deployment, Release, Account, `.env` | ✅ | ✅ | ✅ | ❌ |
+| Lihat/copy password & `.env` | ✅ | ✅ | ✅ | ❌ |
+| Export | ✅ | ✅ | ✅ | ✅ tanpa secret |
+| Import project | ✅ | ✅ | ✅ | ❌ |
+| Kelola Tech stack | ✅ | ✅ | ❌ | ❌ |
+| Kelola Maintainer & Viewer | ✅ | ✅ | ❌ | ❌ |
+| Angkat/turunkan/hapus/reset Super User | ✅ | ❌ | ❌ | ❌ |
+| Buka group berkode tanpa memasukkan kode | ✅ | ✅ | ❌ | ❌ |
+| Lihat Audit log | ✅ | ✅ | ❌ | ❌ |
+| Trash: restore / hapus permanen | ✅ | ✅ | ✅ | ❌ |
+| Pin project | ✅ | ✅ | ✅ | ✅ |
+
+Master hanya satu (akun dari halaman setup) dan tidak bisa diubah siapa pun dari app, termasuk dirinya sendiri. Pindah Master dilakukan lewat SQL di server ([SECURITY.md](SECURITY.md)).
 
 ### 4.4 Trash
 
@@ -216,10 +219,13 @@ Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai
 - **Audit log**: reveal secret akun/`.env`, export/import, hapus/restore project, kode akses group, login, dan pengelolaan user dicatat.
 - **Auto-logout**: setelah `IDLE_TIMEOUT_MS` (1 jam) tanpa input keyboard/mouse/touch, dihitung lintas tab.
 - **Registrasi**: hanya lewat halaman setup saat pertama kali jalan. Setelah itu akun hanya bisa dibuat Super User.
+- **Two-factor (TOTP) wajib** untuk semua akun, diaktifkan saat login pertama. Browser bisa dipercaya `TWO_FACTOR_TRUST_DAYS` (30 hari) sejak kode terakhir, tidak diperpanjang saat login. Super User bisa mereset 2FA user lain.
+- **Access code group**: 5 kode salah dalam 15 menit memblokir user itu dari group tersebut sampai jendela waktunya lewat.
+- Detail dan langkah penanganan insiden: [SECURITY.md](SECURITY.md).
 
 ### Operasional
 - Backup DB via `pg_dump` dan backup folder uploads.
-- `MASTER_KEY` disimpan **terpisah** dari backup. Kalau key hilang, semua secret tidak bisa dibuka.
+- `MASTER_KEY` dan `BETTER_AUTH_SECRET` disimpan **terpisah** dari backup. Kalau master key hilang, semua secret tidak bisa dibuka.
 
 ## 6. Export / Import
 

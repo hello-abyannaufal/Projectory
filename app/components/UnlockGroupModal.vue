@@ -32,7 +32,11 @@ async function submit() {
     emit('unlocked')
   } catch (err) {
     const code = (err as { data?: { statusMessage?: string } }).data?.statusMessage
-    error.value = code === 'INVALID_ACCESS_CODE' ? t('groups.invalidAccessCode') : t('common.error')
+    error.value = code === 'INVALID_ACCESS_CODE'
+      ? t('groups.invalidAccessCode')
+      : code === 'TOO_MANY_ATTEMPTS'
+        ? t('groups.tooManyAttempts', { minutes: GROUP_UNLOCK_WINDOW_MINUTES })
+        : t('common.error')
   } finally {
     loading.value = false
   }
