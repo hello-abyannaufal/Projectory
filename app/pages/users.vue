@@ -6,6 +6,7 @@ const toast = useToast()
 const confirm = useConfirm()
 const session = authClient.useSession()
 const api = useApi()
+const { role: myRole } = usePermissions()
 
 useHead({ title: () => t('nav.users') })
 
@@ -28,6 +29,17 @@ const { data, refresh } = await useFetch<{ users: User[] }>('/api/auth/admin/lis
 const users = computed(() => data.value?.users ?? [])
 
 const roleItems = computed(() => ROLES.map(value => ({ value, label: t(`roles.${value}`), description: t(`roleDescription.${value}`) })))
+// The roles you may hand out: a super user can't make super users, nobody can make a master.
+const assignableRoles = computed(() => roleItems.value.filter(item => canManageRole(myRole.value, item.value)))
+
+// The master card is only shown to the master.
+const legendRoles = computed(() => roleItems.value.filter(item => item.value !== 'master' || myRole.value === 'master'))
+
+// Your own account and roles above yours are shown but can't be changed here.
+function canManage(user: User) {
+  return user.id !== currentUserId.value && canManageRole(myRole.value, user.role)
+}
+
 // Runs a Better Auth call and reports its error, if any. Returns true on success.
 async function run(call: Promise<{ error: { message?: string } | null }>, success?: string) {
   const { error } = await call
@@ -164,14 +176,18 @@ async function resetPassword() {
               <span class="text-xs text-dimmed">{{ t('users.joined', { time: timeAgo(user.createdAt, locale) }) }}</span>
             </div>
             <USelect
+              v-if="canManage(user)"
               :model-value="user.role as Role"
-              :items="roleItems"
-              :disabled="user.id === currentUserId"
+              :items="assignableRoles"
               class="w-40"
               @update:model-value="value => setRole(user, value as Role)"
             />
+            <span
+              v-else
+              class="w-40 px-2.5 text-sm text-muted"
+            >{{ t(`roles.${user.role}`) }}</span>
             <UDropdownMenu
-              v-if="user.id !== currentUserId"
+              v-if="canManage(user)"
               :items="[[
                 { label: t('users.resetPassword'), icon: 'i-lucide-key-round', onSelect: () => openReset(user) },
                 { label: t('users.resetTwoFactor'), icon: 'i-lucide-smartphone', disabled: !user.twoFactorEnabled, onSelect: () => resetTwoFactor(user) }
@@ -188,9 +204,12 @@ async function resetPassword() {
             </UDropdownMenu>
           </div>
 
-          <div class="mt-2 grid gap-3 sm:grid-cols-3">
+          <div
+            class="mt-2 grid gap-3"
+            :class="legendRoles.length > 3 ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'"
+          >
             <div
-              v-for="role in roleItems"
+              v-for="role in legendRoles"
               :key="role.value"
               class="rounded-lg border border-default p-3"
             >
@@ -254,7 +273,7 @@ async function resetPassword() {
           <UFormField :label="t('users.role')">
             <USelect
               v-model="createState.role"
-              :items="roleItems"
+              :items="assignableRoles"
               class="w-full"
             />
           </UFormField>

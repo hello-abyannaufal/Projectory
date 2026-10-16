@@ -395,12 +395,14 @@
     "tooManyAttempts": "Terlalu banyak kode salah. Coba lagi dalam {minutes} menit."
   },
   "roles": {
+    "master": "Master",
     "super_user": "Super User",
     "maintainer": "Maintainer",
     "viewer": "Viewer"
   },
   "roleDescription": {
-    "super_user": "Akses penuh: grup, proyek, tech stack, dan pengguna.",
+    "master": "Pemilik tunggal. Semua yang bisa dilakukan super user, ditambah mengangkat dan mencabut super user. Tidak bisa diubah siapa pun dari app.",
+    "super_user": "Akses penuh ke grup, proyek, dan tech stack. Mengelola maintainer dan viewer.",
     "maintainer": "Membuat, mengubah, dan menghapus proyek beserta isinya. Bisa melihat password dan .env.",
     "viewer": "Hanya melihat. Tidak bisa melihat password atau isi .env."
   },

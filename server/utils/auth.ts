@@ -119,6 +119,29 @@ function auditTrail() {
   } satisfies BetterAuthPlugin
 }
 
+// Admin endpoints act on body.userId and may hand out a role. The target and
+// the new role must both be ones the signed-in user may manage (see
+// canManageRole). Your own account is changed in Settings, never here, so the
+// master can't demote or remove themselves either.
+async function assertCanManage(actor: { id: string, role?: string | null }, body: { userId?: unknown, role?: unknown, data?: { role?: unknown } } | undefined) {
+  const forbidden = (message: string) => new APIError('FORBIDDEN', { message })
+  const userId = body?.userId
+  if (typeof userId === 'string') {
+    if (userId === actor.id) {
+      throw forbidden('You cannot change your own account here.')
+    }
+    const target = await useDb().query.user.findFirst({ where: eq(tables.user.id, userId), columns: { role: true } })
+    if (target && !canManageRole(actor.role, target.role)) {
+      throw forbidden('You cannot manage this user.')
+    }
+  }
+  const role = body?.role ?? body?.data?.role
+  const roles = role === undefined ? [] : [role].flat()
+  if (roles.some(value => typeof value !== 'string' || !canManageRole(actor.role, value))) {
+    throw forbidden('You cannot give this role.')
+  }
+}
+
 async function userEmail(id: unknown) {
   if (typeof id !== 'string') {
     return undefined
@@ -154,7 +177,7 @@ function createAuth() {
       changeEmail: { enabled: true, updateEmailWithoutVerification: true }
     },
     plugins: [
-      admin({ ac: authAccessControl, roles: authRoles, adminRoles: ['super_user'], defaultRole: 'viewer' }),
+      admin({ ac: authAccessControl, roles: authRoles, adminRoles: ['master', 'super_user'], defaultRole: 'viewer' }),
       twoFactor({ issuer: 'Projectory', trustDeviceMaxAge: TWO_FACTOR_TRUST_SECONDS }),
       twoFactorExpiry(),
       auditTrail()
@@ -165,24 +188,32 @@ function createAuth() {
         if (ctx.path === '/two-factor/disable') {
           throw new APIError('FORBIDDEN', { message: 'Two-factor authentication is required.' })
         }
+        // Signing in as someone else skips their two-factor and puts your actions
+        // under their name in the audit log.
+        if (ctx.path === '/admin/impersonate-user') {
+          throw new APIError('FORBIDDEN', { message: 'Impersonation is disabled.' })
+        }
         const session = TWO_FACTOR_SETUP_PATHS.has(ctx.path) ? null : await getSessionFromCtx(ctx)
         if (session && !session.user.twoFactorEnabled) {
           throw new APIError('FORBIDDEN', { message: 'Set up two-factor authentication first.', code: 'TWO_FACTOR_REQUIRED' })
         }
-        // A super user can't demote themselves, so the instance always keeps one.
-        if ((ctx.path === '/admin/set-role' || ctx.path === '/admin/update-user') && session && ctx.body?.userId === session.user.id) {
-          throw new APIError('BAD_REQUEST', { message: 'You cannot change your own role.' })
+        if (session && ctx.path.startsWith('/admin/')) {
+          await assertCanManage(session.user, ctx.body)
+        }
+        // Only the master sees the master account in the user list.
+        if (ctx.path === '/admin/list-users' && session && session.user.role !== 'master') {
+          return { context: { query: { ...ctx.query, filterField: 'role', filterOperator: 'ne', filterValue: 'master' } } }
         }
       })
     },
     databaseHooks: {
       user: {
         create: {
-          // The setup page creates the first account, which becomes the super user.
-          // After that, accounts are only created by a super user.
+          // The setup page creates the first account, which becomes the master.
+          // After that, accounts are only created by the master or a super user.
           before: async (user, ctx) => {
             if (!await hasUser()) {
-              return { data: { ...user, role: 'super_user' } }
+              return { data: { ...user, role: 'master' } }
             }
             if (ctx?.path !== '/admin/create-user') {
               throw new APIError('FORBIDDEN', { message: 'Sign up is closed. Ask a super user for an account.' })

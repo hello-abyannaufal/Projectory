@@ -395,12 +395,14 @@
     "tooManyAttempts": "Too many wrong codes. Try again in {minutes} minutes."
   },
   "roles": {
+    "master": "Master",
     "super_user": "Super User",
     "maintainer": "Maintainer",
     "viewer": "Viewer"
   },
   "roleDescription": {
-    "super_user": "Full access: groups, projects, tech stacks and users.",
+    "master": "The one owner. Everything a super user can do, plus adding and removing super users. Can't be changed by anyone in the app.",
+    "super_user": "Full access to groups, projects and tech stacks. Manages maintainers and viewers.",
     "maintainer": "Creates, edits and deletes projects and everything inside them. Can see passwords and .env.",
     "viewer": "Read only. Cannot see passwords or .env values."
   },
