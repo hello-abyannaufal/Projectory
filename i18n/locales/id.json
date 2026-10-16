@@ -363,7 +363,8 @@
     "accessCode": "Kode akses",
     "accessCodeHint": "Opsional. Maintainer dan viewer wajib memasukkannya untuk membuka grup. Kosongkan agar grup terbuka.",
     "invalidAccessCode": "Kode akses salah",
-    "deleteHasTrash": "Hapus dulu proyek grup ini dari tempat sampah"
+    "deleteHasTrash": "Hapus dulu proyek grup ini dari tempat sampah",
+    "tooManyAttempts": "Terlalu banyak kode salah. Coba lagi dalam {minutes} menit."
   },
   "roles": {
     "super_user": "Super User",

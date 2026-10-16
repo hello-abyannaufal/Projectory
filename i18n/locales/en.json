@@ -363,7 +363,8 @@
     "accessCode": "Access code",
     "accessCodeHint": "Optional. Maintainers and viewers must enter it to open the group. Leave empty to keep the group open.",
     "invalidAccessCode": "Wrong access code",
-    "deleteHasTrash": "Delete this group's projects from the trash first"
+    "deleteHasTrash": "Delete this group's projects from the trash first",
+    "tooManyAttempts": "Too many wrong codes. Try again in {minutes} minutes."
   },
   "roles": {
     "super_user": "Super User",

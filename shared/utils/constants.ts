@@ -64,6 +64,11 @@ export type AuditAction = typeof AUDIT_ACTIONS[number]
 // Signed out after this long without keyboard, mouse or touch input.
 export const IDLE_TIMEOUT_MS = 60 * 60 * 1000
 
+// Wrong access codes a user may enter for one group before it is blocked for
+// the rest of the window.
+export const GROUP_UNLOCK_MAX_FAILURES = 5
+export const GROUP_UNLOCK_WINDOW_MINUTES = 15
+
 // A test account not verified for this long is flagged for a re-check.
 export const STALE_ACCOUNT_DAYS = 30
 
