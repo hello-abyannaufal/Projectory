@@ -89,13 +89,20 @@ async function verifyCode() {
     v-if="!needsCode"
     :title="t('auth.signIn')"
     description="Projectory"
-    icon="i-lucide-lock"
     :fields="fields"
     :schema="schema"
     :loading="loading"
     :submit="{ label: t('auth.signIn') }"
     @submit="onSubmit"
-  />
+  >
+    <template #leading>
+      <img
+        src="/logo-96.png"
+        alt=""
+        class="mx-auto size-12 [image-rendering:pixelated]"
+      >
+    </template>
+  </UAuthForm>
 
   <form
     v-else
