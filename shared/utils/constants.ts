@@ -35,7 +35,7 @@ export type TestAccountStatus = typeof TEST_ACCOUNT_STATUSES[number]
 // Shown instead of a secret value until it is revealed.
 export const SECRET_MASK = '••••••••'
 
-export const ROLES = ['super_user', 'maintainer', 'viewer'] as const
+export const ROLES = ['master', 'super_user', 'maintainer', 'viewer'] as const
 export type Role = typeof ROLES[number]
 
 // Events recorded in the audit log (server/utils/audit.ts).
@@ -45,6 +45,8 @@ export const AUDIT_ACTIONS = [
   'user.role_change',
   'user.password_reset',
   'user.delete',
+  'user.two_factor_enable',
+  'user.two_factor_reset',
   'account.reveal',
   'env.reveal',
   'env.restore',
@@ -63,6 +65,15 @@ export type AuditAction = typeof AUDIT_ACTIONS[number]
 
 // Signed out after this long without keyboard, mouse or touch input.
 export const IDLE_TIMEOUT_MS = 60 * 60 * 1000
+
+// After a two-factor code, the browser can skip it at sign-in for this long.
+// The clock starts at the code and is not extended by later sign-ins.
+export const TWO_FACTOR_TRUST_DAYS = 30
+
+// Wrong access codes a user may enter for one group before it is blocked for
+// the rest of the window.
+export const GROUP_UNLOCK_MAX_FAILURES = 5
+export const GROUP_UNLOCK_WINDOW_MINUTES = 15
 
 // A test account not verified for this long is flagged for a re-check.
 export const STALE_ACCOUNT_DAYS = 30

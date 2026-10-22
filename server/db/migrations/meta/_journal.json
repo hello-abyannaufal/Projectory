@@ -57,6 +57,20 @@
       "when": 1792036397434,
       "tag": "0007_link_environment",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792059312227,
+      "tag": "0008_two_factor",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792120620383,
+      "tag": "0009_master_role",
+      "breakpoints": true
     }
   ]
 }

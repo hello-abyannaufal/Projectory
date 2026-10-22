@@ -22,6 +22,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!session && to.path !== '/login') {
     return navigateTo('/login')
   }
+  // Every account must set up two-factor before it can use the app.
+  if (session && !session.user.twoFactorEnabled) {
+    return to.path === '/two-factor' ? undefined : navigateTo('/two-factor')
+  }
+  if (to.path === '/two-factor') {
+    return navigateTo('/projects')
+  }
   if (session && to.path === '/login') {
     return navigateTo('/projects')
   }
