@@ -25,7 +25,8 @@ const links = computed<NavigationMenuItem[]>(() => [
       <template #header="{ collapsed }">
         <NuxtLink
           to="/projects"
-          class="flex items-center gap-2.5 px-1"
+          class="flex items-center gap-2.5"
+          :class="{ 'px-1': !collapsed }"
         >
           <img
             src="/logo.png"
