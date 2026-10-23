@@ -26,7 +26,10 @@ const fileSchema = z.object({
     logo: asset
   })),
   environments: z.array(z.object({ ref: z.string(), name: z.string().min(1).max(40), isProduction: z.boolean() })),
-  links: z.array(z.object({ app: text, type: z.enum(LINK_TYPES), label: z.string().min(1), url: httpUrl })),
+  // environment is missing in files exported before links had one.
+  links: z.array(z.object({ app: text, environment: text, type: z.enum(LINK_TYPES), label: z.string().min(1), url: httpUrl })),
+  // Missing in files exported before infra existed.
+  infra: z.array(z.object({ environment: text, type: z.enum(INFRA_TYPES), name: z.string().min(1).max(120), host: z.string().min(1).max(255), notes: text })).default([]),
   apps: z.array(z.object({
     ref: z.string(),
     name: z.string().min(1).max(120),
@@ -65,7 +68,7 @@ function fail(code: 'INVALID_FILE' | 'PASSPHRASE_REQUIRED' | 'INVALID_PASSPHRASE
   throw createError({ statusCode: 400, statusMessage: code })
 }
 
-export async function importProjectZip(zip: Uint8Array, passphrase?: string) {
+export async function importProjectZip(zip: Uint8Array, groupId: string, passphrase?: string) {
   let files: Record<string, Uint8Array>
   let data: z.output<typeof fileSchema>
   try {
@@ -124,7 +127,7 @@ export async function importProjectZip(zip: Uint8Array, passphrase?: string) {
         created.forEach(stack => stackIds.set(stack.slug, stack.id))
       }
 
-      const [project] = await tx.insert(tables.projects).values({ ...data.project, cover }).returning()
+      const [project] = await tx.insert(tables.projects).values({ ...data.project, groupId, cover }).returning()
       const projectId = project!.id
 
       const envIds = new Map<string, string>()
@@ -204,11 +207,21 @@ export async function importProjectZip(zip: Uint8Array, passphrase?: string) {
         await tx.insert(tables.links).values(data.links.map((link, index) => ({
           projectId,
           appId: link.app ? appIds.get(link.app) ?? null : null,
+          environmentId: link.environment ? envIds.get(link.environment) ?? null : null,
           type: link.type,
           label: link.label,
           url: link.url,
           sortOrder: index
         })))
+      }
+
+      // An item whose environment isn't in the file is skipped rather than shared by all.
+      const infra = data.infra.flatMap(({ environment, ...item }) => {
+        const environmentId = environment ? envIds.get(environment) : null
+        return environmentId === undefined ? [] : [{ ...item, projectId, environmentId }]
+      })
+      if (infra.length) {
+        await tx.insert(tables.infraItems).values(infra)
       }
 
       return { id: projectId }

@@ -2,7 +2,10 @@
   "nav": {
     "projects": "Proyek",
     "techStacks": "Tech stack",
-    "settings": "Pengaturan"
+    "settings": "Pengaturan",
+    "users": "Pengguna",
+    "auditLog": "Log audit",
+    "trash": "Tempat sampah"
   },
   "common": {
     "error": "Terjadi kesalahan",
@@ -24,7 +27,8 @@
     "reorder": "Geser untuk mengurutkan",
     "more": "Lainnya",
     "moveUp": "Naikkan",
-    "moveDown": "Turunkan"
+    "moveDown": "Turunkan",
+    "close": "Tutup"
   },
   "validation": {
     "required": "Wajib diisi",
@@ -34,8 +38,8 @@
     "passwordMismatch": "Kata sandi tidak sama"
   },
   "auth": {
-    "setupTitle": "Siapkan BibloDrive",
-    "setupDescription": "Buat akun untuk instance ini. Hanya boleh ada satu akun.",
+    "setupTitle": "Siapkan Projectory",
+    "setupDescription": "Buat akun pertama. Akun ini menjadi super user dan bisa menambahkan pengguna lain.",
     "createAccount": "Buat akun",
     "signIn": "Masuk",
     "signOut": "Keluar",
@@ -43,7 +47,36 @@
     "email": "Email",
     "password": "Kata sandi",
     "confirmPassword": "Konfirmasi kata sandi",
-    "invalidCredentials": "Email atau kata sandi salah"
+    "invalidCredentials": "Email atau kata sandi salah",
+    "signedOutIdle": "Kamu otomatis keluar karena tidak aktif selama satu jam."
+  },
+  "twoFactor": {
+    "title": "Autentikasi dua faktor",
+    "codeHint": "Masukkan kode 6 digit dari aplikasi authenticator.",
+    "backupCodeHint": "Masukkan salah satu backup code. Tiap kode hanya bisa dipakai sekali.",
+    "trustDevice": "Percayai browser ini selama {days} hari",
+    "verify": "Verifikasi",
+    "useApp": "Pakai aplikasi authenticator",
+    "useBackupCode": "Pakai backup code",
+    "invalidCode": "Kode salah",
+    "locked": "Terlalu banyak kode salah. Coba lagi dalam 15 menit.",
+    "signInAgain": "Kode kedaluwarsa. Silakan masuk lagi.",
+    "setupTitle": "Aktifkan dua faktor",
+    "setupStep": {
+      "password": "Setiap akun wajib memakai autentikasi dua faktor. Konfirmasi kata sandi untuk mulai.",
+      "scan": "Scan QR code dengan Google Authenticator atau aplikasi authenticator lain, lalu masukkan kode yang muncul.",
+      "backup": "Dua faktor sudah aktif. Simpan backup code ini di tempat aman."
+    },
+    "continue": "Lanjut",
+    "qrAlt": "QR code untuk aplikasi authenticator",
+    "manualKey": "Tidak bisa scan? Masukkan key ini di aplikasi:",
+    "download": "Unduh",
+    "savedContinue": "Sudah disimpan, lanjut",
+    "backupCodesHint": "Pakai backup code untuk masuk saat HP tidak ada. Tiap kode hanya bisa dipakai sekali.",
+    "settingsHint": "Aktif untuk akunmu. Kalau HP hilang, masuk dengan backup code atau minta super user mereset.",
+    "newBackupCodes": "Backup code baru",
+    "newBackupCodesHint": "Backup code yang lama tidak berlaku lagi. Konfirmasi kata sandi untuk lanjut.",
+    "generate": "Buat"
   },
   "projects": {
     "empty": "Belum ada proyek",
@@ -51,13 +84,18 @@
     "edit": "Ubah proyek",
     "delete": "Hapus proyek",
     "deleteTitle": "Hapus {name}?",
-    "deleteDescription": "Semua app, environment, akun, dan isi .env di proyek ini akan dihapus.",
+    "deleteDescription": "Proyek dipindahkan ke tempat sampah. Masih bisa dipulihkan selama {days} hari, setelah itu dihapus permanen.",
     "searchPlaceholder": "Cari proyek…",
     "emptyDescription": "Buat proyek untuk mulai menyimpan app, environment, dan akunnya.",
     "appCount": "belum ada app | 1 app | {count} app",
     "environmentCount": "belum ada env | 1 env | {count} env",
     "uploadCover": "Unggah logo",
-    "removeCover": "Hapus logo"
+    "removeCover": "Hapus logo",
+    "noMatch": "Tidak ada proyek yang cocok dengan pencarian.",
+    "pin": "Sematkan di atas",
+    "unpin": "Lepas sematan",
+    "pinned": "Disematkan",
+    "recent": "Terakhir dibuka"
   },
   "fields": {
     "name": "Nama",
@@ -117,7 +155,10 @@
     "wholeProject": "Seluruh proyek",
     "belongsTo": "Milik",
     "labelPlaceholder": "misal Repo Backend API",
-    "deleteTitle": "Hapus {name}?"
+    "deleteTitle": "Hapus {name}?",
+    "environment": "Environment",
+    "anyEnvironment": "Tidak spesifik",
+    "environmentHint": "Juga ditampilkan di halaman deployment environment tersebut."
   },
   "deployments": {
     "title": "Deployment",
@@ -148,10 +189,10 @@
     "button": "Ekspor",
     "title": "Ekspor proyek",
     "format": "Format",
-    "zipTitle": "File BibloDrive (.zip)",
-    "zipDescription": "Semua data beserta logo. Bisa diimpor ke instance BibloDrive lain.",
+    "zipTitle": "File Projectory (.zip)",
+    "zipDescription": "Semua data beserta logo. Bisa diimpor ke instance Projectory lain.",
     "textTitle": "Salin sebagai teks / Markdown",
-    "textDescription": "Ringkasan untuk orang yang tidak memakai BibloDrive, misal untuk ditempel di chat.",
+    "textDescription": "Ringkasan untuk orang yang tidak memakai Projectory, misal untuk ditempel di chat.",
     "secrets": "Rahasia (kata sandi, .env)",
     "withoutSecrets": "Tanpa rahasia",
     "withoutSecretsZip": "Nilai rahasia dikosongkan. Struktur tetap lengkap.",
@@ -185,7 +226,10 @@
     "fieldValue": "Nilai",
     "keepSecret": "Kosongkan untuk tetap",
     "secret": "Rahasia",
-    "addField": "Tambah field"
+    "addField": "Tambah field",
+    "setStatus": "Ubah status",
+    "needsCheck": "Perlu dicek",
+    "attentionCount": "Tidak ada akun yang perlu dicek | 1 perlu dicek | {count} perlu dicek"
   },
   "accountStatus": {
     "active": "Aktif",
@@ -312,19 +356,201 @@
     "updatePassword": "Perbarui kata sandi",
     "passwordChanged": "Kata sandi diperbarui",
     "session": "Sesi",
-    "sessionHint": "Keluar dari BibloDrive di browser ini."
+    "sessionHint": "Keluar dari Projectory di browser ini."
   },
   "import": {
     "button": "Impor",
     "title": "Impor proyek",
-    "description": "Membuat proyek baru dari file ekspor BibloDrive.",
-    "chooseFile": "Pilih file .biblodrive.zip",
+    "description": "Membuat proyek baru dari file ekspor Projectory.",
+    "chooseFile": "Pilih file .projectory.zip",
     "hint": "Impor selalu membuat proyek baru; data yang sudah ada tidak diubah.",
     "done": "Proyek berhasil diimpor",
     "errors": {
       "PASSPHRASE_REQUIRED": "File ini berisi rahasia terenkripsi. Masukkan passphrase.",
       "INVALID_PASSPHRASE": "Passphrase salah.",
-      "INVALID_FILE": "Ini bukan file ekspor BibloDrive yang valid."
+      "INVALID_FILE": "Ini bukan file ekspor Projectory yang valid."
     }
+  },
+  "groups": {
+    "group": "Grup",
+    "new": "Grup baru",
+    "edit": "Ubah grup",
+    "delete": "Hapus grup",
+    "deleteTitle": "Hapus {name}?",
+    "deleteNotEmpty": "Pindahkan atau hapus proyeknya untuk menghapus grup ini",
+    "empty": "Belum ada grup",
+    "emptyDescription": "Proyek disimpan di dalam grup. Buat grup untuk memulai.",
+    "emptyDescriptionAsk": "Proyek disimpan di dalam grup. Minta super user untuk membuatnya.",
+    "projectCount": "belum ada proyek | 1 proyek | {count} proyek",
+    "protected": "Dilindungi kode akses",
+    "noProjects": "Belum ada proyek di grup ini.",
+    "lockedDescription": "Grup ini terkunci. Masukkan kode akses untuk melihat proyeknya.",
+    "unlock": "Buka",
+    "unlockTitle": "Buka {name}",
+    "unlockDescription": "Minta kode akses ke super user. Grup tetap terbuka sampai kamu keluar.",
+    "accessCode": "Kode akses",
+    "accessCodeHint": "Opsional. Maintainer dan viewer wajib memasukkannya untuk membuka grup. Kosongkan agar grup terbuka.",
+    "invalidAccessCode": "Kode akses salah",
+    "deleteHasTrash": "Hapus dulu proyek grup ini dari tempat sampah",
+    "tooManyAttempts": "Terlalu banyak kode salah. Coba lagi dalam {minutes} menit."
+  },
+  "roles": {
+    "master": "Master",
+    "super_user": "Super User",
+    "maintainer": "Maintainer",
+    "viewer": "Viewer"
+  },
+  "roleDescription": {
+    "master": "Pemilik tunggal. Semua yang bisa dilakukan super user, ditambah mengangkat dan mencabut super user. Tidak bisa diubah siapa pun dari app.",
+    "super_user": "Akses penuh ke grup, proyek, dan tech stack. Mengelola maintainer dan viewer.",
+    "maintainer": "Membuat, mengubah, dan menghapus proyek beserta isinya. Bisa melihat password dan .env.",
+    "viewer": "Hanya melihat. Tidak bisa melihat password atau isi .env."
+  },
+  "users": {
+    "new": "Tambah pengguna",
+    "you": "kamu",
+    "joined": "Ditambahkan {time}",
+    "role": "Role",
+    "created": "Pengguna ditambahkan",
+    "initialPassword": "Password awal",
+    "initialPasswordHint": "Bagikan ke pengguna; mereka bisa menggantinya di Pengaturan.",
+    "resetPassword": "Reset password",
+    "deleteTitle": "Hapus {name}?",
+    "deleteDescription": "Pengguna akan dikeluarkan dan tidak bisa masuk lagi. Data proyek tidak terpengaruh.",
+    "resetTwoFactor": "Reset dua faktor",
+    "resetTwoFactorTitle": "Reset dua faktor {name}?",
+    "resetTwoFactorDescription": "Pakai ini kalau authenticator-nya hilang. Pengguna dikeluarkan dari semua sesi dan harus mengaktifkan dua faktor lagi saat masuk berikutnya.",
+    "twoFactorReset": "Dua faktor direset",
+    "twoFactorPending": "Dua faktor belum aktif"
+  },
+  "overview": {
+    "title": "Ringkasan",
+    "manage": "Kelola",
+    "noLinks": "Belum ada link.",
+    "noNotes": "Belum ada catatan."
+  },
+  "auditLog": {
+    "description": "Siapa yang membuka secret, mengekspor proyek, mengubah pengguna, atau membuka grup terkunci.",
+    "searchPlaceholder": "Cari berdasarkan target atau pengguna...",
+    "allActions": "Semua aksi",
+    "allUsers": "Semua pengguna",
+    "empty": "Belum ada catatan"
+  },
+  "auditAction": {
+    "user": {
+      "sign_in": "Masuk",
+      "create": "Membuat pengguna",
+      "role_change": "Mengubah role",
+      "password_reset": "Mereset password",
+      "delete": "Menghapus pengguna",
+      "two_factor_enable": "Mengaktifkan dua faktor",
+      "two_factor_reset": "Mereset dua faktor"
+    },
+    "account": {
+      "reveal": "Membuka secret akun"
+    },
+    "env": {
+      "reveal": "Membuka .env",
+      "restore": "Memulihkan versi .env"
+    },
+    "project": {
+      "export": "Mengekspor proyek",
+      "import": "Mengimpor proyek",
+      "delete": "Memindahkan proyek ke tempat sampah",
+      "restore": "Memulihkan proyek",
+      "purge": "Menghapus proyek permanen"
+    },
+    "group": {
+      "unlock": "Membuka grup",
+      "unlock_failed": "Kode akses salah",
+      "access_code_view": "Melihat kode akses",
+      "access_code_change": "Mengubah kode akses",
+      "delete": "Menghapus grup"
+    }
+  },
+  "trash": {
+    "description": "Proyek yang dihapus disimpan di sini selama {days} hari. Pulihkan untuk mengembalikan semua isinya.",
+    "empty": "Tempat sampah kosong",
+    "moved": "{name} dipindahkan ke tempat sampah",
+    "undo": "Urungkan",
+    "restore": "Pulihkan",
+    "restored": "Proyek dipulihkan",
+    "purge": "Hapus permanen",
+    "purgeTitle": "Hapus {name} secara permanen?",
+    "purgeDescription": "Semua app, environment, akun, dan nilai .env di proyek ini akan dihapus. Tindakan ini tidak bisa dibatalkan.",
+    "deletedBy": "Dihapus oleh {name} {time}",
+    "purgeAt": "dihapus permanen {time}"
+  },
+  "envHistory": {
+    "title": "Riwayat",
+    "description": "Satu versi disimpan setiap ada perubahan. Hanya {count} versi terakhir yang disimpan.",
+    "empty": "Belum ada perubahan yang tercatat.",
+    "current": "Saat ini",
+    "keyCount": "{count} variabel di versi ini",
+    "noChanges": "Tidak ada key yang berubah di versi ini.",
+    "restore": "Pulihkan versi ini",
+    "restoreTitle": "Pulihkan versi dari {time}?",
+    "restoreDescription": ".env akan diganti dengan nilai dari versi ini. Nilai saat ini tetap tersimpan di riwayat.",
+    "restored": ".env dipulihkan",
+    "action": {
+      "baseline": "Sebelum riwayat",
+      "edit": "Diubah",
+      "delete": "Variabel dihapus",
+      "import": "Diimpor",
+      "raw_edit": "Diubah sebagai teks",
+      "delete_all": "Semua dihapus",
+      "restore": "Dipulihkan"
+    }
+  },
+  "envCompare": {
+    "compareWith": "Bandingkan dengan",
+    "title": "{left} vs {right}",
+    "description": "Nilai dibandingkan persis. Membuka nilai tercatat di log audit.",
+    "keysOnly": "Hanya keberadaan key yang dibandingkan; nilainya tetap tersembunyi.",
+    "onlyDifferences": "Hanya yang berbeda",
+    "identical": "Kedua environment punya variabel yang sama.",
+    "onlyIn": "Hanya di {name}",
+    "status": {
+      "same": "Sama",
+      "different": "Berbeda",
+      "both": "Ada di keduanya"
+    }
+  },
+  "search": {
+    "button": "Cari...",
+    "placeholder": "Cari proyek, URL, akun, key .env...",
+    "goTo": "Buka",
+    "groups": {
+      "projects": "Proyek",
+      "deployments": "Deployment",
+      "accounts": "Akun",
+      "envKeys": "Key .env",
+      "apps": "App",
+      "links": "Link",
+      "infra": "Infrastructure"
+    }
+  },
+  "infra": {
+    "title": "Infrastructure",
+    "description": "Tempat aplikasi berjalan: server, cluster, dan database. Hanya alamat dan catatan, tanpa password.",
+    "empty": "Belum ada infrastructure yang dicatat.",
+    "new": "Tambah infrastructure",
+    "edit": "Ubah infrastructure",
+    "deleteTitle": "Hapus {name}?",
+    "noSecrets": "Jangan isi password atau key di sini. Infrastructure terlihat oleh semua role dan tidak dienkripsi.",
+    "allEnvironments": "Semua environment",
+    "host": "Host / IP / URL",
+    "hostHint": "mis. 10.20.1.15, db-sit.bank.local:5432 atau https://rancher-sit.bank.local",
+    "namePlaceholder": "mis. Rancher SIT",
+    "notesPlaceholder": "mis. namespace ibb-sit, minta akses ke tim infra",
+    "environment": "Environment"
+  },
+  "infraType": {
+    "server": "Server",
+    "kubernetes": "Rancher / Kubernetes",
+    "database": "Database",
+    "vpn": "VPN",
+    "registry": "Registry",
+    "other": "Lainnya"
   }
 }

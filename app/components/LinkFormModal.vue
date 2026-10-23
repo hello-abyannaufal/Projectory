@@ -5,7 +5,8 @@ import type * as z from 'zod'
 const props = defineProps<{
   projectId: string
   apps: { id: string, name: string }[]
-  link?: { id: string, type: LinkType, label: string, url: string, appId: string | null }
+  environments: { id: string, name: string }[]
+  link?: { id: string, type: LinkType, label: string, url: string, appId: string | null, environmentId: string | null }
   defaultAppId?: string | null
 }>()
 
@@ -16,8 +17,9 @@ const { t } = useI18n()
 const api = useApi()
 
 const PROJECT_SCOPE = 'project'
+const ANY_ENVIRONMENT = 'any'
 
-const state = reactive({ type: 'repository' as LinkType, label: '', url: '', scope: PROJECT_SCOPE })
+const state = reactive({ type: 'repository' as LinkType, label: '', url: '', scope: PROJECT_SCOPE, environment: ANY_ENVIRONMENT })
 
 watch(open, (value) => {
   if (value) {
@@ -25,7 +27,8 @@ watch(open, (value) => {
       type: props.link?.type ?? 'repository',
       label: props.link?.label ?? '',
       url: props.link?.url ?? '',
-      scope: props.link?.appId ?? props.defaultAppId ?? PROJECT_SCOPE
+      scope: props.link?.appId ?? props.defaultAppId ?? PROJECT_SCOPE,
+      environment: props.link?.environmentId ?? ANY_ENVIRONMENT
     })
   }
 })
@@ -35,11 +38,19 @@ const scopeItems = computed(() => [
   { value: PROJECT_SCOPE, label: t('links.wholeProject') },
   ...props.apps.map(app => ({ value: app.id, label: app.name }))
 ])
+const environmentItems = computed(() => [
+  { value: ANY_ENVIRONMENT, label: t('links.anyEnvironment') },
+  ...props.environments.map(environment => ({ value: environment.id, label: environment.name }))
+])
 
 const loading = ref(false)
 
 async function onSubmit({ data }: FormSubmitEvent<z.output<typeof linkInput>>) {
-  const body = { ...data, appId: state.scope === PROJECT_SCOPE ? null : state.scope }
+  const body = {
+    ...data,
+    appId: state.scope === PROJECT_SCOPE ? null : state.scope,
+    environmentId: state.environment === ANY_ENVIRONMENT ? null : state.environment
+  }
   loading.value = true
   const saved = await api(() => props.link
     ? request(`/api/links/${props.link.id}`, { method: 'PATCH', body })
@@ -87,6 +98,17 @@ async function onSubmit({ data }: FormSubmitEvent<z.output<typeof linkInput>>) {
             />
           </UFormField>
         </div>
+        <UFormField
+          :label="t('links.environment')"
+          :description="t('links.environmentHint')"
+          name="environment"
+        >
+          <USelect
+            v-model="state.environment"
+            :items="environmentItems"
+            class="w-full"
+          />
+        </UFormField>
         <UFormField
           :label="t('fields.label')"
           name="label"

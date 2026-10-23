@@ -11,7 +11,9 @@ export default defineEventHandler(async (event) => {
     return replace ? diff : { ...diff, removed: [] }
   }
 
-  const diff = await applyEnvVars(deploymentId, incoming, { skip, replace })
+  // The raw editor saves through import with replace.
+  const diff = await withEnvHistory(event, deploymentId, replace ? 'raw_edit' : 'import', () =>
+    applyEnvVars(deploymentId, incoming, { skip, replace }))
   await touchProject(deployment.app.projectId)
   return replace ? diff : { ...diff, removed: [] }
 })

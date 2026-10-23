@@ -52,3 +52,28 @@ export function timeAgo(value: string | Date, locale: string) {
   }
   return rtf.format(0, 'minute')
 }
+
+// Destructive or failed actions stand out from routine ones.
+export function auditActionColor(action: string): BadgeColor {
+  if (action.endsWith('delete') || action.endsWith('purge') || action.endsWith('failed')) {
+    return 'error'
+  }
+  if (action.endsWith('reveal') || action.startsWith('group.access_code') || action === 'project.export') {
+    return 'warning'
+  }
+  return 'neutral'
+}
+
+export const infraTypeIcon: Record<InfraType, string> = {
+  server: 'i-lucide-server',
+  kubernetes: 'i-lucide-ship-wheel',
+  database: 'i-lucide-database',
+  vpn: 'i-lucide-shield',
+  registry: 'i-lucide-package',
+  other: 'i-lucide-box'
+}
+
+// Only http(s) hosts are rendered as links.
+export function isHttpUrl(value: string) {
+  return /^https?:\/\//i.test(value)
+}

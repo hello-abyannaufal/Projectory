@@ -9,9 +9,9 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
   const [last] = await db.select({ value: max(tables.envVars.sortOrder) }).from(tables.envVars).where(eq(tables.envVars.deploymentId, deploymentId))
   const encrypted = encryptSecret(value)
-  await db.insert(tables.envVars)
+  await withEnvHistory(event, deploymentId, 'edit', () => db.insert(tables.envVars)
     .values({ deploymentId, key, value: encrypted, sortOrder: (last?.value ?? -1) + 1 })
-    .onConflictDoUpdate({ target: [tables.envVars.deploymentId, tables.envVars.key], set: { value: encrypted } })
+    .onConflictDoUpdate({ target: [tables.envVars.deploymentId, tables.envVars.key], set: { value: encrypted } }))
   await touchProject(deployment.app.projectId)
   return { ok: true }
 })

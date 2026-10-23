@@ -17,10 +17,22 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const session = import.meta.server
     ? (await authClient.useSession(useFetch)).data.value
     : (await authClient.getSession()).data
+  // Read by usePermissions(); set here so SSR renders with the right role.
+  useRole().value = session?.user.role as Role | undefined
   if (!session && to.path !== '/login') {
     return navigateTo('/login')
   }
+  // Every account must set up two-factor before it can use the app.
+  if (session && !session.user.twoFactorEnabled) {
+    return to.path === '/two-factor' ? undefined : navigateTo('/two-factor')
+  }
+  if (to.path === '/two-factor') {
+    return navigateTo('/projects')
+  }
   if (session && to.path === '/login') {
+    return navigateTo('/projects')
+  }
+  if (to.meta.permission && !hasPermission(session?.user.role, to.meta.permission)) {
     return navigateTo('/projects')
   }
 })

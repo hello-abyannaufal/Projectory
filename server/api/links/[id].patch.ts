@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
       notFound()
     }
   }
+  await assertProjectEnvironment(existing.projectId, input.environmentId)
   const [link] = await db.update(tables.links).set(input).where(eq(tables.links.id, id)).returning()
   await touchProject(existing.projectId)
   return link

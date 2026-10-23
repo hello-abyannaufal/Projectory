@@ -14,6 +14,7 @@ import {
   uuid
 } from 'drizzle-orm/pg-core'
 import {
+  INFRA_TYPES,
   LINK_TYPES,
   PLATFORMS,
   PROJECT_STATUSES,
@@ -33,6 +34,13 @@ export const user = pgTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
   image: text('image'),
+  // Admin plugin fields; role is one of ROLES
+  role: text('role').notNull().default('viewer'),
+  banned: boolean('banned').default(false),
+  banReason: text('ban_reason'),
+  banExpires: timestamp('ban_expires'),
+  // Two-factor plugin; every account must turn it on (server/middleware/auth.ts)
+  twoFactorEnabled: boolean('two_factor_enabled').default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 })
@@ -45,6 +53,7 @@ export const session = pgTable('session', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
+  impersonatedBy: text('impersonated_by'),
   userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' })
 })
 
@@ -73,6 +82,18 @@ export const verification = pgTable('verification', {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 })
 
+// Two-factor plugin: the encrypted TOTP secret and backup codes of each user.
+export const twoFactor = pgTable('two_factor', {
+  id: text('id').primaryKey(),
+  secret: text('secret').notNull(),
+  backupCodes: text('backup_codes').notNull(),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  // False until the first code from the authenticator app is confirmed.
+  verified: boolean('verified').default(true),
+  failedVerificationCount: integer('failed_verification_count').default(0),
+  lockedUntil: timestamp('locked_until')
+}, t => [index('two_factor_secret_idx').on(t.secret), index('two_factor_user_idx').on(t.userId)])
+
 // ---------------------------------------------------------------------------
 // Enums
 // ---------------------------------------------------------------------------
@@ -91,17 +112,37 @@ export const releaseStatus = pgEnum('release_status', RELEASE_STATUSES)
 
 export const testAccountStatus = pgEnum('test_account_status', TEST_ACCOUNT_STATUSES)
 
+export const infraType = pgEnum('infra_type', INFRA_TYPES)
+
 const timestamps = {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date())
 }
 
 // ---------------------------------------------------------------------------
-// Projects
+// Groups & projects
 // ---------------------------------------------------------------------------
+
+export const groups = pgTable('groups', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  description: text('description'),
+  // Ciphertext (see server/utils/crypto.ts). When set, maintainers and viewers
+  // must enter it once per session before they can open the group.
+  accessCode: text('access_code'),
+  ...timestamps
+})
+
+// Groups a session has unlocked with the access code.
+export const groupUnlocks = pgTable('group_unlocks', {
+  sessionId: text('session_id').notNull().references(() => session.id, { onDelete: 'cascade' }),
+  groupId: uuid('group_id').notNull().references(() => groups.id, { onDelete: 'cascade' })
+}, t => [primaryKey({ columns: [t.sessionId, t.groupId] })])
 
 export const projects = pgTable('projects', {
   id: uuid('id').primaryKey().defaultRandom(),
+  // A group can only be deleted once it is empty.
+  groupId: uuid('group_id').notNull().references(() => groups.id, { onDelete: 'restrict' }),
   name: text('name').notNull(),
   description: text('description'),
   // Path of the uploaded cover/logo inside the upload dir
@@ -109,8 +150,12 @@ export const projects = pgTable('projects', {
   status: projectStatus('status').notNull().default('active'),
   // TipTap JSON
   notes: jsonb('notes'),
+  // Set while the project is in the trash; purged after TRASH_RETENTION_DAYS.
+  deletedAt: timestamp('deleted_at'),
+  // Name of the user who moved it there
+  deletedBy: text('deleted_by'),
   ...timestamps
-})
+}, t => [index('projects_group_idx').on(t.groupId)])
 
 export const environments = pgTable('environments', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -134,16 +179,33 @@ export const apps = pgTable('apps', {
 }, t => [index('apps_project_idx').on(t.projectId)])
 
 // Project-level links have appId = null; app-level links have both set.
+// A link with an environment also shows on that environment's deployment pages.
 export const links = pgTable('links', {
   id: uuid('id').primaryKey().defaultRandom(),
   projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
   appId: uuid('app_id').references(() => apps.id, { onDelete: 'cascade' }),
+  environmentId: uuid('environment_id').references(() => environments.id, { onDelete: 'cascade' }),
   type: linkType('type').notNull().default('other'),
   label: text('label').notNull(),
   url: text('url').notNull(),
   sortOrder: integer('sort_order').notNull().default(0),
   ...timestamps
 }, t => [index('links_project_idx').on(t.projectId), index('links_app_idx').on(t.appId)])
+
+// Where things run: servers, clusters, databases. Addresses and notes only;
+// credentials are never stored here.
+export const infraItems = pgTable('infra_items', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  // Null means the item is shared by every environment.
+  environmentId: uuid('environment_id').references(() => environments.id, { onDelete: 'cascade' }),
+  type: infraType('type').notNull().default('server'),
+  name: text('name').notNull(),
+  // IP, hostname, host:port or URL
+  host: text('host').notNull(),
+  notes: text('notes'),
+  ...timestamps
+}, t => [index('infra_items_project_idx').on(t.projectId)])
 
 // ---------------------------------------------------------------------------
 // Tech stacks
@@ -229,14 +291,72 @@ export const envVars = pgTable('env_vars', {
   ...timestamps
 }, t => [unique('env_vars_deployment_key_unique').on(t.deploymentId, t.key)])
 
+// Snapshot of a deployment's whole .env after each change, newest kept up to
+// ENV_HISTORY_LIMIT. The first snapshot ('baseline') holds the values from
+// before history was recorded and has no user.
+export const envVarVersions = pgTable('env_var_versions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  deploymentId: uuid('deployment_id').notNull().references(() => deployments.id, { onDelete: 'cascade' }),
+  // Ciphertext of a JSON array of { key, value }
+  content: text('content').notNull(),
+  // One of ENV_VERSION_ACTIONS
+  action: text('action').notNull(),
+  userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
+  userName: text('user_name'),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+}, t => [index('env_var_versions_deployment_idx').on(t.deploymentId, t.createdAt)])
+
+// ---------------------------------------------------------------------------
+// Per-user project shortcuts
+// ---------------------------------------------------------------------------
+
+export const projectPins = pgTable('project_pins', {
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+}, t => [primaryKey({ columns: [t.userId, t.projectId] })])
+
+// When each user last opened each project.
+export const projectVisits = pgTable('project_visits', {
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  visitedAt: timestamp('visited_at').notNull().defaultNow()
+}, t => [primaryKey({ columns: [t.userId, t.projectId] })])
+
+// ---------------------------------------------------------------------------
+// Audit log
+// ---------------------------------------------------------------------------
+
+// Who did what to which secret or security setting. Rows outlive the user and
+// the target, so names are copied in rather than referenced.
+export const auditLogs = pgTable('audit_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
+  userName: text('user_name').notNull(),
+  // One of AUDIT_ACTIONS
+  action: text('action').notNull(),
+  // Readable path to the target, e.g. "Project / App / UAT / maker1"
+  target: text('target'),
+  projectId: uuid('project_id'),
+  metadata: jsonb('metadata'),
+  ipAddress: text('ip_address'),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+}, t => [index('audit_logs_created_idx').on(t.createdAt), index('audit_logs_user_idx').on(t.userId)])
+
 // ---------------------------------------------------------------------------
 // Relations
 // ---------------------------------------------------------------------------
 
-export const projectsRelations = relations(projects, ({ many }) => ({
+export const groupsRelations = relations(groups, ({ many }) => ({
+  projects: many(projects)
+}))
+
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+  group: one(groups, { fields: [projects.groupId], references: [groups.id] }),
   environments: many(environments),
   apps: many(apps),
-  links: many(links)
+  links: many(links),
+  infraItems: many(infraItems)
 }))
 
 export const environmentsRelations = relations(environments, ({ one, many }) => ({
@@ -251,9 +371,15 @@ export const appsRelations = relations(apps, ({ one, many }) => ({
   deployments: many(deployments)
 }))
 
+export const infraItemsRelations = relations(infraItems, ({ one }) => ({
+  project: one(projects, { fields: [infraItems.projectId], references: [projects.id] }),
+  environment: one(environments, { fields: [infraItems.environmentId], references: [environments.id] })
+}))
+
 export const linksRelations = relations(links, ({ one }) => ({
   project: one(projects, { fields: [links.projectId], references: [projects.id] }),
-  app: one(apps, { fields: [links.appId], references: [apps.id] })
+  app: one(apps, { fields: [links.appId], references: [apps.id] }),
+  environment: one(environments, { fields: [links.environmentId], references: [environments.id] })
 }))
 
 export const techStacksRelations = relations(techStacks, ({ many }) => ({

@@ -1,5 +1,5 @@
 {
-  "name": "biblodrive",
+  "name": "projectory",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
     "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
@@ -18,6 +19,7 @@
     "@nuxt/ui": "^4.11.3",
     "@nuxtjs/i18n": "^10.6.0",
     "@tiptap/extension-text-align": "^3.31.4",
+    "@vercel/blob": "^2.8.1",
     "better-auth": "^1.7.7",
     "drizzle-orm": "^0.45.3",
     "fflate": "^0.8.3",
@@ -25,6 +27,7 @@
     "postgres": "^3.4.9",
     "simple-icons": "^16.34.0",
     "tailwindcss": "^4.3.3",
+    "uqr": "^0.1.3",
     "zod": "^4.6.5"
   },
   "devDependencies": {
