@@ -11,7 +11,7 @@ Aplikasi self-hosted untuk menyimpan data project aplikasi (Web, Mobile, Backend
 - Satu tempat untuk semua informasi project, dari level project sampai akun login per environment.
 - Struktur cukup generik untuk berbagai jenis project, mulai dari app sederhana (Web + Backend) sampai project banking multi-channel (IBB Corporate, IBB Admin, IB Personal, dll).
 - Self-hosted dan jalan lokal via Docker. Data tetap di tangan pemilik instance.
-- Multi-user dengan role (Super User, Maintainer, Viewer). Project dikelompokkan dalam Group yang bisa dikunci dengan kode akses.
+- Multi-user dengan role (Master, Super User, Maintainer, Viewer). Project dikelompokkan dalam Group yang bisa dikunci dengan kode akses.
 - Berbagi ke instance lain tetap lewat export/import.
 
 ## 2. Keputusan Utama
@@ -20,7 +20,7 @@ Aplikasi self-hosted untuk menyimpan data project aplikasi (Web, Mobile, Backend
 |---|---|
 | Model distribusi | Self-hosted, tiap orang menjalankan instance sendiri |
 | Deploy | Lokal, Docker Compose (`app` + `postgres`) |
-| User | Multi-user, role global: `super_user`, `maintainer`, `viewer` (lihat 4.3) |
+| User | Multi-user, role global: `master`, `super_user`, `maintainer`, `viewer` (lihat 4.3) |
 | Hierarki | Group → Project → App → Deployment (App × Environment) |
 | Akun | Disimpan per Deployment |
 | Kredensial production | Tidak disimpan. Environment production menyembunyikan Accounts dan `.env` |
@@ -94,14 +94,15 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 ### 4.2 Entitas
 
 **User** (dikelola Better Auth + plugin `admin`)
-- `role`: `super_user` | `maintainer` | `viewer`.
-- Saat pertama kali dijalankan, aplikasi menampilkan halaman **setup** untuk membuat akun pertama, yang otomatis menjadi `super_user`. Setelah itu registrasi publik tertutup; user lain dibuat Super User di halaman **Users** (nama, email, password awal, role).
-- Super User tidak bisa mengubah role atau menghapus akunnya sendiri, jadi instance selalu punya minimal satu Super User.
+- `role`: `master` | `super_user` | `maintainer` | `viewer`.
+- Saat pertama kali dijalankan, aplikasi menampilkan halaman **setup** untuk membuat akun pertama, yang otomatis menjadi `master`. Setelah itu registrasi publik tertutup; user lain dibuat Master atau Super User di halaman **Users** (nama, email, password awal, role).
+- Tidak ada yang bisa mengubah role atau menghapus akunnya sendiri lewat halaman Users. Master tidak tampil di daftar Users kecuali untuk Master sendiri.
+- Two-factor (TOTP) wajib untuk semua akun (lihat 5).
 - Preferensi: `locale` (`en` | `id`), `theme` (`light` | `dark` | `system`).
 
 **Group**
 - `name`, `description`
-- `access_code` (opsional, dienkripsi). Kalau diisi, Maintainer dan Viewer harus memasukkan kode sekali per sesi login sebelum bisa membuka isi group. Mengganti kode mengunci ulang group untuk semua sesi. Super User selalu bisa membuka dan melihat kodenya.
+- `access_code` (opsional, dienkripsi). Kalau diisi, Maintainer dan Viewer harus memasukkan kode sekali per sesi login sebelum bisa membuka isi group. Mengganti kode mengunci ulang group untuk semua sesi. Master dan Super User selalu bisa membuka group dan melihat kodenya.
 - Hanya bisa dihapus kalau sudah kosong (tidak ada project).
 - Project lama dari sebelum fitur ini masuk ke group **General**.
 
@@ -218,8 +219,8 @@ Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai
 - **Environment production**: section Accounts dan `.env` disembunyikan.
 - **Audit log**: reveal secret akun/`.env`, export/import, hapus/restore project, kode akses group, login, dan pengelolaan user dicatat.
 - **Auto-logout**: setelah `IDLE_TIMEOUT_MS` (1 jam) tanpa input keyboard/mouse/touch, dihitung lintas tab.
-- **Registrasi**: hanya lewat halaman setup saat pertama kali jalan. Setelah itu akun hanya bisa dibuat Super User.
-- **Two-factor (TOTP) wajib** untuk semua akun, diaktifkan saat login pertama. Browser bisa dipercaya `TWO_FACTOR_TRUST_DAYS` (30 hari) sejak kode terakhir, tidak diperpanjang saat login. Super User bisa mereset 2FA user lain.
+- **Registrasi**: hanya lewat halaman setup saat pertama kali jalan. Setelah itu akun hanya bisa dibuat Master atau Super User.
+- **Two-factor (TOTP) wajib** untuk semua akun, diaktifkan saat login pertama. Browser bisa dipercaya `TWO_FACTOR_TRUST_DAYS` (30 hari) sejak kode terakhir, tidak diperpanjang saat login. Master dan Super User bisa mereset 2FA user yang boleh mereka kelola (2FA Super User hanya oleh Master; 2FA Master lewat SQL, lihat [SECURITY.md](SECURITY.md)).
 - **Access code group**: 5 kode salah dalam 15 menit memblokir user itu dari group tersebut sampai jendela waktunya lewat.
 - Detail dan langkah penanganan insiden: [SECURITY.md](SECURITY.md).
 
@@ -273,12 +274,12 @@ Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai
 - [x] Export/import `.zip` level project (tanpa secret / dengan passphrase)
 - [x] Copy text per Deployment
 - [x] Docker Compose (`app` + `postgres`)
-- [x] Role (Super User, Maintainer, Viewer) & halaman Users
+- [x] Role (Master, Super User, Maintainer, Viewer) & halaman Users
 - [x] Group dengan kode akses opsional
 
 ### Iterasi 2
 - [x] Search lintas project + command palette (Ctrl+K): project, app, URL/branch, akun (label, tag, field non-secret), link, key `.env`
-- [x] Audit log (halaman khusus Super User)
+- [x] Audit log (halaman khusus Master dan Super User)
 - [x] Auto-logout setelah idle 1 jam
 - [x] Status akun testing: badge "perlu dicek" (belum diverifikasi > `STALE_ACCOUNT_DAYS`), filter, ganti status cepat, indikator di matriks
 - [x] Pin project + "terakhir dibuka"
@@ -286,9 +287,10 @@ Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai
 - [x] Trash untuk project
 - [x] Bandingkan `.env` antar environment dalam satu app
 - [x] Inventaris infra (server, Rancher/k8s, DB, VPN, registry) per environment, tanpa kredensial
+- [x] Two-factor (TOTP) wajib + backup code, trust browser 30 hari
+- [x] Role Master (satu akun, hanya bisa dipindah lewat SQL)
 
 ### Ditunda
-- 2FA
 - Health check URL deployment
 - Share link read-only sementara
 - Permission per group
