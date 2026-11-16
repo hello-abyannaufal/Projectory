@@ -2,8 +2,18 @@ import { and, desc, eq, inArray, notInArray } from 'drizzle-orm'
 import type { H3Event } from 'h3'
 import type { EnvEntry } from '#shared/utils/dotenv'
 
-export async function readEnvVars(deploymentId: string) {
-  const rows = await useDb().select().from(tables.envVars).where(eq(tables.envVars.deploymentId, deploymentId))
+export type EnvFileRef = { id: string, deploymentId: string }
+
+export async function findEnvFile(id: string) {
+  const file = await useDb().query.envFiles.findFirst({ where: eq(tables.envFiles.id, id) })
+  if (!file) {
+    notFound()
+  }
+  return file
+}
+
+export async function readEnvVars(fileId: string) {
+  const rows = await useDb().select().from(tables.envVars).where(eq(tables.envVars.envFileId, fileId))
   return rows
     .sort((a, b) => a.sortOrder - b.sortOrder || a.key.localeCompare(b.key))
     .map(row => ({ id: row.id, key: row.key, value: decryptSecret(row.value), sortOrder: row.sortOrder }))
@@ -21,11 +31,11 @@ export function diffEnvVars(current: EnvEntry[], incoming: EnvEntry[]) {
 }
 
 export async function applyEnvVars(
-  deploymentId: string,
+  file: EnvFileRef,
   incoming: EnvEntry[],
   options: { skip: string[], replace: boolean }
 ) {
-  const current = await readEnvVars(deploymentId)
+  const current = await readEnvVars(file.id)
   const diff = diffEnvVars(current, incoming)
   const skip = new Set(options.skip)
   const byKey = new Map(current.map(entry => [entry.key, entry]))
@@ -36,7 +46,8 @@ export async function applyEnvVars(
       const existing = byKey.get(entry.key)
       if (!existing) {
         await tx.insert(tables.envVars).values({
-          deploymentId,
+          deploymentId: file.deploymentId,
+          envFileId: file.id,
           key: entry.key,
           value: encryptSecret(entry.value),
           sortOrder: options.replace ? index : nextOrder + index
@@ -50,7 +61,7 @@ export async function applyEnvVars(
       }
     }
     if (options.replace && diff.removed.length) {
-      await tx.delete(tables.envVars).where(and(eq(tables.envVars.deploymentId, deploymentId), inArray(tables.envVars.key, diff.removed)))
+      await tx.delete(tables.envVars).where(and(eq(tables.envVars.envFileId, file.id), inArray(tables.envVars.key, diff.removed)))
     }
   })
 
@@ -69,47 +80,48 @@ export async function findEnvVersion(id: string) {
   return version
 }
 
-async function latestEnvVersion(deploymentId: string) {
+async function latestEnvVersion(fileId: string) {
   return useDb().query.envVarVersions.findFirst({
-    where: eq(tables.envVarVersions.deploymentId, deploymentId),
+    where: eq(tables.envVarVersions.envFileId, fileId),
     orderBy: desc(tables.envVarVersions.createdAt)
   })
 }
 
-async function saveEnvVersion(deploymentId: string, entries: EnvEntry[], action: EnvVersionAction, user?: { id: string, name: string }) {
+async function saveEnvVersion(file: EnvFileRef, entries: EnvEntry[], action: EnvVersionAction, user?: { id: string, name: string }) {
   const db = useDb()
   await db.insert(tables.envVarVersions).values({
-    deploymentId,
+    deploymentId: file.deploymentId,
+    envFileId: file.id,
     content: encryptSecret(JSON.stringify(entries)),
     action,
     userId: user?.id ?? null,
     userName: user?.name ?? null
   })
   const keep = db.select({ id: tables.envVarVersions.id }).from(tables.envVarVersions)
-    .where(eq(tables.envVarVersions.deploymentId, deploymentId))
+    .where(eq(tables.envVarVersions.envFileId, file.id))
     .orderBy(desc(tables.envVarVersions.createdAt))
     .limit(ENV_HISTORY_LIMIT)
   await db.delete(tables.envVarVersions)
-    .where(and(eq(tables.envVarVersions.deploymentId, deploymentId), notInArray(tables.envVarVersions.id, keep)))
+    .where(and(eq(tables.envVarVersions.envFileId, file.id), notInArray(tables.envVarVersions.id, keep)))
 }
 
 const entriesOf = (vars: { key: string, value: string }[]) => vars.map(({ key, value }) => ({ key, value }))
 
-// Runs a change to a deployment's .env and records the result as a version.
+// Runs a change to an .env file and records the result as a version.
 // Values from before the first recorded change are saved as a baseline first.
-export async function withEnvHistory<T>(event: H3Event, deploymentId: string, action: EnvVersionAction, change: () => Promise<T>) {
-  if (!await latestEnvVersion(deploymentId)) {
-    const before = await readEnvVars(deploymentId)
+export async function withEnvHistory<T>(event: H3Event, file: EnvFileRef, action: EnvVersionAction, change: () => Promise<T>) {
+  if (!await latestEnvVersion(file.id)) {
+    const before = await readEnvVars(file.id)
     if (before.length) {
-      await saveEnvVersion(deploymentId, entriesOf(before), 'baseline')
+      await saveEnvVersion(file, entriesOf(before), 'baseline')
     }
   }
   const result = await change()
-  const after = entriesOf(await readEnvVars(deploymentId))
-  const latest = await latestEnvVersion(deploymentId)
+  const after = entriesOf(await readEnvVars(file.id))
+  const latest = await latestEnvVersion(file.id)
   const unchanged = latest && JSON.stringify(decryptEnvVersion(latest.content)) === JSON.stringify(after)
   if (!unchanged && (latest || after.length)) {
-    await saveEnvVersion(deploymentId, after, action, event.context.user as { id: string, name: string })
+    await saveEnvVersion(file, after, action, event.context.user as { id: string, name: string })
   }
   return result
 }

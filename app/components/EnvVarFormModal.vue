@@ -3,7 +3,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import type * as z from 'zod'
 
 const props = defineProps<{
-  deploymentId: string
+  fileId: string
   // Existing variable with its revealed value
   envVar?: { id: string, key: string, value: string }
 }>()
@@ -26,7 +26,7 @@ const loading = ref(false)
 
 async function onSubmit({ data }: FormSubmitEvent<z.output<typeof envVarInput>>) {
   loading.value = true
-  const url = props.envVar ? `/api/env-vars/${props.envVar.id}` : `/api/deployments/${props.deploymentId}/env`
+  const url = props.envVar ? `/api/env-vars/${props.envVar.id}` : `/api/env-files/${props.fileId}`
   const saved = await api(() => request(url, { method: props.envVar ? 'PATCH' : 'POST', body: data }))
   loading.value = false
   if (saved) {

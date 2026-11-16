@@ -156,8 +156,13 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 - `account_id`, `key`, `value`, `is_secret`, `order`
 - `value` dienkripsi jika `is_secret = true`.
 
+**EnvFile**
+- `deployment_id`, `path` (misal `.env`, `dev/.env`), `order`. Unik per deployment.
+- Satu deployment bisa punya beberapa file. Deployment baru otomatis dapat `.env`. Path bisa diganti nama; variabel dan riwayat ikut file-nya.
+- Compare antar environment membandingkan file dengan path yang sama.
+
 **EnvVar**
-- `deployment_id`, `key`, `value` (selalu dienkripsi), `order`
+- `env_file_id`, `deployment_id`, `key`, `value` (selalu dienkripsi), `order`
 - Disimpan per key (agar bisa di-mask dan dienkripsi), tapi UI menyediakan dua tampilan:
   - **Table**: satu baris per variabel, reveal/copy per value.
   - **Raw**: seluruh isi sebagai teks `.env` (ter-mask sampai di-reveal), bisa diedit langsung.
@@ -167,8 +172,8 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 - **Export `.env`**: copy atau download sebagai file `.env`.
 
 **EnvVarVersion**
-- `deployment_id`, `content` (seluruh isi `.env` sebagai JSON, dienkripsi), `action`, `user_id`, `user_name`, `created_at`
-- Disimpan setelah setiap perubahan `.env`. Perubahan pertama juga menyimpan versi `baseline` (isi sebelum riwayat dicatat). Maksimal `ENV_HISTORY_LIMIT` (50) versi per deployment.
+- `env_file_id`, `deployment_id`, `content` (seluruh isi `.env` sebagai JSON, dienkripsi), `action`, `user_id`, `user_name`, `created_at`
+- Disimpan setelah setiap perubahan `.env`. Perubahan pertama juga menyimpan versi `baseline` (isi sebelum riwayat dicatat). Maksimal `ENV_HISTORY_LIMIT` (50) versi per file.
 
 **ProjectPin / ProjectVisit** (per user)
 - Pin project ke atas halaman Projects, dan waktu terakhir user membuka tiap project.
@@ -281,7 +286,7 @@ Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai
 - [x] Search lintas project + command palette (Ctrl+K): project, app, URL/branch, akun (label, tag, field non-secret), link, key `.env`
 - [x] Audit log (halaman khusus Master dan Super User)
 - [x] Auto-logout setelah idle 1 jam
-- [x] Status akun testing: badge "perlu dicek" (belum diverifikasi > `STALE_ACCOUNT_DAYS`), filter, ganti status cepat, indikator di matriks
+- [x] Status akun testing: ganti status cepat (active/locked/expired)
 - [x] Pin project + "terakhir dibuka"
 - [x] Version history `.env` dengan diff dan restore
 - [x] Trash untuk project

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-  deploymentId: string
+  fileId: string
   editable?: boolean
   canReveal?: boolean
 }>()
@@ -36,7 +36,7 @@ watch(open, async (value) => {
     return
   }
   loading.value = true
-  versions.value = await api(() => request<Version[]>(`/api/deployments/${props.deploymentId}/env/history`)) ?? []
+  versions.value = await api(() => request<Version[]>(`/api/env-files/${props.fileId}/history`)) ?? []
   loading.value = false
   values.value = {}
   selectedId.value = versions.value[0]?.id

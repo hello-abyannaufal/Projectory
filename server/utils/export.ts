@@ -28,6 +28,7 @@ export async function loadProjectTree(projectId: string) {
         orderBy: [asc(tables.apps.sortOrder), asc(tables.apps.createdAt)],
         with: {
           techStacks: { with: { techStack: true } },
+          files: { orderBy: [asc(tables.appFiles.sortOrder), asc(tables.appFiles.path)] },
           deployments: {
             with: {
               releases: { orderBy: asc(tables.releases.createdAt) },
@@ -35,7 +36,10 @@ export async function loadProjectTree(projectId: string) {
                 orderBy: asc(tables.testAccounts.sortOrder),
                 with: { fields: { orderBy: asc(tables.testAccountFields.sortOrder) } }
               },
-              envVars: { orderBy: [asc(tables.envVars.sortOrder), asc(tables.envVars.key)] }
+              envFiles: {
+                orderBy: [asc(tables.envFiles.sortOrder), asc(tables.envFiles.path)],
+                with: { envVars: { orderBy: [asc(tables.envVars.sortOrder), asc(tables.envVars.key)] } }
+              }
             }
           }
         }
@@ -103,6 +107,7 @@ export async function buildProjectZip(tree: ProjectTree, passphrase?: string) {
       platforms: app.platforms,
       notes: app.notes,
       techStacks: app.techStacks.map(({ techStack }) => techStack.slug),
+      files: app.files.map(file => ({ path: file.path, content: secret(file.content) })),
       deployments: app.deployments.map(deployment => ({
         environment: deployment.environmentId,
         url: deployment.url,
@@ -122,7 +127,10 @@ export async function buildProjectZip(tree: ProjectTree, passphrase?: string) {
             value: field.isSecret ? secret(field.value) : field.value
           }))
         })),
-        envVars: deployment.envVars.map(envVar => ({ key: envVar.key, value: secret(envVar.value) }))
+        envFiles: deployment.envFiles.map(file => ({
+          path: file.path,
+          envVars: file.envVars.map(envVar => ({ key: envVar.key, value: secret(envVar.value) }))
+        }))
       }))
     }))
   }
@@ -157,6 +165,9 @@ export function buildProjectMarkdown(tree: ProjectTree, withSecrets: boolean) {
     for (const link of tree.links.filter(item => item.appId === app.id)) {
       lines.push(`- [${link.label}](${link.url})`)
     }
+    for (const file of app.files) {
+      lines.push('', `\`${file.path}\``, '', '```', reveal(file.content), '```')
+    }
     const deployments = [...app.deployments].sort((a, b) => (envName.get(a.environmentId)?.sortOrder ?? 0) - (envName.get(b.environmentId)?.sortOrder ?? 0))
     for (const deployment of deployments) {
       lines.push('', `### ${envName.get(deployment.environmentId)?.name ?? ''}`)
@@ -176,8 +187,8 @@ export function buildProjectMarkdown(tree: ProjectTree, withSecrets: boolean) {
           lines.push(`- ${field.key}: ${field.isSecret ? reveal(field.value) : field.value}`)
         }
       }
-      if (deployment.envVars.length) {
-        lines.push('', '```dotenv', ...deployment.envVars.map(envVar => `${envVar.key}=${reveal(envVar.value)}`), '```')
+      for (const file of deployment.envFiles.filter(file => file.envVars.length)) {
+        lines.push('', `\`${file.path}\``, '', '```dotenv', ...file.envVars.map(envVar => `${envVar.key}=${reveal(envVar.value)}`), '```')
       }
     }
   }

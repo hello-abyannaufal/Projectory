@@ -6,6 +6,11 @@ const text = z.string().nullish().transform(v => v ?? null)
 const doc = z.object({ type: z.literal('doc') }).loose().nullish().transform(v => v ?? null)
 const asset = z.string().regex(/^assets\/[\w.-]+$/).nullish().transform(v => v ?? null)
 
+const envVarSchema = z.object({ key: z.string().regex(ENV_KEY_PATTERN), value: z.string() })
+
+const envFilesOf = (deployment: { envVars: { key: string, value: string }[], envFiles?: { path: string, envVars: { key: string, value: string }[] }[] }) =>
+  deployment.envFiles ?? [{ path: '.env', envVars: deployment.envVars }]
+
 const fileSchema = z.object({
   schemaVersion: z.literal(EXPORT_SCHEMA_VERSION),
   encryption: z.object({ algorithm: z.literal('aes-256-gcm'), kdf: z.literal('scrypt'), salt: z.string() }).nullable(),
@@ -37,6 +42,8 @@ const fileSchema = z.object({
     platforms: z.array(z.enum(PLATFORMS)),
     notes: doc,
     techStacks: z.array(z.string()),
+    // Missing in files exported before apps had dev files.
+    files: z.array(z.object({ path: appFileInput.shape.path, content: z.string() })).default([]),
     deployments: z.array(z.object({
       environment: z.string(),
       url: httpUrl.nullish().transform(v => v ?? null),
@@ -59,7 +66,9 @@ const fileSchema = z.object({
         lastVerifiedAt: text,
         fields: z.array(z.object({ key: z.string().min(1), value: z.string(), isSecret: z.boolean() }))
       })),
-      envVars: z.array(z.object({ key: z.string().regex(ENV_KEY_PATTERN), value: z.string() }))
+      // Files exported before .env files had a path only have envVars (one .env).
+      envVars: z.array(envVarSchema).default([]),
+      envFiles: z.array(z.object({ path: appFileInput.shape.path, envVars: z.array(envVarSchema) })).optional()
     }))
   }))
 })
@@ -85,10 +94,13 @@ export async function importProjectZip(zip: Uint8Array, groupId: string, passphr
       fail('PASSPHRASE_REQUIRED')
     }
     const key = deriveKey(passphrase, Buffer.from(data.encryption.salt, 'base64'))
-    const sample = data.apps.flatMap(app => app.deployments.flatMap(d => [
-      ...d.envVars.map(v => v.value),
-      ...d.accounts.flatMap(a => a.fields.filter(f => f.isSecret).map(f => f.value))
-    ])).find(Boolean)
+    const sample = data.apps.flatMap(app => [
+      ...app.files.map(f => f.content),
+      ...app.deployments.flatMap(d => [
+        ...envFilesOf(d).flatMap(file => file.envVars.map(v => v.value)),
+        ...d.accounts.flatMap(a => a.fields.filter(f => f.isSecret).map(f => f.value))
+      ])
+    ]).find(Boolean)
     if (sample) {
       try {
         decryptWithKey(sample, key)
@@ -149,6 +161,15 @@ export async function importProjectZip(zip: Uint8Array, groupId: string, passphr
         const appId = row!.id
         appIds.set(app.ref, appId)
 
+        if (app.files.length) {
+          await tx.insert(tables.appFiles).values(app.files.map((file, fileIndex) => ({
+            appId,
+            path: file.path,
+            content: toLocal(file.content),
+            sortOrder: fileIndex
+          }))).onConflictDoNothing()
+        }
+
         const techStackIds = [...new Set(app.techStacks.map(slug => stackIds.get(slug)).filter(Boolean))] as string[]
         if (techStackIds.length) {
           await tx.insert(tables.appTechStacks).values(techStackIds.map(techStackId => ({ appId, techStackId })))
@@ -191,14 +212,18 @@ export async function importProjectZip(zip: Uint8Array, groupId: string, passphr
               })))
             }
           }
-          const envVars = new Map(deployment.envVars.map(envVar => [envVar.key, envVar.value]))
-          if (envVars.size) {
-            await tx.insert(tables.envVars).values([...envVars].map(([key, value], envIndex) => ({
-              deploymentId,
-              key,
-              value: toLocal(value),
-              sortOrder: envIndex
-            })))
+          for (const [fileIndex, file] of envFilesOf(deployment).entries()) {
+            const [envFile] = await tx.insert(tables.envFiles).values({ deploymentId, path: file.path, sortOrder: fileIndex }).onConflictDoNothing().returning()
+            const envVars = new Map(file.envVars.map(envVar => [envVar.key, envVar.value]))
+            if (envFile && envVars.size) {
+              await tx.insert(tables.envVars).values([...envVars].map(([key, value], envIndex) => ({
+                deploymentId,
+                envFileId: envFile.id,
+                key,
+                value: toLocal(value),
+                sortOrder: envIndex
+              })))
+            }
           }
         }
       }

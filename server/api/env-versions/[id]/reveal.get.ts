@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   setResponseHeader(event, 'Cache-Control', 'no-store')
   const version = await findEnvVersion(id)
   const previous = await useDb().query.envVarVersions.findFirst({
-    where: and(eq(tables.envVarVersions.deploymentId, version.deploymentId), lt(tables.envVarVersions.createdAt, version.createdAt)),
+    where: and(eq(tables.envVarVersions.envFileId, version.envFileId), lt(tables.envVarVersions.createdAt, version.createdAt)),
     orderBy: desc(tables.envVarVersions.createdAt)
   })
   await logAudit(event, { action: 'env.reveal', ...await describeDeployment(version.deploymentId), metadata: { version: version.createdAt.toISOString() } })
