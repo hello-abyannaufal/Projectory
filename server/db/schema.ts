@@ -281,22 +281,33 @@ export const testAccountFields = pgTable('test_account_fields', {
   sortOrder: integer('sort_order').notNull().default(0)
 }, t => [index('test_account_fields_account_idx').on(t.accountId)])
 
+// A dotenv file of a deployment, named by its path in the repo (.env, dev/.env).
+export const envFiles = pgTable('env_files', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  deploymentId: uuid('deployment_id').notNull().references(() => deployments.id, { onDelete: 'cascade' }),
+  path: text('path').notNull(),
+  sortOrder: integer('sort_order').notNull().default(0),
+  ...timestamps
+}, t => [unique('env_files_deployment_path_unique').on(t.deploymentId, t.path)])
+
 export const envVars = pgTable('env_vars', {
   id: uuid('id').primaryKey().defaultRandom(),
   deploymentId: uuid('deployment_id').notNull().references(() => deployments.id, { onDelete: 'cascade' }),
+  envFileId: uuid('env_file_id').notNull().references(() => envFiles.id, { onDelete: 'cascade' }),
   key: text('key').notNull(),
   // Always ciphertext
   value: text('value').notNull(),
   sortOrder: integer('sort_order').notNull().default(0),
   ...timestamps
-}, t => [unique('env_vars_deployment_key_unique').on(t.deploymentId, t.key)])
+}, t => [unique('env_vars_file_key_unique').on(t.envFileId, t.key)])
 
-// Snapshot of a deployment's whole .env after each change, newest kept up to
+// Snapshot of a whole .env file after each change, newest kept up to
 // ENV_HISTORY_LIMIT. The first snapshot ('baseline') holds the values from
 // before history was recorded and has no user.
 export const envVarVersions = pgTable('env_var_versions', {
   id: uuid('id').primaryKey().defaultRandom(),
   deploymentId: uuid('deployment_id').notNull().references(() => deployments.id, { onDelete: 'cascade' }),
+  envFileId: uuid('env_file_id').notNull().references(() => envFiles.id, { onDelete: 'cascade' }),
   // Ciphertext of a JSON array of { key, value }
   content: text('content').notNull(),
   // One of ENV_VERSION_ACTIONS
@@ -304,7 +315,7 @@ export const envVarVersions = pgTable('env_var_versions', {
   userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
   userName: text('user_name'),
   createdAt: timestamp('created_at').notNull().defaultNow()
-}, t => [index('env_var_versions_deployment_idx').on(t.deploymentId, t.createdAt)])
+}, t => [index('env_var_versions_file_idx').on(t.envFileId, t.createdAt)])
 
 // ---------------------------------------------------------------------------
 // Per-user project shortcuts
@@ -396,6 +407,11 @@ export const deploymentsRelations = relations(deployments, ({ one, many }) => ({
   environment: one(environments, { fields: [deployments.environmentId], references: [environments.id] }),
   releases: many(releases),
   testAccounts: many(testAccounts),
+  envFiles: many(envFiles)
+}))
+
+export const envFilesRelations = relations(envFiles, ({ one, many }) => ({
+  deployment: one(deployments, { fields: [envFiles.deploymentId], references: [deployments.id] }),
   envVars: many(envVars)
 }))
 
@@ -413,5 +429,5 @@ export const testAccountFieldsRelations = relations(testAccountFields, ({ one })
 }))
 
 export const envVarsRelations = relations(envVars, ({ one }) => ({
-  deployment: one(deployments, { fields: [envVars.deploymentId], references: [deployments.id] })
+  envFile: one(envFiles, { fields: [envVars.envFileId], references: [envFiles.id] })
 }))

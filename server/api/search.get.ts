@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   const pattern = `%${q.replace(/[\\%_]/g, '\\$&')}%`
   const locked = [...await lockedGroupIds(event)]
   const db = useDb()
-  const { groups, projects, apps, environments, deployments, links, infraItems, testAccounts, testAccountFields, envVars } = tables
+  const { groups, projects, apps, environments, deployments, links, infraItems, testAccounts, testAccountFields, envFiles, envVars } = tables
   const visible = and(isNull(projects.deletedAt), locked.length ? notInArray(projects.groupId, locked) : undefined)
   const deploymentScope = {
     deploymentId: deployments.id,
@@ -57,7 +57,8 @@ export default defineEventHandler(async (event) => {
       .leftJoin(environments, eq(environments.id, infraItems.environmentId))
       .where(and(visible, or(ilike(infraItems.name, pattern), ilike(infraItems.host, pattern), ilike(infraItems.notes, pattern))))
       .limit(LIMIT),
-    db.select({ key: envVars.key, ...deploymentScope }).from(envVars)
+    db.select({ key: envVars.key, path: envFiles.path, ...deploymentScope }).from(envVars)
+      .innerJoin(envFiles, eq(envFiles.id, envVars.envFileId))
       .innerJoin(deployments, eq(deployments.id, envVars.deploymentId))
       .innerJoin(apps, eq(apps.id, deployments.appId))
       .innerJoin(environments, eq(environments.id, deployments.environmentId))
@@ -76,6 +77,6 @@ export default defineEventHandler(async (event) => {
     accounts: accountRows.map(row => ({ id: row.id, label: row.label, description: [deploymentName(row), row.tags.join(', ')].filter(Boolean).join(' · '), to: deploymentPath(row) })),
     links: linkRows.map(row => ({ id: row.id, label: row.label, description: `${row.projectName} · ${row.url}`, to: row.url, external: true })),
     infra: infraRows.map(row => ({ id: row.id, label: `${row.name} · ${row.host}`, description: [row.projectName, row.environmentName].filter(Boolean).join(' / '), to: `/projects/${row.projectId}?tab=infra` })),
-    envKeys: envRows.map(row => ({ id: `${row.deploymentId}-${row.key}`, label: row.key, description: deploymentName(row), to: deploymentPath(row) }))
+    envKeys: envRows.map(row => ({ id: `${row.deploymentId}-${row.path}-${row.key}`, label: row.key, description: `${deploymentName(row)} · ${row.path}`, to: deploymentPath(row) }))
   }
 })

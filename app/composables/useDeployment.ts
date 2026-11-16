@@ -7,4 +7,5 @@ export function useDeployment(id: MaybeRefOrGetter<string>) {
 export type DeploymentDetail = NonNullable<Awaited<ReturnType<typeof useDeployment>>['data']['value']>
 export type DeploymentAccount = DeploymentDetail['testAccounts'][number]
 export type DeploymentRelease = DeploymentDetail['releases'][number]
-export type DeploymentEnvVar = DeploymentDetail['envVars'][number]
+export type DeploymentEnvFile = DeploymentDetail['envFiles'][number]
+export type DeploymentEnvVar = DeploymentEnvFile['envVars'][number]

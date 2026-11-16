@@ -267,6 +267,14 @@
     "rolled_back": "Di-rollback"
   },
   "env": {
+    "addFile": "Tambah file",
+    "renameFile": "Ganti nama file",
+    "filePath": "Path file",
+    "filePathHint": "Lokasi file di repo, misalnya .env atau dev/.env.",
+    "deleteFile": "Hapus file",
+    "deleteFileTitle": "Hapus {path}?",
+    "deleteFileDescription": "File beserta semua variabel dan riwayatnya akan dihapus. Tidak bisa dibatalkan.",
+    "noFiles": "Belum ada file .env.",
     "encrypted": "Terenkripsi",
     "table": "Tabel",
     "raw": "Raw",
@@ -511,6 +519,7 @@
     "description": "Nilai dibandingkan persis. Membuka nilai tercatat di log audit.",
     "keysOnly": "Hanya keberadaan key yang dibandingkan; nilainya tetap tersembunyi.",
     "onlyDifferences": "Hanya yang berbeda",
+    "noFile": "Tidak ada {path} di {name}, jadi hanya key dari file ini yang ditampilkan.",
     "identical": "Kedua environment punya variabel yang sama.",
     "onlyIn": "Hanya di {name}",
     "status": {

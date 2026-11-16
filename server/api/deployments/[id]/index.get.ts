@@ -26,9 +26,14 @@ export default defineEventHandler(async (event) => {
         orderBy: [asc(tables.testAccounts.sortOrder), asc(tables.testAccounts.createdAt)],
         with: { fields: { orderBy: asc(tables.testAccountFields.sortOrder) } }
       },
-      envVars: {
-        columns: { id: true, key: true },
-        orderBy: [asc(tables.envVars.sortOrder), asc(tables.envVars.key)]
+      envFiles: {
+        orderBy: [asc(tables.envFiles.sortOrder), asc(tables.envFiles.path)],
+        with: {
+          envVars: {
+            columns: { id: true, key: true },
+            orderBy: [asc(tables.envVars.sortOrder), asc(tables.envVars.key)]
+          }
+        }
       }
     }
   })

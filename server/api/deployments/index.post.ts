@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import * as z from 'zod'
 
 const createInput = z.object({
@@ -15,10 +15,17 @@ export default defineEventHandler(async (event) => {
     notFound()
   }
   await assertGroupOpen(event, app.project.groupId)
+  const existing = await db.query.deployments.findFirst({
+    where: and(eq(tables.deployments.appId, appId), eq(tables.deployments.environmentId, environmentId)),
+    columns: { id: true }
+  })
   const [deployment] = await db.insert(tables.deployments)
     .values({ appId, environmentId })
     .onConflictDoUpdate({ target: [tables.deployments.appId, tables.deployments.environmentId], set: { appId } })
     .returning()
+  if (!existing) {
+    await db.insert(tables.envFiles).values({ deploymentId: deployment!.id, path: '.env' })
+  }
   await touchProject(app.projectId)
   return deployment
 })

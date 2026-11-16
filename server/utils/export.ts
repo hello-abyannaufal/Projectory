@@ -35,7 +35,10 @@ export async function loadProjectTree(projectId: string) {
                 orderBy: asc(tables.testAccounts.sortOrder),
                 with: { fields: { orderBy: asc(tables.testAccountFields.sortOrder) } }
               },
-              envVars: { orderBy: [asc(tables.envVars.sortOrder), asc(tables.envVars.key)] }
+              envFiles: {
+                orderBy: [asc(tables.envFiles.sortOrder), asc(tables.envFiles.path)],
+                with: { envVars: { orderBy: [asc(tables.envVars.sortOrder), asc(tables.envVars.key)] } }
+              }
             }
           }
         }
@@ -122,7 +125,10 @@ export async function buildProjectZip(tree: ProjectTree, passphrase?: string) {
             value: field.isSecret ? secret(field.value) : field.value
           }))
         })),
-        envVars: deployment.envVars.map(envVar => ({ key: envVar.key, value: secret(envVar.value) }))
+        envFiles: deployment.envFiles.map(file => ({
+          path: file.path,
+          envVars: file.envVars.map(envVar => ({ key: envVar.key, value: secret(envVar.value) }))
+        }))
       }))
     }))
   }
@@ -176,8 +182,8 @@ export function buildProjectMarkdown(tree: ProjectTree, withSecrets: boolean) {
           lines.push(`- ${field.key}: ${field.isSecret ? reveal(field.value) : field.value}`)
         }
       }
-      if (deployment.envVars.length) {
-        lines.push('', '```dotenv', ...deployment.envVars.map(envVar => `${envVar.key}=${reveal(envVar.value)}`), '```')
+      for (const file of deployment.envFiles.filter(file => file.envVars.length)) {
+        lines.push('', `\`${file.path}\``, '', '```dotenv', ...file.envVars.map(envVar => `${envVar.key}=${reveal(envVar.value)}`), '```')
       }
     }
   }

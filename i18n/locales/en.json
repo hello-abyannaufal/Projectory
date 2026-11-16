@@ -267,6 +267,14 @@
     "rolled_back": "Rolled back"
   },
   "env": {
+    "addFile": "Add file",
+    "renameFile": "Rename file",
+    "filePath": "File path",
+    "filePathHint": "Where the file lives in the repo, e.g. .env or dev/.env.",
+    "deleteFile": "Delete file",
+    "deleteFileTitle": "Delete {path}?",
+    "deleteFileDescription": "The file with all its variables and history will be deleted. This cannot be undone.",
+    "noFiles": "No .env files yet.",
     "encrypted": "Encrypted at rest",
     "table": "Table",
     "raw": "Raw",
@@ -511,6 +519,7 @@
     "description": "Values are compared exactly. Revealing them is recorded in the audit log.",
     "keysOnly": "Only which keys exist is compared; values stay hidden.",
     "onlyDifferences": "Only differences",
+    "noFile": "No {path} in {name}, so only the keys of this file are listed.",
     "identical": "Both environments have the same variables.",
     "onlyIn": "Only in {name}",
     "status": {

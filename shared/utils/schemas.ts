@@ -105,6 +105,13 @@ export const testAccountInput = z.object({
 
 export const ENV_KEY_PATTERN = /^[A-Za-z_][A-Za-z0-9_.-]*$/
 
+// Path of an .env file in the repo, such as .env or dev/.env.
+export const envFileInput = z.object({
+  path: z.string().trim().min(1).max(200)
+    .regex(/^[^\s\\][^\n\\]*$/, 'invalid path')
+    .refine(path => !path.startsWith('/') && !path.split('/').some(part => part === '' || part === '..'), 'invalid path')
+})
+
 export const envVarInput = z.object({
   key: z.string().trim().regex(ENV_KEY_PATTERN).max(200),
   value: z.string().max(20000)

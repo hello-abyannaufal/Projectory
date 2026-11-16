@@ -1,8 +1,10 @@
 <script setup lang="ts">
 const props = defineProps<{
   deploymentId: string
+  fileId: string
+  // The file's path, shown as the title and used as the download name
+  path: string
   envVars: DeploymentEnvVar[]
-  title: string
   editable?: boolean
   // Without it only the keys are shown, values stay masked.
   canReveal?: boolean
@@ -23,7 +25,7 @@ const revealed = ref<{ id: string, key: string, value: string }[]>()
 const visible = ref(false)
 
 async function loadValues() {
-  revealed.value ??= await api(() => request<{ id: string, key: string, value: string }[]>(`/api/deployments/${props.deploymentId}/env/reveal`))
+  revealed.value ??= await api(() => request<{ id: string, key: string, value: string }[]>(`/api/env-files/${props.fileId}/reveal`))
   return revealed.value
 }
 
@@ -78,7 +80,7 @@ async function download() {
   const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }))
   const link = document.createElement('a')
   link.href = url
-  link.download = '.env'
+  link.download = props.path.split('/').pop() || '.env'
   link.click()
   URL.revokeObjectURL(url)
 }
@@ -110,7 +112,7 @@ async function remove(envVar: DeploymentEnvVar) {
 
 async function removeAll() {
   if (await confirm({ title: t('env.deleteAllTitle', { count: props.envVars.length }), description: t('env.deleteAllDescription'), confirmLabel: t('env.deleteAll') })
-    && await api(() => request(`/api/deployments/${props.deploymentId}/env`, { method: 'DELETE' }))) {
+    && await api(() => request(`/api/env-files/${props.fileId}/vars`, { method: 'DELETE' }))) {
     emit('changed')
   }
 }
@@ -121,6 +123,16 @@ const historyOpen = ref(false)
 const compareOpen = ref(false)
 const compareWith = ref<{ id: string, name: string }>()
 const compareTargets = computed(() => (props.siblings ?? []).filter(sibling => sibling.id !== props.deploymentId && !sibling.isProduction))
+
+// Rename or delete this file
+const renameOpen = ref(false)
+
+async function removeFile() {
+  if (await confirm({ title: t('env.deleteFileTitle', { path: props.path }), description: t('env.deleteFileDescription'), confirmLabel: t('env.deleteFile') })
+    && await api(() => request(`/api/env-files/${props.fileId}`, { method: 'DELETE' }))) {
+    emit('changed')
+  }
+}
 
 function openCompare(target: { id: string, name: string }) {
   compareWith.value = target
@@ -163,7 +175,7 @@ function onApplied() {
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-default px-4 py-3">
       <div class="flex items-center gap-2">
         <h2 class="font-semibold text-highlighted">
-          {{ title }}
+          {{ path }}
         </h2>
         <span class="inline-flex items-center gap-1 text-xs text-primary">
           <UIcon
@@ -210,8 +222,10 @@ function onApplied() {
               icon: 'i-lucide-git-compare-arrows',
               children: compareTargets.map(target => ({ label: target.name, onSelect: () => openCompare(target) }))
             }] : [])
-          ], ...(envVars.length && editable ? [[
-            { label: t('env.deleteAll'), icon: 'i-lucide-trash-2', color: 'error' as const, onSelect: removeAll }
+          ], ...(editable ? [[
+            { label: t('env.renameFile'), icon: 'i-lucide-pencil-line', onSelect: () => { renameOpen = true } },
+            ...(envVars.length ? [{ label: t('env.deleteAll'), icon: 'i-lucide-eraser', color: 'error' as const, onSelect: removeAll }] : []),
+            { label: t('env.deleteFile'), icon: 'i-lucide-trash-2', color: 'error' as const, onSelect: removeFile }
           ]] : [])]"
         >
           <UButton
@@ -326,28 +340,34 @@ function onApplied() {
     </div>
   </section>
 
+  <EnvFileFormModal
+    v-model:open="renameOpen"
+    :deployment-id="deploymentId"
+    :file="{ id: fileId, path }"
+    @saved="emit('changed')"
+  />
   <EnvVarFormModal
     v-model:open="formOpen"
-    :deployment-id="deploymentId"
+    :file-id="fileId"
     :env-var="editing"
     @saved="emit('changed')"
   />
   <EnvHistoryModal
     v-model:open="historyOpen"
-    :deployment-id="deploymentId"
+    :file-id="fileId"
     :editable="editable"
     :can-reveal="canReveal"
     @restored="emit('changed')"
   />
   <EnvCompareModal
     v-model:open="compareOpen"
-    :left="{ id: deploymentId, name: environmentName ?? title, keys: envVars.map(envVar => envVar.key) }"
+    :left="{ id: fileId, name: environmentName ?? path, path, keys: envVars.map(envVar => envVar.key) }"
     :right="compareWith"
     :can-reveal="canReveal"
   />
   <EnvImportModal
     v-model:open="importOpen"
-    :deployment-id="deploymentId"
+    :file-id="fileId"
     :content="reviewContent"
     :replace="reviewContent !== undefined"
     @applied="onApplied"

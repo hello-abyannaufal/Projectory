@@ -22,6 +22,11 @@ useHead({ title: () => deployment.value ? `${deployment.value.app.name} · ${dep
 const isProduction = computed(() => deployment.value?.environment.isProduction ?? false)
 const projectPath = computed(() => `/projects/${deployment.value?.project.id}`)
 
+// The .env file shown; falls back to the first when the chosen one is gone.
+const envFileId = ref<string>()
+const envFile = computed(() => deployment.value?.envFiles.find(file => file.id === envFileId.value) ?? deployment.value?.envFiles[0])
+const envFileFormOpen = ref(false)
+
 // Secrets are fetched per account on demand and cached until the next refresh.
 const secretCache = new Map<string, Record<string, string>>()
 
@@ -387,17 +392,57 @@ const copyItems = computed(() => [[
                 </p>
               </section>
 
-              <EnvSection
+              <div
                 v-if="!isProduction"
-                :deployment-id="deployment.id"
-                :env-vars="deployment.envVars"
-                :editable="can('edit')"
-                :can-reveal="can('viewSecrets')"
-                :environment-name="deployment.environment.name"
-                :siblings="deployment.siblings"
-                title=".env"
-                @changed="refresh()"
-              />
+                class="flex flex-col gap-3"
+              >
+                <div
+                  v-if="deployment.envFiles.length > 1 || can('edit')"
+                  class="flex flex-wrap items-center gap-2"
+                >
+                  <UTabs
+                    v-if="deployment.envFiles.length > 1"
+                    :model-value="envFile?.id"
+                    :items="deployment.envFiles.map(file => ({ label: file.path, value: file.id }))"
+                    :content="false"
+                    size="xs"
+                    @update:model-value="envFileId = String($event)"
+                  />
+                  <UButton
+                    v-if="can('edit')"
+                    icon="i-lucide-plus"
+                    color="neutral"
+                    variant="outline"
+                    size="xs"
+                    :label="t('env.addFile')"
+                    @click="envFileFormOpen = true"
+                  />
+                </div>
+                <EnvSection
+                  v-if="envFile"
+                  :key="envFile.id"
+                  :deployment-id="deployment.id"
+                  :file-id="envFile.id"
+                  :path="envFile.path"
+                  :env-vars="envFile.envVars"
+                  :editable="can('edit')"
+                  :can-reveal="can('viewSecrets')"
+                  :environment-name="deployment.environment.name"
+                  :siblings="deployment.siblings"
+                  @changed="refresh()"
+                />
+                <p
+                  v-else
+                  class="rounded-lg border border-dashed border-accented p-6 text-center text-sm text-muted"
+                >
+                  {{ t('env.noFiles') }}
+                </p>
+                <EnvFileFormModal
+                  v-model:open="envFileFormOpen"
+                  :deployment-id="deployment.id"
+                  @saved="refresh()"
+                />
+              </div>
             </div>
 
             <aside class="flex min-w-0 flex-[1_1_20rem] flex-col gap-5">
