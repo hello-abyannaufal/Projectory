@@ -109,6 +109,15 @@ function openApp(app?: ProjectApp) {
   appOpen.value = true
 }
 
+// Dev files of an app, such as .vscode/launch.json
+const filesOpen = ref(false)
+const filesApp = ref<ProjectApp>()
+
+function openFiles(app: ProjectApp) {
+  filesApp.value = app
+  filesOpen.value = true
+}
+
 async function deleteApp(app: ProjectApp) {
   if (await confirm({ title: t('apps.deleteTitle', { name: app.name }), description: t('apps.deleteDescription') })
     && await api(() => request(`/api/apps/${app.id}`, { method: 'DELETE' }))) {
@@ -511,6 +520,14 @@ async function saveNotes() {
                       </span>
                     </div>
                   </div>
+                  <UButton
+                    icon="i-lucide-file-code"
+                    color="neutral"
+                    variant="outline"
+                    size="sm"
+                    :label="t('appFiles.title')"
+                    @click="openFiles(app)"
+                  />
                   <div
                     v-if="can('edit')"
                     class="flex items-center gap-1"
@@ -758,6 +775,14 @@ async function saveNotes() {
       v-model:open="exportOpen"
       :project-id="project.id"
       :project-name="project.name"
+    />
+    <AppFilesModal
+      v-if="filesApp"
+      v-model:open="filesOpen"
+      :app-id="filesApp.id"
+      :app-name="filesApp.name"
+      :editable="can('edit')"
+      :can-reveal="can('viewSecrets')"
     />
     <AppFormModal
       v-model:open="appOpen"

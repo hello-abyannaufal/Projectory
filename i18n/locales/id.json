@@ -453,6 +453,9 @@
       "create": "Membuat pengguna",
       "role_change": "Mengubah role",
       "password_reset": "Mereset password",
+    "app_file": {
+      "reveal": "Membuka dev file"
+    },
       "delete": "Menghapus pengguna",
       "two_factor_enable": "Mengaktifkan dua faktor",
       "two_factor_reset": "Mereset dua faktor"
@@ -518,6 +521,17 @@
     "title": "{left} vs {right}",
     "description": "Nilai dibandingkan persis. Membuka nilai tercatat di log audit.",
     "keysOnly": "Hanya keberadaan key yang dibandingkan; nilainya tetap tersembunyi.",
+  "appFiles": {
+    "title": "Dev files",
+    "description": "File yang sama untuk semua environment {name}, misalnya .vscode/launch.json. Isinya terenkripsi.",
+    "empty": "Belum ada file.",
+    "new": "File baru",
+    "path": "Path file",
+    "select": "Pilih file untuk melihatnya. Membuka file tercatat di audit log.",
+    "noAccess": "Anda bisa melihat daftar file, tapi tidak isinya.",
+    "deleteTitle": "Hapus {path}?",
+    "deleteDescription": "File beserta isinya akan dihapus. Tidak bisa dibatalkan."
+  },
     "onlyDifferences": "Hanya yang berbeda",
     "noFile": "Tidak ada {path} di {name}, jadi hanya key dari file ini yang ditampilkan.",
     "identical": "Kedua environment punya variabel yang sama.",

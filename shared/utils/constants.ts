@@ -50,6 +50,7 @@ export const AUDIT_ACTIONS = [
   'account.reveal',
   'env.reveal',
   'env.restore',
+  'app_file.reveal',
   'project.export',
   'project.import',
   'project.delete',

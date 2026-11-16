@@ -28,6 +28,7 @@ export async function loadProjectTree(projectId: string) {
         orderBy: [asc(tables.apps.sortOrder), asc(tables.apps.createdAt)],
         with: {
           techStacks: { with: { techStack: true } },
+          files: { orderBy: [asc(tables.appFiles.sortOrder), asc(tables.appFiles.path)] },
           deployments: {
             with: {
               releases: { orderBy: asc(tables.releases.createdAt) },
@@ -106,6 +107,7 @@ export async function buildProjectZip(tree: ProjectTree, passphrase?: string) {
       platforms: app.platforms,
       notes: app.notes,
       techStacks: app.techStacks.map(({ techStack }) => techStack.slug),
+      files: app.files.map(file => ({ path: file.path, content: secret(file.content) })),
       deployments: app.deployments.map(deployment => ({
         environment: deployment.environmentId,
         url: deployment.url,
@@ -162,6 +164,9 @@ export function buildProjectMarkdown(tree: ProjectTree, withSecrets: boolean) {
     }
     for (const link of tree.links.filter(item => item.appId === app.id)) {
       lines.push(`- [${link.label}](${link.url})`)
+    }
+    for (const file of app.files) {
+      lines.push('', `\`${file.path}\``, '', '```', reveal(file.content), '```')
     }
     const deployments = [...app.deployments].sort((a, b) => (envName.get(a.environmentId)?.sortOrder ?? 0) - (envName.get(b.environmentId)?.sortOrder ?? 0))
     for (const deployment of deployments) {

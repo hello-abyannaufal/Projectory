@@ -178,6 +178,17 @@ export const apps = pgTable('apps', {
   ...timestamps
 }, t => [index('apps_project_idx').on(t.projectId)])
 
+// A file shared by every environment of an app, such as .vscode/launch.json.
+export const appFiles = pgTable('app_files', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  appId: uuid('app_id').notNull().references(() => apps.id, { onDelete: 'cascade' }),
+  path: text('path').notNull(),
+  // Always ciphertext
+  content: text('content').notNull(),
+  sortOrder: integer('sort_order').notNull().default(0),
+  ...timestamps
+}, t => [unique('app_files_app_path_unique').on(t.appId, t.path)])
+
 // Project-level links have appId = null; app-level links have both set.
 // A link with an environment also shows on that environment's deployment pages.
 export const links = pgTable('links', {
@@ -379,7 +390,12 @@ export const appsRelations = relations(apps, ({ one, many }) => ({
   project: one(projects, { fields: [apps.projectId], references: [projects.id] }),
   links: many(links),
   techStacks: many(appTechStacks),
-  deployments: many(deployments)
+  deployments: many(deployments),
+  files: many(appFiles)
+}))
+
+export const appFilesRelations = relations(appFiles, ({ one }) => ({
+  app: one(apps, { fields: [appFiles.appId], references: [apps.id] })
 }))
 
 export const infraItemsRelations = relations(infraItems, ({ one }) => ({

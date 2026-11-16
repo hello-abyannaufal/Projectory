@@ -42,6 +42,8 @@ const fileSchema = z.object({
     platforms: z.array(z.enum(PLATFORMS)),
     notes: doc,
     techStacks: z.array(z.string()),
+    // Missing in files exported before apps had dev files.
+    files: z.array(z.object({ path: appFileInput.shape.path, content: z.string() })).default([]),
     deployments: z.array(z.object({
       environment: z.string(),
       url: httpUrl.nullish().transform(v => v ?? null),
@@ -66,7 +68,7 @@ const fileSchema = z.object({
       })),
       // Files exported before .env files had a path only have envVars (one .env).
       envVars: z.array(envVarSchema).default([]),
-      envFiles: z.array(z.object({ path: envFileInput.shape.path, envVars: z.array(envVarSchema) })).optional()
+      envFiles: z.array(z.object({ path: appFileInput.shape.path, envVars: z.array(envVarSchema) })).optional()
     }))
   }))
 })
@@ -92,10 +94,13 @@ export async function importProjectZip(zip: Uint8Array, groupId: string, passphr
       fail('PASSPHRASE_REQUIRED')
     }
     const key = deriveKey(passphrase, Buffer.from(data.encryption.salt, 'base64'))
-    const sample = data.apps.flatMap(app => app.deployments.flatMap(d => [
-      ...envFilesOf(d).flatMap(file => file.envVars.map(v => v.value)),
-      ...d.accounts.flatMap(a => a.fields.filter(f => f.isSecret).map(f => f.value))
-    ])).find(Boolean)
+    const sample = data.apps.flatMap(app => [
+      ...app.files.map(f => f.content),
+      ...app.deployments.flatMap(d => [
+        ...envFilesOf(d).flatMap(file => file.envVars.map(v => v.value)),
+        ...d.accounts.flatMap(a => a.fields.filter(f => f.isSecret).map(f => f.value))
+      ])
+    ]).find(Boolean)
     if (sample) {
       try {
         decryptWithKey(sample, key)
@@ -155,6 +160,15 @@ export async function importProjectZip(zip: Uint8Array, groupId: string, passphr
         }).returning()
         const appId = row!.id
         appIds.set(app.ref, appId)
+
+        if (app.files.length) {
+          await tx.insert(tables.appFiles).values(app.files.map((file, fileIndex) => ({
+            appId,
+            path: file.path,
+            content: toLocal(file.content),
+            sortOrder: fileIndex
+          }))).onConflictDoNothing()
+        }
 
         const techStackIds = [...new Set(app.techStacks.map(slug => stackIds.get(slug)).filter(Boolean))] as string[]
         if (techStackIds.length) {
