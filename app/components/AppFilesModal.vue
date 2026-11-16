@@ -2,11 +2,14 @@
 const props = defineProps<{
   appId: string
   appName: string
+  // Opens this file right away
+  fileId?: string
   editable?: boolean
   // Without it only the file paths are listed.
   canReveal?: boolean
 }>()
 
+const emit = defineEmits<{ changed: [] }>()
 const open = defineModel<boolean>('open', { default: false })
 
 const { t } = useI18n()
@@ -47,6 +50,9 @@ watch(open, async (value) => {
   if (value) {
     selected.value = undefined
     await loadFiles()
+    if (props.fileId && files.value.some(file => file.id === props.fileId)) {
+      await select(props.fileId)
+    }
   }
 })
 
@@ -62,6 +68,7 @@ async function save() {
       selected.value = (result as AppFile).id
     }
     await loadFiles()
+    emit('changed')
   }
 }
 
@@ -70,6 +77,7 @@ async function remove() {
     && await api(() => request(`/api/app-files/${selected.value}`, { method: 'DELETE' }))) {
     selected.value = undefined
     await loadFiles()
+    emit('changed')
   }
 }
 </script>

@@ -517,6 +517,9 @@
     }
   },
   "appFiles": {
+    "sharedHint": "Same for every environment of {name}.",
+    "manage": "Manage",
+    "open": "Open",
     "title": "Dev files",
     "description": "Files shared by every environment of {name}, such as .vscode/launch.json. Contents are encrypted.",
     "empty": "No files yet.",

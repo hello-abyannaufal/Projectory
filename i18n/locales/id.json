@@ -517,6 +517,9 @@
     }
   },
   "appFiles": {
+    "sharedHint": "Sama untuk semua environment {name}.",
+    "manage": "Kelola",
+    "open": "Buka",
     "title": "Dev files",
     "description": "File yang sama untuk semua environment {name}, misalnya .vscode/launch.json. Isinya terenkripsi.",
     "empty": "Belum ada file.",

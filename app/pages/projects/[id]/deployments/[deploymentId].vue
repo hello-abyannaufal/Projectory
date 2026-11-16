@@ -175,6 +175,15 @@ async function shareAccounts(accounts: DeploymentAccount[], format: 'text' | 'js
   }
 }
 
+// Dev files of the app, shared by all its environments
+const filesOpen = ref(false)
+const filesSelected = ref<string>()
+
+function openFiles(fileId?: string) {
+  filesSelected.value = fileId
+  filesOpen.value = true
+}
+
 const copyItems = computed(() => [[
   { label: t('deployments.copyWithoutSecrets'), icon: 'i-lucide-shield', onSelect: () => copyAsText(false) },
   ...(isProduction.value || !can('viewSecrets') ? [] : [{ label: t('deployments.copyWithSecrets'), icon: 'i-lucide-shield-alert', onSelect: () => copyAsText(true) }])
@@ -433,6 +442,53 @@ const copyItems = computed(() => [[
                   @saved="refresh()"
                 />
               </div>
+
+              <section
+                v-if="!isProduction"
+                class="flex flex-col gap-2 rounded-lg border border-default bg-default p-4"
+              >
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex min-w-0 flex-col">
+                    <h2 class="font-semibold text-highlighted">
+                      {{ t('appFiles.title') }}
+                    </h2>
+                    <span class="text-xs text-muted">{{ t('appFiles.sharedHint', { name: deployment.app.name }) }}</span>
+                  </div>
+                  <UButton
+                    :icon="can('edit') && !deployment.app.files.length ? 'i-lucide-plus' : 'i-lucide-settings-2'"
+                    color="neutral"
+                    variant="outline"
+                    size="sm"
+                    :label="can('edit') && !deployment.app.files.length ? t('appFiles.new') : t('appFiles.manage')"
+                    @click="openFiles()"
+                  />
+                </div>
+                <div
+                  v-for="file in deployment.app.files"
+                  :key="file.id"
+                  class="flex items-center gap-3 border-t border-default pt-2"
+                >
+                  <UIcon
+                    name="i-lucide-file-code"
+                    class="size-4 shrink-0 text-muted"
+                  />
+                  <span class="min-w-0 flex-1 truncate font-mono text-sm text-highlighted">{{ file.path }}</span>
+                  <UButton
+                    color="neutral"
+                    variant="ghost"
+                    size="sm"
+                    :label="t('appFiles.open')"
+                    :disabled="!can('viewSecrets')"
+                    @click="openFiles(file.id)"
+                  />
+                </div>
+                <p
+                  v-if="!deployment.app.files.length"
+                  class="border-t border-default pt-2 text-sm text-muted"
+                >
+                  {{ t('appFiles.empty') }}
+                </p>
+              </section>
             </div>
 
             <aside class="flex min-w-0 flex-[1_1_20rem] flex-col gap-5">
@@ -604,6 +660,15 @@ const copyItems = computed(() => [[
         v-model:open="editOpen"
         :deployment="deployment"
         @saved="refresh()"
+      />
+      <AppFilesModal
+        v-model:open="filesOpen"
+        :app-id="deployment.app.id"
+        :app-name="deployment.app.name"
+        :file-id="filesSelected"
+        :editable="can('edit')"
+        :can-reveal="can('viewSecrets')"
+        @changed="refresh()"
       />
       <AccountFormModal
         v-model:open="accountOpen"

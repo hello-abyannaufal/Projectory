@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
       app: {
         columns: { id: true, name: true, projectId: true },
         with: {
+          files: { columns: { id: true, path: true }, orderBy: [asc(tables.appFiles.sortOrder), asc(tables.appFiles.path)] },
           project: {
             columns: { id: true, name: true },
             with: { group: { columns: { id: true, name: true } } }
@@ -65,7 +66,7 @@ export default defineEventHandler(async (event) => {
     ...rest,
     infraItems,
     links,
-    app: { id: app.id, name: app.name },
+    app: { id: app.id, name: app.name, files: app.files },
     project: app.project,
     siblings: app.deployments
       .map(sibling => ({ id: sibling.id, ...sibling.environment }))
