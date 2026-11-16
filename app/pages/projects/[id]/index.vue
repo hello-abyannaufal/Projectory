@@ -28,7 +28,6 @@ const platforms = computed(() => [...new Set(project.value?.apps.flatMap(app => 
 
 const tabs = computed<TabsItem[]>(() => [
   { label: t('overview.title'), slot: 'overview' as const, value: 'overview' },
-  { label: t('deployments.title'), slot: 'deployments' as const, value: 'deployments' },
   { label: `${t('apps.title')} (${project.value?.apps.length ?? 0})`, slot: 'apps' as const, value: 'apps' },
   { label: `${t('environments.title')} (${project.value?.environments.length ?? 0})`, slot: 'environments' as const, value: 'environments' },
   { label: `${t('infra.title')} (${project.value?.infraItems.length ?? 0})`, slot: 'infra' as const, value: 'infra' },
@@ -36,7 +35,7 @@ const tabs = computed<TabsItem[]>(() => [
   { label: t('fields.notes'), slot: 'notes' as const, value: 'notes' }
 ])
 // ?tab= opens a tab directly, e.g. from search results.
-const activeTab = ref(typeof route.query.tab === 'string' ? route.query.tab : 'overview')
+const activeTab = ref(tabs.value.some(tab => tab.value === route.query.tab) ? route.query.tab as string : 'overview')
 
 // Edit / delete / export project
 const editOpen = ref(false)
@@ -359,16 +358,36 @@ async function saveNotes() {
                   <h2 class="font-semibold text-highlighted">
                     {{ t('deployments.title') }}
                   </h2>
-                  <DeploymentMatrix
-                    v-if="project.apps.length && project.environments.length"
-                    :project="project"
-                  />
-                  <p
+                  <template v-if="project.apps.length && project.environments.length">
+                    <DeploymentMatrix :project="project" />
+                    <div
+                      v-if="can('edit')"
+                      class="flex flex-wrap gap-2"
+                    >
+                      <UButton
+                        icon="i-lucide-plus"
+                        variant="ghost"
+                        :label="t('apps.new')"
+                        @click="openApp()"
+                      />
+                      <UButton
+                        icon="i-lucide-plus"
+                        variant="ghost"
+                        :label="t('environments.new')"
+                        @click="openEnvironment()"
+                      />
+                    </div>
+                  </template>
+                  <UEmpty
                     v-else
-                    class="rounded-lg border border-dashed border-accented px-5 py-4 text-sm text-muted"
-                  >
-                    {{ t('deployments.emptyDescription') }}
-                  </p>
+                    icon="i-lucide-grid-2x2"
+                    :title="t('deployments.emptyTitle')"
+                    :description="t('deployments.emptyDescription')"
+                    :actions="can('edit') ? [
+                      { label: t('apps.new'), icon: 'i-lucide-plus', onClick: () => openApp() },
+                      { label: t('environments.new'), icon: 'i-lucide-plus', color: 'neutral', variant: 'outline', onClick: () => openEnvironment() }
+                    ] : []"
+                  />
                 </section>
 
                 <div class="grid items-start gap-5 lg:grid-cols-2">
@@ -454,39 +473,6 @@ async function saveNotes() {
                   </section>
                 </div>
               </div>
-            </template>
-
-            <template #deployments>
-              <UEmpty
-                v-if="!project.apps.length || !project.environments.length"
-                icon="i-lucide-grid-2x2"
-                :title="t('deployments.emptyTitle')"
-                :description="t('deployments.emptyDescription')"
-                :actions="can('edit') ? [
-                  { label: t('apps.new'), icon: 'i-lucide-plus', onClick: () => openApp() },
-                  { label: t('environments.new'), icon: 'i-lucide-plus', color: 'neutral', variant: 'outline', onClick: () => openEnvironment() }
-                ] : []"
-              />
-              <template v-else>
-                <DeploymentMatrix :project="project" />
-                <div
-                  v-if="can('edit')"
-                  class="mt-3 flex flex-wrap gap-2"
-                >
-                  <UButton
-                    icon="i-lucide-plus"
-                    variant="ghost"
-                    :label="t('apps.new')"
-                    @click="openApp()"
-                  />
-                  <UButton
-                    icon="i-lucide-plus"
-                    variant="ghost"
-                    :label="t('environments.new')"
-                    @click="openEnvironment()"
-                  />
-                </div>
-              </template>
             </template>
 
             <template #apps>
