@@ -9,10 +9,14 @@ const props = defineProps<{
   editable?: boolean
   // Allow revealing and copying secret fields
   canReveal?: boolean
+  // Environments of the same app, as targets for "duplicate to"
+  siblings?: { id: string, name: string, isProduction: boolean }[]
+  deploymentId?: string
 }>()
 
 const emit = defineEmits<{
   edit: []
+  duplicate: [deploymentId?: string]
   delete: []
   verify: []
   status: [status: TestAccountStatus]
@@ -60,6 +64,8 @@ watch(() => props.account, () => {
 
 const stale = computed(() => accountAttention(props.account) === 'stale')
 
+const copyTargets = computed(() => (props.siblings ?? []).filter(sibling => sibling.id !== props.deploymentId && !sibling.isProduction))
+
 const menu = computed(() => [[
   { label: t('accounts.markVerified'), icon: 'i-lucide-badge-check', onSelect: () => emit('verify') },
   {
@@ -72,7 +78,15 @@ const menu = computed(() => [[
       onSelect: () => emit('status', status)
     }))
   },
-  { label: t('common.edit'), icon: 'i-lucide-pencil', onSelect: () => emit('edit') }
+  { label: t('common.edit'), icon: 'i-lucide-pencil', onSelect: () => emit('edit') },
+  { label: t('accounts.duplicate'), icon: 'i-lucide-copy-plus', onSelect: () => emit('duplicate') },
+  ...(copyTargets.value.length
+    ? [{
+        label: t('accounts.duplicateTo'),
+        icon: 'i-lucide-copy-check',
+        children: copyTargets.value.map(target => ({ label: target.name, onSelect: () => emit('duplicate', target.id) }))
+      }]
+    : [])
 ], [
   { label: t('common.delete'), icon: 'i-lucide-trash-2', color: 'error' as const, onSelect: () => emit('delete') }
 ]])
