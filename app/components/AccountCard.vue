@@ -20,6 +20,7 @@ const emit = defineEmits<{
   delete: []
   verify: []
   status: [status: TestAccountStatus]
+  share: [format: 'text' | 'json', withSecrets: boolean]
 }>()
 
 const { t, locale } = useI18n()
@@ -86,7 +87,17 @@ const menu = computed(() => [[
         icon: 'i-lucide-copy-check',
         children: copyTargets.value.map(target => ({ label: target.name, onSelect: () => emit('duplicate', target.id) }))
       }]
-    : [])
+    : []),
+  {
+    label: t('accounts.share'),
+    icon: 'i-lucide-share-2',
+    children: [
+      { label: t('accounts.copyText'), icon: 'i-lucide-copy', onSelect: () => emit('share', 'text', false) },
+      ...(props.canReveal ? [{ label: t('accounts.copyTextSecrets'), icon: 'i-lucide-shield-alert', onSelect: () => emit('share', 'text', true) }] : []),
+      { label: t('accounts.downloadJson'), icon: 'i-lucide-file-json', onSelect: () => emit('share', 'json', false) },
+      ...(props.canReveal ? [{ label: t('accounts.downloadJsonSecrets'), icon: 'i-lucide-file-json', onSelect: () => emit('share', 'json', true) }] : [])
+    ]
+  }
 ], [
   { label: t('common.delete'), icon: 'i-lucide-trash-2', color: 'error' as const, onSelect: () => emit('delete') }
 ]])

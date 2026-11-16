@@ -173,7 +173,7 @@
     "deleteTitle": "Delete this deployment?",
     "deleteDescription": "Its accounts, .env values and releases will be deleted.",
     "branch": "Branch",
-    "copyAsText": "Copy as text",
+    "export": "Export",
     "copyWithoutSecrets": "Without secrets",
     "copyWithSecrets": "With secrets (plaintext)",
     "openApp": "Open app",
@@ -210,6 +210,11 @@
     "copyText": "Copy text"
   },
   "accounts": {
+    "share": "Share",
+    "copyText": "Copy as text",
+    "copyTextSecrets": "Copy as text with secrets",
+    "downloadJson": "Download JSON",
+    "downloadJsonSecrets": "Download JSON with secrets",
     "title": "Accounts",
     "new": "Add account",
     "edit": "Edit account",
@@ -448,14 +453,14 @@
     "empty": "No entries yet"
   },
   "auditAction": {
+    "app_file": {
+      "reveal": "Revealed dev file"
+    },
     "user": {
       "sign_in": "Signed in",
       "create": "Created user",
       "role_change": "Changed role",
       "password_reset": "Reset password",
-    "app_file": {
-      "reveal": "Revealed dev file"
-    },
       "delete": "Deleted user",
       "two_factor_enable": "Set up two-factor",
       "two_factor_reset": "Reset two-factor"
@@ -516,11 +521,6 @@
       "restore": "Restored"
     }
   },
-  "envCompare": {
-    "compareWith": "Compare with",
-    "title": "{left} vs {right}",
-    "description": "Values are compared exactly. Revealing them is recorded in the audit log.",
-    "keysOnly": "Only which keys exist is compared; values stay hidden.",
   "appFiles": {
     "title": "Dev files",
     "description": "Files shared by every environment of {name}, such as .vscode/launch.json. Contents are encrypted.",
@@ -532,6 +532,11 @@
     "deleteTitle": "Delete {path}?",
     "deleteDescription": "The file and its content will be deleted. This cannot be undone."
   },
+  "envCompare": {
+    "compareWith": "Compare with",
+    "title": "{left} vs {right}",
+    "description": "Values are compared exactly. Revealing them is recorded in the audit log.",
+    "keysOnly": "Only which keys exist is compared; values stay hidden.",
     "onlyDifferences": "Only differences",
     "noFile": "No {path} in {name}, so only the keys of this file are listed.",
     "identical": "Both environments have the same variables.",

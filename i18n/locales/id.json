@@ -173,7 +173,7 @@
     "deleteTitle": "Hapus deployment ini?",
     "deleteDescription": "Akun, isi .env, dan rilisnya akan dihapus.",
     "branch": "Branch",
-    "copyAsText": "Salin sebagai teks",
+    "export": "Ekspor",
     "copyWithoutSecrets": "Tanpa rahasia",
     "copyWithSecrets": "Dengan rahasia (teks biasa)",
     "openApp": "Buka app",
@@ -210,6 +210,11 @@
     "copyText": "Salin teks"
   },
   "accounts": {
+    "share": "Bagikan",
+    "copyText": "Salin sebagai teks",
+    "copyTextSecrets": "Salin sebagai teks dengan rahasia",
+    "downloadJson": "Unduh JSON",
+    "downloadJsonSecrets": "Unduh JSON dengan rahasia",
     "title": "Akun",
     "new": "Tambah akun",
     "edit": "Ubah akun",
@@ -448,14 +453,14 @@
     "empty": "Belum ada catatan"
   },
   "auditAction": {
+    "app_file": {
+      "reveal": "Membuka dev file"
+    },
     "user": {
       "sign_in": "Masuk",
       "create": "Membuat pengguna",
       "role_change": "Mengubah role",
       "password_reset": "Mereset password",
-    "app_file": {
-      "reveal": "Membuka dev file"
-    },
       "delete": "Menghapus pengguna",
       "two_factor_enable": "Mengaktifkan dua faktor",
       "two_factor_reset": "Mereset dua faktor"
@@ -516,11 +521,6 @@
       "restore": "Dipulihkan"
     }
   },
-  "envCompare": {
-    "compareWith": "Bandingkan dengan",
-    "title": "{left} vs {right}",
-    "description": "Nilai dibandingkan persis. Membuka nilai tercatat di log audit.",
-    "keysOnly": "Hanya keberadaan key yang dibandingkan; nilainya tetap tersembunyi.",
   "appFiles": {
     "title": "Dev files",
     "description": "File yang sama untuk semua environment {name}, misalnya .vscode/launch.json. Isinya terenkripsi.",
@@ -532,6 +532,11 @@
     "deleteTitle": "Hapus {path}?",
     "deleteDescription": "File beserta isinya akan dihapus. Tidak bisa dibatalkan."
   },
+  "envCompare": {
+    "compareWith": "Bandingkan dengan",
+    "title": "{left} vs {right}",
+    "description": "Nilai dibandingkan persis. Membuka nilai tercatat di log audit.",
+    "keysOnly": "Hanya keberadaan key yang dibandingkan; nilainya tetap tersembunyi.",
     "onlyDifferences": "Hanya yang berbeda",
     "noFile": "Tidak ada {path} di {name}, jadi hanya key dari file ini yang ditampilkan.",
     "identical": "Kedua environment punya variabel yang sama.",

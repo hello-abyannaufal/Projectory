@@ -167,18 +167,40 @@ async function copyAsText(withSecrets: boolean) {
     if (withSecrets && !secrets) {
       return
     }
-    lines.push('', `Account: ${account.label}${account.tags.length ? ` (${account.tags.join(', ')})` : ''}`)
-    for (const field of account.fields) {
-      const fieldValue = field.isSecret ? (secrets?.[field.id] ?? SECRET_MASK) : field.value
-      lines.push(`  ${field.key}: ${fieldValue}`)
-    }
+    lines.push('', ...accountTextLines(account, secrets))
   }
   await copy(lines.join('\n'))
+}
+
+// Shares accounts as text (copied) or JSON (downloaded). Secrets are revealed,
+// and so recorded in the audit log, only when asked for.
+async function shareAccounts(accounts: DeploymentAccount[], format: 'text' | 'json', withSecrets: boolean, name: string) {
+  const value = deployment.value
+  if (!value) {
+    return
+  }
+  const items: { account: DeploymentAccount, secrets?: Record<string, string> }[] = []
+  for (const account of accounts) {
+    const secrets = withSecrets ? await loadSecrets(account.id)() : undefined
+    if (withSecrets && !secrets) {
+      return
+    }
+    items.push({ account, secrets })
+  }
+  if (format === 'json') {
+    const filename = `${value.app.name}-${value.environment.name}-${name}`.replace(/[^\w.-]+/g, '-')
+    downloadText(`${filename}.json`, accountsJson({ app: value.app.name, environment: value.environment.name }, items), 'application/json')
+  } else {
+    await copy([`${value.app.name} — ${value.environment.name}`, ...items.flatMap(({ account, secrets }) => ['', ...accountTextLines(account, secrets)])].join('\n'))
+  }
 }
 
 const copyItems = computed(() => [[
   { label: t('deployments.copyWithoutSecrets'), icon: 'i-lucide-shield', onSelect: () => copyAsText(false) },
   ...(isProduction.value || !can('viewSecrets') ? [] : [{ label: t('deployments.copyWithSecrets'), icon: 'i-lucide-shield-alert', onSelect: () => copyAsText(true) }])
+], [
+  { label: t('accounts.downloadJson'), icon: 'i-lucide-file-json', onSelect: () => shareAccounts(deployment.value?.testAccounts ?? [], 'json', false, 'accounts') },
+  ...(isProduction.value || !can('viewSecrets') ? [] : [{ label: t('accounts.downloadJsonSecrets'), icon: 'i-lucide-file-json', onSelect: () => shareAccounts(deployment.value?.testAccounts ?? [], 'json', true, 'accounts') }])
 ]])
 </script>
 
@@ -210,7 +232,7 @@ const copyItems = computed(() => [[
                 icon="i-lucide-copy"
                 color="neutral"
                 variant="outline"
-                :label="t('deployments.copyAsText')"
+                :label="t('deployments.export')"
               />
             </UDropdownMenu>
             <UButton
@@ -381,6 +403,7 @@ const copyItems = computed(() => [[
                     @duplicate="targetId => duplicateAccount(account, targetId)"
                     @delete="deleteAccount(account)"
                     @verify="verifyAccount(account)"
+                    @share="(format, withSecrets) => shareAccounts([account], format, withSecrets, account.label)"
                     @status="status => setAccountStatus(account, status)"
                   />
                 </div>
