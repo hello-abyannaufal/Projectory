@@ -69,6 +69,16 @@ async function deleteAccount(account: DeploymentAccount) {
   }
 }
 
+async function duplicateAccount(account: DeploymentAccount, targetId?: string) {
+  if (await api(() => request(`/api/accounts/${account.id}/duplicate`, { method: 'POST', body: targetId ? { deploymentId: targetId } : undefined }))) {
+    const target = deployment.value?.siblings.find(sibling => sibling.id === targetId)
+    if (target) {
+      toast.add({ title: t('accounts.duplicatedTo', { name: target.name }), color: 'success' })
+    }
+    await reload()
+  }
+}
+
 const accountSort = useDragSort(() => deployment.value?.testAccounts ?? [], async () => {
   const ids = deployment.value?.testAccounts.map(account => account.id) ?? []
   await api(() => request(`/api/deployments/${deploymentId.value}/accounts/reorder`, { method: 'POST', body: { ids } }))
@@ -358,9 +368,12 @@ const copyItems = computed(() => [[
                     :drag-handle="can('edit') && accountFilter === 'all' ? accountSort.handle(index) : undefined"
                     :editable="can('edit')"
                     :can-reveal="can('viewSecrets')"
+                    :siblings="deployment.siblings"
+                    :deployment-id="deployment.id"
                     :class="accountSort.dragging.value === index && 'opacity-50'"
                     :load-secrets="loadSecrets(account.id)"
                     @edit="openAccount(account)"
+                    @duplicate="targetId => duplicateAccount(account, targetId)"
                     @delete="deleteAccount(account)"
                     @verify="verifyAccount(account)"
                     @status="status => setAccountStatus(account, status)"
