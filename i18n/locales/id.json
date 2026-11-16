@@ -223,9 +223,6 @@
     "duplicatedTo": "Disalin ke {name}",
     "empty": "Belum ada akun.",
     "deleteTitle": "Hapus {name}?",
-    "markVerified": "Tandai sudah dicek sekarang",
-    "verifiedAgo": "Dicek {time}",
-    "neverVerified": "Belum pernah dicek",
     "labelPlaceholder": "misal Maker 01",
     "tags": "Role",
     "tagsHint": "misal maker, checker, approver",
@@ -235,9 +232,7 @@
     "keepSecret": "Kosongkan untuk tetap",
     "secret": "Rahasia",
     "addField": "Tambah field",
-    "setStatus": "Ubah status",
-    "needsCheck": "Perlu dicek",
-    "attentionCount": "Tidak ada akun yang perlu dicek | 1 perlu dicek | {count} perlu dicek"
+    "setStatus": "Ubah status"
   },
   "accountStatus": {
     "active": "Aktif",

@@ -223,9 +223,6 @@
     "duplicatedTo": "Copied to {name}",
     "empty": "No accounts yet.",
     "deleteTitle": "Delete {name}?",
-    "markVerified": "Mark as verified now",
-    "verifiedAgo": "Verified {time}",
-    "neverVerified": "Not verified yet",
     "labelPlaceholder": "e.g. Maker 01",
     "tags": "Roles",
     "tagsHint": "e.g. maker, checker, approver",
@@ -235,9 +232,7 @@
     "keepSecret": "Leave empty to keep",
     "secret": "Secret",
     "addField": "Add field",
-    "setStatus": "Set status",
-    "needsCheck": "Needs check",
-    "attentionCount": "No accounts need attention | 1 needs attention | {count} need attention"
+    "setStatus": "Set status"
   },
   "accountStatus": {
     "active": "Active",

@@ -286,7 +286,7 @@ Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai
 - [x] Search lintas project + command palette (Ctrl+K): project, app, URL/branch, akun (label, tag, field non-secret), link, key `.env`
 - [x] Audit log (halaman khusus Master dan Super User)
 - [x] Auto-logout setelah idle 1 jam
-- [x] Status akun testing: badge "perlu dicek" (belum diverifikasi > `STALE_ACCOUNT_DAYS`), filter, ganti status cepat, indikator di matriks
+- [x] Status akun testing: ganti status cepat (active/locked/expired)
 - [x] Pin project + "terakhir dibuka"
 - [x] Version history `.env` dengan diff dan restore
 - [x] Trash untuk project
