@@ -131,6 +131,9 @@ export const groups = pgTable('groups', {
   // Ciphertext (see server/utils/crypto.ts). When set, maintainers and viewers
   // must enter it once per session before they can open the group.
   accessCode: text('access_code'),
+  // Set for a private group: it belongs to this user alone and nobody else,
+  // the master included, can see it or anything in it. Null for a shared group.
+  ownerId: text('owner_id').references(() => user.id, { onDelete: 'cascade' }),
   ...timestamps
 })
 

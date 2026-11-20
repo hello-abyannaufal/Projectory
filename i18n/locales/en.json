@@ -403,7 +403,11 @@
     "accessCodeHint": "Optional. Maintainers and viewers must enter it to open the group. Leave empty to keep the group open.",
     "invalidAccessCode": "Wrong access code",
     "deleteHasTrash": "Delete this group's projects from the trash first",
-    "tooManyAttempts": "Too many wrong codes. Try again in {minutes} minutes."
+    "tooManyAttempts": "Too many wrong codes. Try again in {minutes} minutes.",
+    "private": "Private",
+    "privateSwitch": "Private group",
+    "privateHint": "Only you can see this group and its projects. Nobody else can, not even the master.",
+    "emptyDescriptionPrivate": "Projects live in groups. Create a private group of your own to get started."
   },
   "groupVpn": {
     "title": "VPN in {name}",

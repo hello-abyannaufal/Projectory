@@ -22,7 +22,9 @@ export const groupInput = z.object({
   name: z.string().trim().min(1).max(120),
   description: optionalText(500),
   // Empty or null means anyone can open the group.
-  accessCode: z.string().trim().min(4).max(64).nullish().or(z.literal('')).transform(v => v || null)
+  accessCode: z.string().trim().min(4).max(64).nullish().or(z.literal('')).transform(v => v || null),
+  // Only on create: a private group belongs to its creator alone.
+  isPrivate: z.boolean().default(false)
 })
 
 export const projectInput = z.object({

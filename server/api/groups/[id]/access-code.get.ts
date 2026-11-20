@@ -4,8 +4,8 @@ import { eq } from 'drizzle-orm'
 export default defineEventHandler(async (event) => {
   const id = getIdParam(event)
   setResponseHeader(event, 'Cache-Control', 'no-store')
-  const group = await useDb().query.groups.findFirst({ where: eq(tables.groups.id, id), columns: { accessCode: true } })
-  if (!group) {
+  const group = await useDb().query.groups.findFirst({ where: eq(tables.groups.id, id), columns: { accessCode: true, ownerId: true } })
+  if (!group || group.ownerId) {
     notFound()
   }
   await logAudit(event, { action: 'group.access_code_view', target: await describeGroup(id) })
