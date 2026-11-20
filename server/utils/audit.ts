@@ -5,6 +5,8 @@ interface AuditEntry {
   action: AuditAction
   target?: string | null
   projectId?: string | null
+  // Set for anything in a private group, which leaves no trace in the log.
+  silent?: boolean
   metadata?: Record<string, unknown>
 }
 
@@ -12,7 +14,7 @@ interface AuditEntry {
 // fails the request itself.
 export async function logAudit(event: H3Event, entry: AuditEntry) {
   const user = event.context.user as { id: string, name: string } | undefined
-  if (user) {
+  if (user && !entry.silent) {
     await writeAuditLog(user, entry, getRequestIP(event, { xForwardedFor: true }))
   }
 }
@@ -37,9 +39,9 @@ export async function describeProject(projectId: string) {
   const project = await useDb().query.projects.findFirst({
     where: eq(tables.projects.id, projectId),
     columns: { name: true },
-    with: { group: { columns: { name: true } } }
+    with: { group: { columns: { name: true, ownerId: true } } }
   })
-  return { projectId, target: project ? `${project.group.name} / ${project.name}` : null }
+  return { projectId, target: project ? `${project.group.name} / ${project.name}` : null, silent: !!project?.group.ownerId }
 }
 
 export async function describeDeployment(deploymentId: string) {
@@ -48,14 +50,17 @@ export async function describeDeployment(deploymentId: string) {
     columns: { id: true },
     with: {
       environment: { columns: { name: true } },
-      app: { columns: { name: true }, with: { project: { columns: { id: true, name: true } } } }
+      app: {
+        columns: { name: true },
+        with: { project: { columns: { id: true, name: true }, with: { group: { columns: { ownerId: true } } } } }
+      }
     }
   })
   if (!deployment) {
-    return { projectId: null, target: null }
+    return { projectId: null, target: null, silent: false }
   }
   const { app, environment } = deployment
-  return { projectId: app.project.id, target: `${app.project.name} / ${app.name} / ${environment.name}` }
+  return { projectId: app.project.id, target: `${app.project.name} / ${app.name} / ${environment.name}`, silent: !!app.project.group.ownerId }
 }
 
 export async function describeGroup(groupId: string) {

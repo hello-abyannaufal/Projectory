@@ -9,6 +9,7 @@ Isi dokumen: cara kerja keamanan Projectory, apa yang perlu disiapkan sebelum de
 | Email + password | Login | Pendaftaran tertutup; akun hanya dibuat Master atau Super User. |
 | **Two-factor (TOTP)** | Login | **Wajib untuk semua akun.** Akun tanpa 2FA hanya bisa membuka halaman setup 2FA. |
 | Percayai browser | Kenyamanan | Setelah kode 2FA benar, browser itu hanya butuh password selama `TWO_FACTOR_TRUST_DAYS` (30 hari). Dihitung dari kode terakhir, **tidak diperpanjang** saat login. |
+| Group privat | Group buatan Master/Super User/Maintainer | Hanya pembuatnya yang melihat group dan isinya; Master dan Super User juga tidak. Aktivitas di dalamnya tidak masuk audit log. Menghapus akun pemiliknya ikut menghapus group dan semua project di dalamnya. |
 | Access code group | Group tertentu | Maintainer/viewer memasukkannya sekali per sesi. 5 kode salah dalam 15 menit → user itu diblokir untuk group itu sampai 15 menit lewat. Master dan Super User tidak perlu access code. |
 | `NUXT_MASTER_KEY` | Password akun testing, nilai `.env`, access code | Enkripsi AES-256-GCM di database. |
 | `BETTER_AUTH_SECRET` | Sesi login, **secret 2FA dan backup code** | Kalau berubah, semua orang keluar dan semua 2FA tidak bisa dibaca lagi (lihat [3.8](#38-better_auth_secret-berubah-atau-bocor)). |

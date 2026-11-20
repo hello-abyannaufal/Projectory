@@ -222,6 +222,11 @@ function createAuth() {
         },
         // Logged here rather than in the after hook, which no longer sees the user.
         delete: {
+          // Their private groups go with them, projects included. A group can't
+          // be deleted while it holds projects, so those are removed first.
+          before: async (user) => {
+            await deletePrivateGroups(user.id)
+          },
           after: async (user, ctx) => {
             const session = ctx && await getSessionFromCtx(ctx)
             if (session) {

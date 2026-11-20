@@ -1,3 +1,5 @@
+import pkg from './package.json' with { type: 'json' }
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
@@ -32,7 +34,11 @@ export default defineNuxtConfig({
     // NUXT_MASTER_KEY: 32-byte key (base64) used to encrypt secrets at rest
     masterKey: '',
     // NUXT_UPLOAD_DIR
-    uploadDir: './data/uploads'
+    uploadDir: './data/uploads',
+    public: {
+      // From package.json; shown at the bottom right of every page
+      appVersion: pkg.version
+    }
   },
 
   compatibilityDate: '2026-06-30',

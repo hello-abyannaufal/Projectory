@@ -122,7 +122,7 @@ Contoh untuk project biasa: Apps = Web, Mobile, Backend; Environments = Dev, Sta
 
 **InfraItem**
 - `project_id`, `environment_id` (null = dipakai semua environment)
-- `type`: `server` | `kubernetes` | `database` | `vpn` | `registry` | `other`
+- `type`: `server` | `kubernetes` | `database` | `registry` | `other`
 - `name`, `host` (IP, hostname, host:port, atau URL), `notes`
 - Hanya inventaris: **tidak ada field secret**. Kredensial server/Rancher/DB tidak disimpan di Projectory; tempatnya di vault/PAM kantor. Karena tanpa secret, environment production juga boleh dicatat dan semua role bisa melihat.
 
@@ -291,7 +291,7 @@ Aturan permission ada di satu tempat (`shared/utils/permissions.ts`) dan dipakai
 - [x] Version history `.env` dengan diff dan restore
 - [x] Trash untuk project
 - [x] Bandingkan `.env` antar environment dalam satu app
-- [x] Inventaris infra (server, Rancher/k8s, DB, VPN, registry) per environment, tanpa kredensial
+- [x] Inventaris infra (server, Rancher/k8s, DB, registry) per environment, tanpa kredensial
 - [x] Two-factor (TOTP) wajib + backup code, trust browser 30 hari
 - [x] Role Master (satu akun, hanya bisa dipindah lewat SQL)
 

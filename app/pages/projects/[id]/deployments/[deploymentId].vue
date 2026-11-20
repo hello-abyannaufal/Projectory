@@ -602,6 +602,31 @@ const copyItems = computed(() => [[
               </section>
 
               <section
+                v-if="deployment.vpns.length"
+                class="flex flex-col gap-2 rounded-lg border border-default bg-default p-4"
+              >
+                <div class="mb-1 flex items-center justify-between gap-2">
+                  <h2 class="font-semibold text-highlighted">
+                    {{ t('groupVpn.environments') }}
+                  </h2>
+                  <UButton
+                    v-if="can('edit')"
+                    icon="i-lucide-settings-2"
+                    color="neutral"
+                    variant="ghost"
+                    size="sm"
+                    :label="t('overview.manage')"
+                    :to="`${projectPath}?tab=environments`"
+                  />
+                </div>
+                <InfraItemRow
+                  v-for="vpn in deployment.vpns"
+                  :key="vpn.id"
+                  :item="vpn"
+                />
+              </section>
+
+              <section
                 v-if="deployment.infraItems.length"
                 class="flex flex-col gap-2 rounded-lg border border-default bg-default p-4"
               >

@@ -26,11 +26,13 @@ Every account must set up **two-factor authentication** (an authenticator app su
 
 Projects live in **groups** (Group → Project → App). A group can have an access code; maintainers and viewers enter it once per session to open the group. Five wrong codes block that user from the group for 15 minutes.
 
+Masters, Super Users and Maintainers can also create **private groups**: only the creator can see the group and its projects. Nobody else can, not even the Master. Actions inside a private group are not written to the audit log, and deleting its owner deletes the group with everything in it.
+
 Other things worth knowing:
 
 - **Ctrl+K** searches projects, URLs, branches, accounts and `.env` keys. Secret values are never searched.
 - Deleted projects go to the **Trash** and can be restored for 30 days.
-- The **Infrastructure** tab lists servers, Rancher clusters, databases and VPNs per environment: addresses and notes only, never credentials.
+- The **Infrastructure** tab lists servers, Rancher clusters and databases per environment: addresses and notes only, never credentials.
 - Every `.env` change is kept in its **history** (last 50 versions) and can be restored.
 - The **Audit log** (Master and Super User) records secret reveals, exports, project deletes, access code use and user changes.
 - Users are signed out after an hour without activity.

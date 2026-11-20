@@ -68,10 +68,12 @@ export const infraTypeIcon: Record<InfraType, string> = {
   server: 'i-lucide-server',
   kubernetes: 'i-lucide-ship-wheel',
   database: 'i-lucide-database',
-  vpn: 'i-lucide-shield',
   registry: 'i-lucide-package',
   other: 'i-lucide-box'
 }
+
+// Group VPNs are not an infrastructure type; they have their own icon.
+export const vpnIcon = 'i-lucide-shield'
 
 // Only http(s) hosts are rendered as links.
 export function isHttpUrl(value: string) {

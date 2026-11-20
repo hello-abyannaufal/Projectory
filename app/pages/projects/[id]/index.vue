@@ -570,6 +570,14 @@ async function saveNotes() {
                 >
                   <span class="flex-1 font-medium text-highlighted">{{ environment.name }}</span>
                   <UBadge
+                    v-for="vpn in environment.vpns"
+                    :key="vpn.id"
+                    color="neutral"
+                    variant="subtle"
+                    :icon="vpnIcon"
+                    :label="vpn.name"
+                  />
+                  <UBadge
                     v-if="environment.isProduction"
                     color="warning"
                     variant="subtle"
@@ -779,6 +787,7 @@ async function saveNotes() {
     <EnvironmentFormModal
       v-model:open="environmentOpen"
       :project-id="projectId"
+      :group-id="project?.group.id"
       :environment="editingEnvironment"
       @saved="refresh()"
     />

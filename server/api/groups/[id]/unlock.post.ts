@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   const { accessCode } = await readInput(event, unlockInput)
   const db = useDb()
   const group = await db.query.groups.findFirst({ where: eq(tables.groups.id, id), columns: { accessCode: true } })
-  if (!group) {
+  if (!group || (await hiddenGroupIds(event)).has(id)) {
     notFound()
   }
   if (group.accessCode) {

@@ -22,7 +22,9 @@ export const groupInput = z.object({
   name: z.string().trim().min(1).max(120),
   description: optionalText(500),
   // Empty or null means anyone can open the group.
-  accessCode: z.string().trim().min(4).max(64).nullish().or(z.literal('')).transform(v => v || null)
+  accessCode: z.string().trim().min(4).max(64).nullish().or(z.literal('')).transform(v => v || null),
+  // Only on create: a private group belongs to its creator alone.
+  isPrivate: z.boolean().default(false)
 })
 
 export const projectInput = z.object({
@@ -51,6 +53,19 @@ export const infraInput = z.object({
   host: z.string().trim().min(1).max(255),
   // Null: shared by every environment
   environmentId: z.uuid().nullish().transform(v => v ?? null),
+  notes: optionalText(2000)
+})
+
+export const groupVpnInput = z.object({
+  name: z.string().trim().min(1).max(120),
+  host: z.string().trim().min(1).max(255),
+  notes: optionalText(2000)
+})
+
+export const groupVpnAccountInput = z.object({
+  username: z.string().trim().min(1).max(255),
+  // Omitted on update keeps the stored password
+  password: z.string().max(500).optional(),
   notes: optionalText(2000)
 })
 

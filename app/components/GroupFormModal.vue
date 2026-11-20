@@ -12,8 +12,12 @@ const open = defineModel<boolean>('open', { default: false })
 
 const { t } = useI18n()
 const toast = useToast()
+const { can } = usePermissions()
 
 const state = reactive({ name: '', description: '', accessCode: '' })
+// Only chosen when creating; whoever can't manage shared groups only has private ones.
+const isPrivate = ref(false)
+const privateGroup = computed(() => props.group ? props.group.isPrivate : isPrivate.value)
 // The stored code, so an edit only sends accessCode when it changed.
 const storedCode = ref('')
 const codeVisible = ref(false)
@@ -24,6 +28,7 @@ watch(open, async (value) => {
   }
   codeVisible.value = false
   storedCode.value = ''
+  isPrivate.value = !can('manageGroups')
   Object.assign(state, {
     name: props.group?.name ?? '',
     description: props.group?.description ?? '',
@@ -46,7 +51,7 @@ async function onSubmit({ data }: FormSubmitEvent<z.output<typeof groupInput>>) 
       const body = (accessCode ?? '') === storedCode.value ? rest : data
       await request(`/api/groups/${props.group.id}`, { method: 'PATCH', body })
     } else {
-      await request('/api/groups', { method: 'POST', body: data })
+      await request('/api/groups', { method: 'POST', body: { ...data, isPrivate: isPrivate.value } })
     }
     open.value = false
     emit('saved')
@@ -93,7 +98,24 @@ async function onSubmit({ data }: FormSubmitEvent<z.output<typeof groupInput>>) 
             autoresize
           />
         </UFormField>
+        <USwitch
+          v-if="!group && can('manageGroups')"
+          v-model="isPrivate"
+          :label="t('groups.privateSwitch')"
+          :description="t('groups.privateHint')"
+        />
+        <p
+          v-else-if="privateGroup"
+          class="flex items-center gap-2 text-sm text-muted"
+        >
+          <UIcon
+            name="i-lucide-user-lock"
+            class="size-4 shrink-0"
+          />
+          {{ t('groups.privateHint') }}
+        </p>
         <UFormField
+          v-if="!privateGroup"
           :label="t('groups.accessCode')"
           :description="t('groups.accessCodeHint')"
           name="accessCode"
