@@ -50,6 +50,7 @@ export const AUDIT_ACTIONS = [
   'account.reveal',
   'env.reveal',
   'env.restore',
+  'app_file.reveal',
   'project.export',
   'project.import',
   'project.delete',
@@ -74,9 +75,6 @@ export const TWO_FACTOR_TRUST_DAYS = 30
 // the rest of the window.
 export const GROUP_UNLOCK_MAX_FAILURES = 5
 export const GROUP_UNLOCK_WINDOW_MINUTES = 15
-
-// A test account not verified for this long is flagged for a re-check.
-export const STALE_ACCOUNT_DAYS = 30
 
 // Deleted projects stay restorable in the trash this long.
 export const TRASH_RETENTION_DAYS = 30

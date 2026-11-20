@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
       hasAccessCode: isNotNull(groups.accessCode),
       projectCount: sql<number>`count(${projects.id}) filter (where ${projects.deletedAt} is null)`.mapWith(Number),
       // Projects in the trash still block deleting the group.
+      vpnCount: sql<number>`(select count(*) from ${tables.groupVpns} where ${tables.groupVpns.groupId} = ${groups.id})`.mapWith(Number),
       trashedCount: sql<number>`count(${projects.id}) filter (where ${projects.deletedAt} is not null)`.mapWith(Number)
     })
     .from(groups)

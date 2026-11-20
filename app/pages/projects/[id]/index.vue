@@ -28,7 +28,6 @@ const platforms = computed(() => [...new Set(project.value?.apps.flatMap(app => 
 
 const tabs = computed<TabsItem[]>(() => [
   { label: t('overview.title'), slot: 'overview' as const, value: 'overview' },
-  { label: t('deployments.title'), slot: 'deployments' as const, value: 'deployments' },
   { label: `${t('apps.title')} (${project.value?.apps.length ?? 0})`, slot: 'apps' as const, value: 'apps' },
   { label: `${t('environments.title')} (${project.value?.environments.length ?? 0})`, slot: 'environments' as const, value: 'environments' },
   { label: `${t('infra.title')} (${project.value?.infraItems.length ?? 0})`, slot: 'infra' as const, value: 'infra' },
@@ -36,7 +35,7 @@ const tabs = computed<TabsItem[]>(() => [
   { label: t('fields.notes'), slot: 'notes' as const, value: 'notes' }
 ])
 // ?tab= opens a tab directly, e.g. from search results.
-const activeTab = ref(typeof route.query.tab === 'string' ? route.query.tab : 'overview')
+const activeTab = ref(tabs.value.some(tab => tab.value === route.query.tab) ? route.query.tab as string : 'overview')
 
 // Edit / delete / export project
 const editOpen = ref(false)
@@ -107,6 +106,15 @@ const editingApp = ref<ProjectApp>()
 function openApp(app?: ProjectApp) {
   editingApp.value = app
   appOpen.value = true
+}
+
+// Dev files of an app, such as .vscode/launch.json
+const filesOpen = ref(false)
+const filesApp = ref<ProjectApp>()
+
+function openFiles(app: ProjectApp) {
+  filesApp.value = app
+  filesOpen.value = true
 }
 
 async function deleteApp(app: ProjectApp) {
@@ -350,16 +358,36 @@ async function saveNotes() {
                   <h2 class="font-semibold text-highlighted">
                     {{ t('deployments.title') }}
                   </h2>
-                  <DeploymentMatrix
-                    v-if="project.apps.length && project.environments.length"
-                    :project="project"
-                  />
-                  <p
+                  <template v-if="project.apps.length && project.environments.length">
+                    <DeploymentMatrix :project="project" />
+                    <div
+                      v-if="can('edit')"
+                      class="flex flex-wrap gap-2"
+                    >
+                      <UButton
+                        icon="i-lucide-plus"
+                        variant="ghost"
+                        :label="t('apps.new')"
+                        @click="openApp()"
+                      />
+                      <UButton
+                        icon="i-lucide-plus"
+                        variant="ghost"
+                        :label="t('environments.new')"
+                        @click="openEnvironment()"
+                      />
+                    </div>
+                  </template>
+                  <UEmpty
                     v-else
-                    class="rounded-lg border border-dashed border-accented px-5 py-4 text-sm text-muted"
-                  >
-                    {{ t('deployments.emptyDescription') }}
-                  </p>
+                    icon="i-lucide-grid-2x2"
+                    :title="t('deployments.emptyTitle')"
+                    :description="t('deployments.emptyDescription')"
+                    :actions="can('edit') ? [
+                      { label: t('apps.new'), icon: 'i-lucide-plus', onClick: () => openApp() },
+                      { label: t('environments.new'), icon: 'i-lucide-plus', color: 'neutral', variant: 'outline', onClick: () => openEnvironment() }
+                    ] : []"
+                  />
                 </section>
 
                 <div class="grid items-start gap-5 lg:grid-cols-2">
@@ -447,39 +475,6 @@ async function saveNotes() {
               </div>
             </template>
 
-            <template #deployments>
-              <UEmpty
-                v-if="!project.apps.length || !project.environments.length"
-                icon="i-lucide-grid-2x2"
-                :title="t('deployments.emptyTitle')"
-                :description="t('deployments.emptyDescription')"
-                :actions="can('edit') ? [
-                  { label: t('apps.new'), icon: 'i-lucide-plus', onClick: () => openApp() },
-                  { label: t('environments.new'), icon: 'i-lucide-plus', color: 'neutral', variant: 'outline', onClick: () => openEnvironment() }
-                ] : []"
-              />
-              <template v-else>
-                <DeploymentMatrix :project="project" />
-                <div
-                  v-if="can('edit')"
-                  class="mt-3 flex flex-wrap gap-2"
-                >
-                  <UButton
-                    icon="i-lucide-plus"
-                    variant="ghost"
-                    :label="t('apps.new')"
-                    @click="openApp()"
-                  />
-                  <UButton
-                    icon="i-lucide-plus"
-                    variant="ghost"
-                    :label="t('environments.new')"
-                    @click="openEnvironment()"
-                  />
-                </div>
-              </template>
-            </template>
-
             <template #apps>
               <div class="flex flex-col gap-3">
                 <div
@@ -511,6 +506,14 @@ async function saveNotes() {
                       </span>
                     </div>
                   </div>
+                  <UButton
+                    icon="i-lucide-file-code"
+                    color="neutral"
+                    variant="outline"
+                    size="sm"
+                    :label="t('appFiles.title')"
+                    @click="openFiles(app)"
+                  />
                   <div
                     v-if="can('edit')"
                     class="flex items-center gap-1"
@@ -566,6 +569,14 @@ async function saveNotes() {
                   class="flex items-center gap-3 rounded-lg border border-default bg-default px-4 py-3"
                 >
                   <span class="flex-1 font-medium text-highlighted">{{ environment.name }}</span>
+                  <UBadge
+                    v-for="vpn in environment.vpns"
+                    :key="vpn.id"
+                    color="neutral"
+                    variant="subtle"
+                    :icon="infraTypeIcon.vpn"
+                    :label="vpn.name"
+                  />
                   <UBadge
                     v-if="environment.isProduction"
                     color="warning"
@@ -759,6 +770,14 @@ async function saveNotes() {
       :project-id="project.id"
       :project-name="project.name"
     />
+    <AppFilesModal
+      v-if="filesApp"
+      v-model:open="filesOpen"
+      :app-id="filesApp.id"
+      :app-name="filesApp.name"
+      :editable="can('edit')"
+      :can-reveal="can('viewSecrets')"
+    />
     <AppFormModal
       v-model:open="appOpen"
       :project-id="projectId"
@@ -768,6 +787,7 @@ async function saveNotes() {
     <EnvironmentFormModal
       v-model:open="environmentOpen"
       :project-id="projectId"
+      :group-id="project?.group.id"
       :environment="editingEnvironment"
       @saved="refresh()"
     />

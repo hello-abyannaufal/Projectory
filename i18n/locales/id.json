@@ -173,7 +173,7 @@
     "deleteTitle": "Hapus deployment ini?",
     "deleteDescription": "Akun, isi .env, dan rilisnya akan dihapus.",
     "branch": "Branch",
-    "copyAsText": "Salin sebagai teks",
+    "export": "Ekspor",
     "copyWithoutSecrets": "Tanpa rahasia",
     "copyWithSecrets": "Dengan rahasia (teks biasa)",
     "openApp": "Buka app",
@@ -210,14 +210,19 @@
     "copyText": "Salin teks"
   },
   "accounts": {
+    "share": "Bagikan",
+    "copyText": "Salin sebagai teks",
+    "copyTextSecrets": "Salin sebagai teks dengan rahasia",
+    "downloadJson": "Unduh JSON",
+    "downloadJsonSecrets": "Unduh JSON dengan rahasia",
     "title": "Akun",
     "new": "Tambah akun",
     "edit": "Ubah akun",
+    "duplicate": "Duplikat",
+    "duplicateTo": "Duplikat ke…",
+    "duplicatedTo": "Disalin ke {name}",
     "empty": "Belum ada akun.",
     "deleteTitle": "Hapus {name}?",
-    "markVerified": "Tandai sudah dicek sekarang",
-    "verifiedAgo": "Dicek {time}",
-    "neverVerified": "Belum pernah dicek",
     "labelPlaceholder": "misal Maker 01",
     "tags": "Role",
     "tagsHint": "misal maker, checker, approver",
@@ -227,9 +232,7 @@
     "keepSecret": "Kosongkan untuk tetap",
     "secret": "Rahasia",
     "addField": "Tambah field",
-    "setStatus": "Ubah status",
-    "needsCheck": "Perlu dicek",
-    "attentionCount": "Tidak ada akun yang perlu dicek | 1 perlu dicek | {count} perlu dicek"
+    "setStatus": "Ubah status"
   },
   "accountStatus": {
     "active": "Aktif",
@@ -264,6 +267,14 @@
     "rolled_back": "Di-rollback"
   },
   "env": {
+    "addFile": "Tambah file",
+    "renameFile": "Ganti nama file",
+    "filePath": "Path file",
+    "filePathHint": "Lokasi file di repo, misalnya .env atau dev/.env.",
+    "deleteFile": "Hapus file",
+    "deleteFileTitle": "Hapus {path}?",
+    "deleteFileDescription": "File beserta semua variabel dan riwayatnya akan dihapus. Tidak bisa dibatalkan.",
+    "noFiles": "Belum ada file .env.",
     "encrypted": "Terenkripsi",
     "table": "Tabel",
     "raw": "Raw",
@@ -394,6 +405,35 @@
     "deleteHasTrash": "Hapus dulu proyek grup ini dari tempat sampah",
     "tooManyAttempts": "Terlalu banyak kode salah. Coba lagi dalam {minutes} menit."
   },
+  "groupVpn": {
+    "title": "VPN di {name}",
+    "description": "VPN untuk grup ini, didaftarkan oleh master. Simpan akun VPN-mu sendiri; hanya kamu yang bisa melihatnya.",
+    "empty": "Belum ada VPN yang didaftarkan untuk grup ini.",
+    "new": "Tambah VPN",
+    "edit": "Edit VPN",
+    "open": "VPN",
+    "count": "tidak ada VPN | 1 VPN | {count} VPN",
+    "namePlaceholder": "mis. VPN Kantor",
+    "hostHint": "mis. vpn.bank.local, 203.0.113.10:443 atau https://vpn.bank.local",
+    "notesPlaceholder": "mis. minta akun ke tim infra",
+    "emptyManage": "Belum ada VPN. Tambahkan agar anggota bisa menyimpan akun VPN masing-masing.",
+    "deleteDescription": "Akun VPN yang disimpan semua orang untuk VPN ini ikut terhapus, dan environment tidak lagi menampilkannya.",
+    "myAccount": "Akun saya",
+    "noAccount": "Kamu belum menyimpan akun",
+    "addAccount": "Tambah akun saya",
+    "accountTitle": "Akun saya untuk {name}",
+    "accountDescription": "Hanya kamu yang bisa melihat ini. Disimpan terenkripsi.",
+    "username": "Username",
+    "password": "Password",
+    "showPassword": "Tampilkan password",
+    "hidePassword": "Sembunyikan password",
+    "copyPassword": "Salin password",
+    "deleteAccountTitle": "Hapus akunmu untuk {name}?",
+    "environments": "VPN",
+    "environmentsHint": "VPN grup ini yang dipakai untuk mengakses environment ini.",
+    "environmentsPlaceholder": "Tanpa VPN",
+    "noVpns": "Grup ini belum punya VPN."
+  },
   "roles": {
     "master": "Master",
     "super_user": "Super User",
@@ -437,6 +477,9 @@
     "empty": "Belum ada catatan"
   },
   "auditAction": {
+    "app_file": {
+      "reveal": "Membuka dev file"
+    },
     "user": {
       "sign_in": "Masuk",
       "create": "Membuat pengguna",
@@ -502,12 +545,27 @@
       "restore": "Dipulihkan"
     }
   },
+  "appFiles": {
+    "sharedHint": "Sama untuk semua environment {name}.",
+    "manage": "Kelola",
+    "open": "Buka",
+    "title": "Dev files",
+    "description": "File yang sama untuk semua environment {name}, misalnya .vscode/launch.json. Isinya terenkripsi.",
+    "empty": "Belum ada file.",
+    "new": "File baru",
+    "path": "Path file",
+    "select": "Pilih file untuk melihatnya. Membuka file tercatat di audit log.",
+    "noAccess": "Anda bisa melihat daftar file, tapi tidak isinya.",
+    "deleteTitle": "Hapus {path}?",
+    "deleteDescription": "File beserta isinya akan dihapus. Tidak bisa dibatalkan."
+  },
   "envCompare": {
     "compareWith": "Bandingkan dengan",
     "title": "{left} vs {right}",
     "description": "Nilai dibandingkan persis. Membuka nilai tercatat di log audit.",
     "keysOnly": "Hanya keberadaan key yang dibandingkan; nilainya tetap tersembunyi.",
     "onlyDifferences": "Hanya yang berbeda",
+    "noFile": "Tidak ada {path} di {name}, jadi hanya key dari file ini yang ditampilkan.",
     "identical": "Kedua environment punya variabel yang sama.",
     "onlyIn": "Hanya di {name}",
     "status": {

@@ -11,6 +11,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid
 } from 'drizzle-orm/pg-core'
 import {
@@ -139,6 +140,31 @@ export const groupUnlocks = pgTable('group_unlocks', {
   groupId: uuid('group_id').notNull().references(() => groups.id, { onDelete: 'cascade' })
 }, t => [primaryKey({ columns: [t.sessionId, t.groupId] })])
 
+// VPNs the master registers for a group. Address and notes only; each user
+// keeps their own login in group_vpn_accounts. Separate from the per-project
+// infrastructure items.
+export const groupVpns = pgTable('group_vpns', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  groupId: uuid('group_id').notNull().references(() => groups.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  // IP, hostname, host:port or URL
+  host: text('host').notNull(),
+  notes: text('notes'),
+  ...timestamps
+}, t => [index('group_vpns_group_idx').on(t.groupId)])
+
+// A user's own login for a group VPN. Private to that user.
+export const groupVpnAccounts = pgTable('group_vpn_accounts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  vpnId: uuid('vpn_id').notNull().references(() => groupVpns.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  username: text('username').notNull(),
+  // Ciphertext (see server/utils/crypto.ts)
+  password: text('password').notNull().default(''),
+  notes: text('notes'),
+  ...timestamps
+}, t => [uniqueIndex('group_vpn_accounts_vpn_user_idx').on(t.vpnId, t.userId)])
+
 export const projects = pgTable('projects', {
   id: uuid('id').primaryKey().defaultRandom(),
   // A group can only be deleted once it is empty.
@@ -177,6 +203,17 @@ export const apps = pgTable('apps', {
   sortOrder: integer('sort_order').notNull().default(0),
   ...timestamps
 }, t => [index('apps_project_idx').on(t.projectId)])
+
+// A file shared by every environment of an app, such as .vscode/launch.json.
+export const appFiles = pgTable('app_files', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  appId: uuid('app_id').notNull().references(() => apps.id, { onDelete: 'cascade' }),
+  path: text('path').notNull(),
+  // Always ciphertext
+  content: text('content').notNull(),
+  sortOrder: integer('sort_order').notNull().default(0),
+  ...timestamps
+}, t => [unique('app_files_app_path_unique').on(t.appId, t.path)])
 
 // Project-level links have appId = null; app-level links have both set.
 // A link with an environment also shows on that environment's deployment pages.
@@ -281,22 +318,33 @@ export const testAccountFields = pgTable('test_account_fields', {
   sortOrder: integer('sort_order').notNull().default(0)
 }, t => [index('test_account_fields_account_idx').on(t.accountId)])
 
+// A dotenv file of a deployment, named by its path in the repo (.env, dev/.env).
+export const envFiles = pgTable('env_files', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  deploymentId: uuid('deployment_id').notNull().references(() => deployments.id, { onDelete: 'cascade' }),
+  path: text('path').notNull(),
+  sortOrder: integer('sort_order').notNull().default(0),
+  ...timestamps
+}, t => [unique('env_files_deployment_path_unique').on(t.deploymentId, t.path)])
+
 export const envVars = pgTable('env_vars', {
   id: uuid('id').primaryKey().defaultRandom(),
   deploymentId: uuid('deployment_id').notNull().references(() => deployments.id, { onDelete: 'cascade' }),
+  envFileId: uuid('env_file_id').notNull().references(() => envFiles.id, { onDelete: 'cascade' }),
   key: text('key').notNull(),
   // Always ciphertext
   value: text('value').notNull(),
   sortOrder: integer('sort_order').notNull().default(0),
   ...timestamps
-}, t => [unique('env_vars_deployment_key_unique').on(t.deploymentId, t.key)])
+}, t => [unique('env_vars_file_key_unique').on(t.envFileId, t.key)])
 
-// Snapshot of a deployment's whole .env after each change, newest kept up to
+// Snapshot of a whole .env file after each change, newest kept up to
 // ENV_HISTORY_LIMIT. The first snapshot ('baseline') holds the values from
 // before history was recorded and has no user.
 export const envVarVersions = pgTable('env_var_versions', {
   id: uuid('id').primaryKey().defaultRandom(),
   deploymentId: uuid('deployment_id').notNull().references(() => deployments.id, { onDelete: 'cascade' }),
+  envFileId: uuid('env_file_id').notNull().references(() => envFiles.id, { onDelete: 'cascade' }),
   // Ciphertext of a JSON array of { key, value }
   content: text('content').notNull(),
   // One of ENV_VERSION_ACTIONS
@@ -304,7 +352,7 @@ export const envVarVersions = pgTable('env_var_versions', {
   userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
   userName: text('user_name'),
   createdAt: timestamp('created_at').notNull().defaultNow()
-}, t => [index('env_var_versions_deployment_idx').on(t.deploymentId, t.createdAt)])
+}, t => [index('env_var_versions_file_idx').on(t.envFileId, t.createdAt)])
 
 // ---------------------------------------------------------------------------
 // Per-user project shortcuts
@@ -348,7 +396,12 @@ export const auditLogs = pgTable('audit_logs', {
 // ---------------------------------------------------------------------------
 
 export const groupsRelations = relations(groups, ({ many }) => ({
-  projects: many(projects)
+  projects: many(projects),
+  vpns: many(groupVpns)
+}))
+
+export const groupVpnsRelations = relations(groupVpns, ({ one }) => ({
+  group: one(groups, { fields: [groupVpns.groupId], references: [groups.id] })
 }))
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
@@ -359,16 +412,33 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   infraItems: many(infraItems)
 }))
 
+// Which group VPNs an environment is reached through.
+export const environmentVpns = pgTable('environment_vpns', {
+  environmentId: uuid('environment_id').notNull().references(() => environments.id, { onDelete: 'cascade' }),
+  vpnId: uuid('vpn_id').notNull().references(() => groupVpns.id, { onDelete: 'cascade' })
+}, t => [primaryKey({ columns: [t.environmentId, t.vpnId] })])
+
 export const environmentsRelations = relations(environments, ({ one, many }) => ({
   project: one(projects, { fields: [environments.projectId], references: [projects.id] }),
-  deployments: many(deployments)
+  deployments: many(deployments),
+  vpns: many(environmentVpns)
+}))
+
+export const environmentVpnsRelations = relations(environmentVpns, ({ one }) => ({
+  environment: one(environments, { fields: [environmentVpns.environmentId], references: [environments.id] }),
+  vpn: one(groupVpns, { fields: [environmentVpns.vpnId], references: [groupVpns.id] })
 }))
 
 export const appsRelations = relations(apps, ({ one, many }) => ({
   project: one(projects, { fields: [apps.projectId], references: [projects.id] }),
   links: many(links),
   techStacks: many(appTechStacks),
-  deployments: many(deployments)
+  deployments: many(deployments),
+  files: many(appFiles)
+}))
+
+export const appFilesRelations = relations(appFiles, ({ one }) => ({
+  app: one(apps, { fields: [appFiles.appId], references: [apps.id] })
 }))
 
 export const infraItemsRelations = relations(infraItems, ({ one }) => ({
@@ -396,6 +466,11 @@ export const deploymentsRelations = relations(deployments, ({ one, many }) => ({
   environment: one(environments, { fields: [deployments.environmentId], references: [environments.id] }),
   releases: many(releases),
   testAccounts: many(testAccounts),
+  envFiles: many(envFiles)
+}))
+
+export const envFilesRelations = relations(envFiles, ({ one, many }) => ({
+  deployment: one(deployments, { fields: [envFiles.deploymentId], references: [deployments.id] }),
   envVars: many(envVars)
 }))
 
@@ -413,5 +488,5 @@ export const testAccountFieldsRelations = relations(testAccountFields, ({ one })
 }))
 
 export const envVarsRelations = relations(envVars, ({ one }) => ({
-  deployment: one(deployments, { fields: [envVars.deploymentId], references: [deployments.id] })
+  envFile: one(envFiles, { fields: [envVars.envFileId], references: [envFiles.id] })
 }))

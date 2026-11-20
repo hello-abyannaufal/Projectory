@@ -55,6 +55,27 @@ const shortcuts = computed(() => filtering.value
       { key: 'recent', icon: 'i-lucide-history', title: t('projects.recent'), projects: recent.value }
     ].filter(section => section.projects.length))
 
+// Shortcut sections can be collapsed; the choice is remembered in this browser.
+const COLLAPSED_KEY = 'projectory:collapsed-shortcuts'
+const collapsed = ref<Record<string, boolean>>({ pinned: true, recent: true })
+
+onMounted(() => {
+  try {
+    collapsed.value = { ...collapsed.value, ...JSON.parse(localStorage.getItem(COLLAPSED_KEY) ?? '{}') }
+  } catch {
+    // Storage unavailable (private window); keep the defaults.
+  }
+})
+
+function toggleShortcut(key: string) {
+  collapsed.value = { ...collapsed.value, [key]: !collapsed.value[key] }
+  try {
+    localStorage.setItem(COLLAPSED_KEY, JSON.stringify(collapsed.value))
+  } catch {
+    // Storage unavailable; the choice just won't be remembered.
+  }
+}
+
 async function togglePin(project: { id: string, pinnedAt: string | null }) {
   if (await api(() => request(`/api/projects/${project.id}/pin`, { method: project.pinnedAt ? 'DELETE' : 'POST' }))) {
     await refreshProjects()
@@ -102,6 +123,14 @@ function groupMenu(group: Group) {
       onSelect: () => deleteGroup(group)
     }
   ]]
+}
+
+const vpnOpen = ref(false)
+const vpnGroup = ref<Group>()
+
+function openVpn(group: Group) {
+  vpnGroup.value = group
+  vpnOpen.value = true
 }
 
 const unlockOpen = ref(false)
@@ -189,7 +218,12 @@ function openUnlock(group: Group) {
             :key="section.key"
             class="flex flex-col gap-3"
           >
-            <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="flex w-fit items-center gap-2 rounded-md text-left"
+              :aria-expanded="!collapsed[section.key]"
+              @click="toggleShortcut(section.key)"
+            >
               <UIcon
                 :name="section.icon"
                 class="size-5 shrink-0 text-muted"
@@ -197,8 +231,17 @@ function openUnlock(group: Group) {
               <h2 class="font-semibold text-highlighted">
                 {{ section.title }}
               </h2>
-            </div>
-            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <span class="text-xs text-muted">{{ section.projects.length }}</span>
+              <UIcon
+                name="i-lucide-chevron-down"
+                class="size-4 shrink-0 text-muted transition-transform"
+                :class="collapsed[section.key] && '-rotate-90'"
+              />
+            </button>
+            <div
+              v-show="!collapsed[section.key]"
+              class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+            >
               <ProjectCard
                 v-for="project in section.projects"
                 :key="project.id"
@@ -223,6 +266,10 @@ function openUnlock(group: Group) {
                   {{ group.name }}
                 </h2>
                 <span class="text-xs text-muted">{{ t('groups.projectCount', group.projectCount) }}</span>
+                <span
+                  v-if="group.vpnCount && !group.locked"
+                  class="text-xs text-muted"
+                >· {{ t('groupVpn.count', group.vpnCount) }}</span>
                 <UTooltip
                   v-if="group.hasAccessCode && !group.locked"
                   :text="t('groups.protected')"
@@ -237,6 +284,19 @@ function openUnlock(group: Group) {
                   class="w-full truncate text-sm text-muted"
                 >{{ group.description }}</span>
               </div>
+              <UTooltip
+                v-if="!group.locked"
+                :text="t('groupVpn.open')"
+              >
+                <UButton
+                  :icon="infraTypeIcon.vpn"
+                  color="neutral"
+                  variant="ghost"
+                  size="sm"
+                  :aria-label="t('groupVpn.open')"
+                  @click="openVpn(group)"
+                />
+              </UTooltip>
               <UButton
                 v-if="can('edit') && !group.locked"
                 icon="i-lucide-plus"
@@ -323,6 +383,11 @@ function openUnlock(group: Group) {
       v-model:open="groupFormOpen"
       :group="editingGroup"
       @saved="refreshGroups()"
+    />
+    <GroupVpnModal
+      v-model:open="vpnOpen"
+      :group="vpnGroup"
+      @changed="refreshGroups()"
     />
     <UnlockGroupModal
       v-model:open="unlockOpen"

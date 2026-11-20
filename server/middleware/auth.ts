@@ -10,6 +10,13 @@ function requiredPermission(path: string, method: string): Permission | undefine
     const open = (method === 'GET' && path === '/api/groups') || /^\/api\/groups\/[^/]+\/unlock$/.test(path)
     return open ? undefined : 'manageGroups'
   }
+  if (path.startsWith('/api/group-vpns')) {
+    // Every role keeps their own login for a VPN; only the master registers the VPNs themselves.
+    if (/^\/api\/group-vpns\/[^/]+\/account(\/password)?$/.test(path)) {
+      return undefined
+    }
+    return method === 'GET' ? undefined : 'manageVpns'
+  }
   if (path.startsWith('/api/users')) {
     return 'manageUsers'
   }

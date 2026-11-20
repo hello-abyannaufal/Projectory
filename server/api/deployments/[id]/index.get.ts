@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
       app: {
         columns: { id: true, name: true, projectId: true },
         with: {
+          files: { columns: { id: true, path: true }, orderBy: [asc(tables.appFiles.sortOrder), asc(tables.appFiles.path)] },
           project: {
             columns: { id: true, name: true },
             with: { group: { columns: { id: true, name: true } } }
@@ -26,9 +27,14 @@ export default defineEventHandler(async (event) => {
         orderBy: [asc(tables.testAccounts.sortOrder), asc(tables.testAccounts.createdAt)],
         with: { fields: { orderBy: asc(tables.testAccountFields.sortOrder) } }
       },
-      envVars: {
-        columns: { id: true, key: true },
-        orderBy: [asc(tables.envVars.sortOrder), asc(tables.envVars.key)]
+      envFiles: {
+        orderBy: [asc(tables.envFiles.sortOrder), asc(tables.envFiles.path)],
+        with: {
+          envVars: {
+            columns: { id: true, key: true },
+            orderBy: [asc(tables.envVars.sortOrder), asc(tables.envVars.key)]
+          }
+        }
       }
     }
   })
@@ -45,6 +51,18 @@ export default defineEventHandler(async (event) => {
     orderBy: asc(tables.infraItems.name)
   })
 
+  // Group VPNs this environment is reached through.
+  const vpns = await db.select({
+    id: tables.groupVpns.id,
+    name: tables.groupVpns.name,
+    host: tables.groupVpns.host,
+    notes: tables.groupVpns.notes
+  })
+    .from(tables.environmentVpns)
+    .innerJoin(tables.groupVpns, eq(tables.groupVpns.id, tables.environmentVpns.vpnId))
+    .where(eq(tables.environmentVpns.environmentId, deployment.environmentId))
+    .orderBy(asc(tables.groupVpns.name))
+
   // Links flagged with this environment, of this app or the whole project; category then name.
   const links = await db.query.links.findMany({
     where: and(
@@ -59,8 +77,9 @@ export default defineEventHandler(async (event) => {
   return {
     ...rest,
     infraItems,
+    vpns,
     links,
-    app: { id: app.id, name: app.name },
+    app: { id: app.id, name: app.name, files: app.files },
     project: app.project,
     siblings: app.deployments
       .map(sibling => ({ id: sibling.id, ...sibling.environment }))

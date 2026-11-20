@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm'
 export default defineEventHandler(async (event) => {
   const id = getIdParam(event)
   const db = useDb()
-  const existing = await db.query.envVars.findFirst({ where: eq(tables.envVars.id, id), columns: { deploymentId: true } })
+  const existing = await db.query.envVars.findFirst({ where: eq(tables.envVars.id, id), columns: { envFileId: true, deploymentId: true } })
   if (!existing) {
     notFound()
   }
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   assertNotProduction(deployment)
   const { key, value } = await readInput(event, envVarInput.partial())
   try {
-    await withEnvHistory(event, existing.deploymentId, 'edit', () => db.update(tables.envVars)
+    await withEnvHistory(event, { id: existing.envFileId, deploymentId: existing.deploymentId }, 'edit', () => db.update(tables.envVars)
       .set({ ...(key ? { key } : {}), ...(value !== undefined ? { value: encryptSecret(value) } : {}) })
       .where(eq(tables.envVars.id, id)))
   } catch {

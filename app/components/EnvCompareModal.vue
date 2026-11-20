@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
-  left: { id: string, name: string, keys: string[] }
+  // Left is an .env file; the same path is looked up in the right deployment.
+  left: { id: string, name: string, path: string, keys: string[] }
   right?: { id: string, name: string }
   // Without it only key presence is compared.
   canReveal?: boolean
@@ -17,6 +18,7 @@ type Status = 'same' | 'different' | 'onlyLeft' | 'onlyRight' | 'both'
 const leftValues = ref<Map<string, string>>()
 const rightValues = ref<Map<string, string>>()
 const rightKeys = ref<string[]>([])
+const missingFile = ref(false)
 const loading = ref(false)
 const onlyDifferences = ref(true)
 const visible = ref(false)
@@ -29,19 +31,21 @@ watch(open, async (value) => {
   }
   loading.value = true
   visible.value = false
+  missingFile.value = false
   leftValues.value = undefined
   rightValues.value = undefined
-  if (props.canReveal) {
+  rightKeys.value = []
+  const other = await api(() => request<{ envFiles: { id: string, path: string, envVars: { key: string }[] }[] }>(`/api/deployments/${props.right!.id}`))
+  const file = other?.envFiles.find(item => item.path === props.left.path)
+  missingFile.value = !!other && !file
+  rightKeys.value = file?.envVars.map(entry => entry.key) ?? []
+  if (file && props.canReveal) {
     const [left, right] = await Promise.all([
-      api(() => request<Entry[]>(`/api/deployments/${props.left.id}/env/reveal`)),
-      api(() => request<Entry[]>(`/api/deployments/${props.right!.id}/env/reveal`))
+      api(() => request<Entry[]>(`/api/env-files/${props.left.id}/reveal`)),
+      api(() => request<Entry[]>(`/api/env-files/${file.id}/reveal`))
     ])
     leftValues.value = left && toMap(left)
     rightValues.value = right && toMap(right)
-    rightKeys.value = right?.map(entry => entry.key) ?? []
-  } else {
-    const other = await api(() => request<{ envVars: { key: string }[] }>(`/api/deployments/${props.right!.id}`))
-    rightKeys.value = other?.envVars.map(entry => entry.key) ?? []
   }
   loading.value = false
 })
@@ -113,6 +117,13 @@ function display(value: string | undefined, present: boolean) {
             @click="visible = !visible"
           />
         </div>
+
+        <p
+          v-if="missingFile"
+          class="text-sm text-warning"
+        >
+          {{ t('envCompare.noFile', { path: left.path, name: right?.name }) }}
+        </p>
 
         <div
           class="overflow-x-auto rounded-md border border-default"

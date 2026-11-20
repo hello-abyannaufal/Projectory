@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-  deploymentId: string
+  fileId: string
   // Raw-editor mode: preview this content directly and delete missing keys
   content?: string
   replace?: boolean
@@ -44,7 +44,7 @@ async function onFile(event: Event) {
 
 async function preview() {
   loading.value = true
-  diff.value = await api(() => request<Diff>(`/api/deployments/${props.deploymentId}/env/import`, {
+  diff.value = await api(() => request<Diff>(`/api/env-files/${props.fileId}/import`, {
     method: 'POST',
     body: { content: text.value, replace: props.replace ?? false }
   }))
@@ -76,7 +76,7 @@ const kindColor = { added: 'success', changed: 'warning', removed: 'error', unch
 
 async function apply() {
   loading.value = true
-  const result = await api(() => request(`/api/deployments/${props.deploymentId}/env/import`, {
+  const result = await api(() => request(`/api/env-files/${props.fileId}/import`, {
     method: 'POST',
     body: { content: text.value, apply: true, skip: [...skip.value], replace: props.replace ?? false }
   }), t('common.saved'))

@@ -54,6 +54,19 @@ export const infraInput = z.object({
   notes: optionalText(2000)
 })
 
+export const groupVpnInput = z.object({
+  name: z.string().trim().min(1).max(120),
+  host: z.string().trim().min(1).max(255),
+  notes: optionalText(2000)
+})
+
+export const groupVpnAccountInput = z.object({
+  username: z.string().trim().min(1).max(255),
+  // Omitted on update keeps the stored password
+  password: z.string().max(500).optional(),
+  notes: optionalText(2000)
+})
+
 export const environmentInput = z.object({
   name: z.string().trim().min(1).max(40),
   isProduction: z.boolean().default(false)
@@ -104,6 +117,18 @@ export const testAccountInput = z.object({
 })
 
 export const ENV_KEY_PATTERN = /^[A-Za-z_][A-Za-z0-9_.-]*$/
+
+// Path of a file in the repo, such as .env, dev/.env or .vscode/launch.json.
+const repoPath = z.string().trim().min(1).max(200)
+  .regex(/^[^\s\\][^\n\\]*$/, 'invalid path')
+  .refine(path => !path.startsWith('/') && !path.split('/').some(part => part === '' || part === '..'), 'invalid path')
+
+export const envFileInput = z.object({ path: repoPath })
+
+export const appFileInput = z.object({
+  path: repoPath,
+  content: z.string().max(200000)
+})
 
 export const envVarInput = z.object({
   key: z.string().trim().regex(ENV_KEY_PATTERN).max(200),

@@ -22,6 +22,11 @@ useHead({ title: () => deployment.value ? `${deployment.value.app.name} · ${dep
 const isProduction = computed(() => deployment.value?.environment.isProduction ?? false)
 const projectPath = computed(() => `/projects/${deployment.value?.project.id}`)
 
+// The .env file shown; falls back to the first when the chosen one is gone.
+const envFileId = ref<string>()
+const envFile = computed(() => deployment.value?.envFiles.find(file => file.id === envFileId.value) ?? deployment.value?.envFiles[0])
+const envFileFormOpen = ref(false)
+
 // Secrets are fetched per account on demand and cached until the next refresh.
 const secretCache = new Map<string, Record<string, string>>()
 
@@ -69,6 +74,16 @@ async function deleteAccount(account: DeploymentAccount) {
   }
 }
 
+async function duplicateAccount(account: DeploymentAccount, targetId?: string) {
+  if (await api(() => request(`/api/accounts/${account.id}/duplicate`, { method: 'POST', body: targetId ? { deploymentId: targetId } : undefined }))) {
+    const target = deployment.value?.siblings.find(sibling => sibling.id === targetId)
+    if (target) {
+      toast.add({ title: t('accounts.duplicatedTo', { name: target.name }), color: 'success' })
+    }
+    await reload()
+  }
+}
+
 const accountSort = useDragSort(() => deployment.value?.testAccounts ?? [], async () => {
   const ids = deployment.value?.testAccounts.map(account => account.id) ?? []
   await api(() => request(`/api/deployments/${deploymentId.value}/accounts/reorder`, { method: 'POST', body: { ids } }))
@@ -77,26 +92,6 @@ const accountSort = useDragSort(() => deployment.value?.testAccounts ?? [], asyn
 
 async function setAccountStatus(account: DeploymentAccount, status: TestAccountStatus) {
   if (await api(() => request(`/api/accounts/${account.id}`, { method: 'PATCH', body: { status } }))) {
-    await reload()
-  }
-}
-
-// Locked, expired or not verified recently.
-const accountFilter = ref<'all' | 'attention'>('all')
-const attentionCount = computed(() => deployment.value?.testAccounts.filter(account => accountAttention(account)).length ?? 0)
-
-watch(attentionCount, (count) => {
-  if (!count) {
-    accountFilter.value = 'all'
-  }
-})
-
-function accountVisible(account: DeploymentAccount) {
-  return accountFilter.value === 'all' || !!accountAttention(account)
-}
-
-async function verifyAccount(account: DeploymentAccount) {
-  if (await api(() => request(`/api/accounts/${account.id}`, { method: 'PATCH', body: { lastVerifiedAt: new Date().toISOString() } }))) {
     await reload()
   }
 }
@@ -152,18 +147,49 @@ async function copyAsText(withSecrets: boolean) {
     if (withSecrets && !secrets) {
       return
     }
-    lines.push('', `Account: ${account.label}${account.tags.length ? ` (${account.tags.join(', ')})` : ''}`)
-    for (const field of account.fields) {
-      const fieldValue = field.isSecret ? (secrets?.[field.id] ?? SECRET_MASK) : field.value
-      lines.push(`  ${field.key}: ${fieldValue}`)
-    }
+    lines.push('', ...accountTextLines(account, secrets))
   }
   await copy(lines.join('\n'))
+}
+
+// Shares accounts as text (copied) or JSON (downloaded). Secrets are revealed,
+// and so recorded in the audit log, only when asked for.
+async function shareAccounts(accounts: DeploymentAccount[], format: 'text' | 'json', withSecrets: boolean, name: string) {
+  const value = deployment.value
+  if (!value) {
+    return
+  }
+  const items: { account: DeploymentAccount, secrets?: Record<string, string> }[] = []
+  for (const account of accounts) {
+    const secrets = withSecrets ? await loadSecrets(account.id)() : undefined
+    if (withSecrets && !secrets) {
+      return
+    }
+    items.push({ account, secrets })
+  }
+  if (format === 'json') {
+    const filename = `${value.app.name}-${value.environment.name}-${name}`.replace(/[^\w.-]+/g, '-')
+    downloadText(`${filename}.json`, accountsJson({ app: value.app.name, environment: value.environment.name }, items), 'application/json')
+  } else {
+    await copy([`${value.app.name} — ${value.environment.name}`, ...items.flatMap(({ account, secrets }) => ['', ...accountTextLines(account, secrets)])].join('\n'))
+  }
+}
+
+// Dev files of the app, shared by all its environments
+const filesOpen = ref(false)
+const filesSelected = ref<string>()
+
+function openFiles(fileId?: string) {
+  filesSelected.value = fileId
+  filesOpen.value = true
 }
 
 const copyItems = computed(() => [[
   { label: t('deployments.copyWithoutSecrets'), icon: 'i-lucide-shield', onSelect: () => copyAsText(false) },
   ...(isProduction.value || !can('viewSecrets') ? [] : [{ label: t('deployments.copyWithSecrets'), icon: 'i-lucide-shield-alert', onSelect: () => copyAsText(true) }])
+], [
+  { label: t('accounts.downloadJson'), icon: 'i-lucide-file-json', onSelect: () => shareAccounts(deployment.value?.testAccounts ?? [], 'json', false, 'accounts') },
+  ...(isProduction.value || !can('viewSecrets') ? [] : [{ label: t('accounts.downloadJsonSecrets'), icon: 'i-lucide-file-json', onSelect: () => shareAccounts(deployment.value?.testAccounts ?? [], 'json', true, 'accounts') }])
 ]])
 </script>
 
@@ -195,7 +221,7 @@ const copyItems = computed(() => [[
                 icon="i-lucide-copy"
                 color="neutral"
                 variant="outline"
-                :label="t('deployments.copyAsText')"
+                :label="t('deployments.export')"
               />
             </UDropdownMenu>
             <UButton
@@ -324,17 +350,6 @@ const copyItems = computed(() => [[
                     {{ t('accounts.title') }}
                     <span class="font-normal text-muted">· {{ deployment.testAccounts.length }}</span>
                   </h2>
-                  <UTabs
-                    v-if="attentionCount"
-                    v-model="accountFilter"
-                    :items="[
-                      { label: t('common.all'), value: 'all' },
-                      { label: t('accounts.attentionCount', attentionCount), value: 'attention', icon: 'i-lucide-triangle-alert' }
-                    ]"
-                    :content="false"
-                    size="xs"
-                    class="mr-auto"
-                  />
                   <UButton
                     v-if="can('edit')"
                     icon="i-lucide-plus"
@@ -351,18 +366,20 @@ const copyItems = computed(() => [[
                 >
                   <AccountCard
                     v-for="(account, index) in deployment.testAccounts"
-                    v-show="accountVisible(account)"
                     :key="account.id"
                     v-bind="accountSort.item(index)"
                     :account="account"
-                    :drag-handle="can('edit') && accountFilter === 'all' ? accountSort.handle(index) : undefined"
+                    :drag-handle="can('edit') ? accountSort.handle(index) : undefined"
                     :editable="can('edit')"
                     :can-reveal="can('viewSecrets')"
+                    :siblings="deployment.siblings"
+                    :deployment-id="deployment.id"
                     :class="accountSort.dragging.value === index && 'opacity-50'"
                     :load-secrets="loadSecrets(account.id)"
                     @edit="openAccount(account)"
+                    @duplicate="targetId => duplicateAccount(account, targetId)"
                     @delete="deleteAccount(account)"
-                    @verify="verifyAccount(account)"
+                    @share="(format, withSecrets) => shareAccounts([account], format, withSecrets, account.label)"
                     @status="status => setAccountStatus(account, status)"
                   />
                 </div>
@@ -374,17 +391,104 @@ const copyItems = computed(() => [[
                 </p>
               </section>
 
-              <EnvSection
+              <div
                 v-if="!isProduction"
-                :deployment-id="deployment.id"
-                :env-vars="deployment.envVars"
-                :editable="can('edit')"
-                :can-reveal="can('viewSecrets')"
-                :environment-name="deployment.environment.name"
-                :siblings="deployment.siblings"
-                title=".env"
-                @changed="refresh()"
-              />
+                class="flex flex-col gap-3"
+              >
+                <div
+                  v-if="deployment.envFiles.length > 1 || can('edit')"
+                  class="flex flex-wrap items-center gap-2"
+                >
+                  <UTabs
+                    v-if="deployment.envFiles.length > 1"
+                    :model-value="envFile?.id"
+                    :items="deployment.envFiles.map(file => ({ label: file.path, value: file.id }))"
+                    :content="false"
+                    size="xs"
+                    @update:model-value="envFileId = String($event)"
+                  />
+                  <UButton
+                    v-if="can('edit')"
+                    icon="i-lucide-plus"
+                    color="neutral"
+                    variant="outline"
+                    size="xs"
+                    :label="t('env.addFile')"
+                    @click="envFileFormOpen = true"
+                  />
+                </div>
+                <EnvSection
+                  v-if="envFile"
+                  :key="envFile.id"
+                  :deployment-id="deployment.id"
+                  :file-id="envFile.id"
+                  :path="envFile.path"
+                  :env-vars="envFile.envVars"
+                  :editable="can('edit')"
+                  :can-reveal="can('viewSecrets')"
+                  :environment-name="deployment.environment.name"
+                  :siblings="deployment.siblings"
+                  @changed="refresh()"
+                />
+                <p
+                  v-else
+                  class="rounded-lg border border-dashed border-accented p-6 text-center text-sm text-muted"
+                >
+                  {{ t('env.noFiles') }}
+                </p>
+                <EnvFileFormModal
+                  v-model:open="envFileFormOpen"
+                  :deployment-id="deployment.id"
+                  @saved="refresh()"
+                />
+              </div>
+
+              <section
+                v-if="!isProduction"
+                class="flex flex-col gap-2 rounded-lg border border-default bg-default p-4"
+              >
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex min-w-0 flex-col">
+                    <h2 class="font-semibold text-highlighted">
+                      {{ t('appFiles.title') }}
+                    </h2>
+                    <span class="text-xs text-muted">{{ t('appFiles.sharedHint', { name: deployment.app.name }) }}</span>
+                  </div>
+                  <UButton
+                    :icon="can('edit') && !deployment.app.files.length ? 'i-lucide-plus' : 'i-lucide-settings-2'"
+                    color="neutral"
+                    variant="outline"
+                    size="sm"
+                    :label="can('edit') && !deployment.app.files.length ? t('appFiles.new') : t('appFiles.manage')"
+                    @click="openFiles()"
+                  />
+                </div>
+                <div
+                  v-for="file in deployment.app.files"
+                  :key="file.id"
+                  class="flex items-center gap-3 border-t border-default pt-2"
+                >
+                  <UIcon
+                    name="i-lucide-file-code"
+                    class="size-4 shrink-0 text-muted"
+                  />
+                  <span class="min-w-0 flex-1 truncate font-mono text-sm text-highlighted">{{ file.path }}</span>
+                  <UButton
+                    color="neutral"
+                    variant="ghost"
+                    size="sm"
+                    :label="t('appFiles.open')"
+                    :disabled="!can('viewSecrets')"
+                    @click="openFiles(file.id)"
+                  />
+                </div>
+                <p
+                  v-if="!deployment.app.files.length"
+                  class="border-t border-default pt-2 text-sm text-muted"
+                >
+                  {{ t('appFiles.empty') }}
+                </p>
+              </section>
             </div>
 
             <aside class="flex min-w-0 flex-[1_1_20rem] flex-col gap-5">
@@ -498,6 +602,31 @@ const copyItems = computed(() => [[
               </section>
 
               <section
+                v-if="deployment.vpns.length"
+                class="flex flex-col gap-2 rounded-lg border border-default bg-default p-4"
+              >
+                <div class="mb-1 flex items-center justify-between gap-2">
+                  <h2 class="font-semibold text-highlighted">
+                    {{ t('groupVpn.environments') }}
+                  </h2>
+                  <UButton
+                    v-if="can('edit')"
+                    icon="i-lucide-settings-2"
+                    color="neutral"
+                    variant="ghost"
+                    size="sm"
+                    :label="t('overview.manage')"
+                    :to="`${projectPath}?tab=environments`"
+                  />
+                </div>
+                <InfraItemRow
+                  v-for="vpn in deployment.vpns"
+                  :key="vpn.id"
+                  :item="{ ...vpn, type: 'vpn' }"
+                />
+              </section>
+
+              <section
                 v-if="deployment.infraItems.length"
                 class="flex flex-col gap-2 rounded-lg border border-default bg-default p-4"
               >
@@ -556,6 +685,15 @@ const copyItems = computed(() => [[
         v-model:open="editOpen"
         :deployment="deployment"
         @saved="refresh()"
+      />
+      <AppFilesModal
+        v-model:open="filesOpen"
+        :app-id="deployment.app.id"
+        :app-name="deployment.app.name"
+        :file-id="filesSelected"
+        :editable="can('edit')"
+        :can-reveal="can('viewSecrets')"
+        @changed="refresh()"
       />
       <AccountFormModal
         v-model:open="accountOpen"

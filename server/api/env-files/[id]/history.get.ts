@@ -1,11 +1,11 @@
 import { desc, eq } from 'drizzle-orm'
 
-// Versions newest first, with the keys each one changed. Values come from
-// /api/env-versions/:id/reveal.
+// Versions of an .env file newest first, with the keys each one changed. Values
+// come from /api/env-versions/:id/reveal.
 export default defineEventHandler(async (event) => {
-  const deploymentId = getIdParam(event)
+  const fileId = getIdParam(event)
   const versions = await useDb().query.envVarVersions.findMany({
-    where: eq(tables.envVarVersions.deploymentId, deploymentId),
+    where: eq(tables.envVarVersions.envFileId, fileId),
     orderBy: desc(tables.envVarVersions.createdAt)
   })
   const entries = versions.map(version => decryptEnvVersion(version.content))

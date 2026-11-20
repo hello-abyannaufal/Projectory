@@ -11,7 +11,8 @@ export default defineEventHandler(async (event) => {
         orderBy: asc(tables.links.sortOrder)
       },
       environments: {
-        orderBy: [asc(tables.environments.sortOrder), asc(tables.environments.createdAt)]
+        orderBy: [asc(tables.environments.sortOrder), asc(tables.environments.createdAt)],
+        with: { vpns: { with: { vpn: { columns: { id: true, name: true } } } } }
       },
       infraItems: {
         orderBy: [asc(tables.infraItems.name)]
@@ -24,7 +25,7 @@ export default defineEventHandler(async (event) => {
           deployments: {
             columns: { notes: false },
             with: {
-              testAccounts: { columns: { status: true, lastVerifiedAt: true } },
+              testAccounts: { columns: { id: true } },
               releases: {
                 columns: { version: true },
                 orderBy: desc(tables.releases.createdAt),
@@ -50,6 +51,10 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...project,
+    environments: project.environments.map(({ vpns, ...environment }) => ({
+      ...environment,
+      vpns: vpns.map(({ vpn }) => vpn).sort((a, b) => a.name.localeCompare(b.name))
+    })),
     pinned: !!pin,
     apps: project.apps.map(({ techStacks, deployments, ...app }) => ({
       ...app,
@@ -57,7 +62,6 @@ export default defineEventHandler(async (event) => {
       deployments: deployments.map(({ testAccounts, releases, ...deployment }) => ({
         ...deployment,
         accountCount: testAccounts.length,
-        attentionCount: testAccounts.filter(account => accountAttention(account)).length,
         latestVersion: releases[0]?.version ?? null
       }))
     }))
