@@ -133,7 +133,7 @@ async function removeAccount(vpn: GroupVpn) {
           class="flex flex-col gap-2"
         >
           <InfraItemRow
-            :item="{ ...vpn, type: 'vpn' }"
+            :item="vpn"
             :editable="can('manageVpns')"
             @edit="openForm(vpn)"
             @delete="remove(vpn)"

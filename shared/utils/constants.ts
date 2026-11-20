@@ -26,7 +26,7 @@ export type ReleaseType = typeof RELEASE_TYPES[number]
 export const RELEASE_STATUSES = ['draft', 'released', 'rolled_back'] as const
 export type ReleaseStatus = typeof RELEASE_STATUSES[number]
 
-export const INFRA_TYPES = ['server', 'kubernetes', 'database', 'vpn', 'registry', 'other'] as const
+export const INFRA_TYPES = ['server', 'kubernetes', 'database', 'registry', 'other'] as const
 export type InfraType = typeof INFRA_TYPES[number]
 
 export const TEST_ACCOUNT_STATUSES = ['active', 'locked', 'expired'] as const

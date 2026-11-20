@@ -289,7 +289,7 @@ function openUnlock(group: Group) {
                 :text="t('groupVpn.open')"
               >
                 <UButton
-                  :icon="infraTypeIcon.vpn"
+                  :icon="vpnIcon"
                   color="neutral"
                   variant="ghost"
                   size="sm"

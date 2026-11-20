@@ -622,7 +622,7 @@ const copyItems = computed(() => [[
                 <InfraItemRow
                   v-for="vpn in deployment.vpns"
                   :key="vpn.id"
-                  :item="{ ...vpn, type: 'vpn' }"
+                  :item="vpn"
                 />
               </section>
 

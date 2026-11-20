@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{
-  item: { type: InfraType, name: string, host: string, notes: string | null }
+  // No type: a group VPN rather than an infrastructure item
+  item: { type?: InfraType, name: string, host: string, notes: string | null }
   // Environment name, or null when shared by every environment; omitted to hide it
   scope?: string | null
   editable?: boolean
@@ -14,9 +15,9 @@ const copy = useCopy()
 
 <template>
   <div class="flex items-start gap-3 rounded-lg border border-default bg-default px-4 py-2.5">
-    <UTooltip :text="t(`infraType.${item.type}`)">
+    <UTooltip :text="item.type ? t(`infraType.${item.type}`) : t('groupVpn.open')">
       <UIcon
-        :name="infraTypeIcon[item.type]"
+        :name="item.type ? infraTypeIcon[item.type] : vpnIcon"
         class="mt-1 size-4 shrink-0 text-muted"
       />
     </UTooltip>

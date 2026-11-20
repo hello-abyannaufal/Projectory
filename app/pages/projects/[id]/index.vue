@@ -574,7 +574,7 @@ async function saveNotes() {
                     :key="vpn.id"
                     color="neutral"
                     variant="subtle"
-                    :icon="infraTypeIcon.vpn"
+                    :icon="vpnIcon"
                     :label="vpn.name"
                   />
                   <UBadge

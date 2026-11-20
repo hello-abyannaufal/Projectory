@@ -607,7 +607,6 @@
     "server": "Server",
     "kubernetes": "Rancher / Kubernetes",
     "database": "Database",
-    "vpn": "VPN",
     "registry": "Registry",
     "other": "Other"
   }
