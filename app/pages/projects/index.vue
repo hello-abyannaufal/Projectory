@@ -152,7 +152,7 @@ function openUnlock(group: Group) {
           </template>
           <template #right>
             <UButton
-              v-if="can('manageGroups')"
+              v-if="can('edit')"
               icon="i-lucide-folder-plus"
               color="neutral"
               variant="outline"
@@ -205,8 +205,8 @@ function openUnlock(group: Group) {
           v-if="!groups.length"
           icon="i-lucide-folders"
           :title="t('groups.empty')"
-          :description="can('manageGroups') ? t('groups.emptyDescription') : t('groups.emptyDescriptionAsk')"
-          :actions="can('manageGroups') ? [{ label: t('groups.new'), icon: 'i-lucide-folder-plus', onClick: () => openGroupForm() }] : []"
+          :description="can('manageGroups') ? t('groups.emptyDescription') : can('edit') ? t('groups.emptyDescriptionPrivate') : t('groups.emptyDescriptionAsk')"
+          :actions="can('edit') ? [{ label: t('groups.new'), icon: 'i-lucide-folder-plus', onClick: () => openGroupForm() }] : []"
         />
 
         <div
@@ -266,6 +266,18 @@ function openUnlock(group: Group) {
                   {{ group.name }}
                 </h2>
                 <span class="text-xs text-muted">{{ t('groups.projectCount', group.projectCount) }}</span>
+                <UTooltip
+                  v-if="group.isPrivate"
+                  :text="t('groups.privateHint')"
+                >
+                  <UBadge
+                    color="neutral"
+                    variant="subtle"
+                    size="sm"
+                    icon="i-lucide-user-lock"
+                    :label="t('groups.private')"
+                  />
+                </UTooltip>
                 <span
                   v-if="group.vpnCount && !group.locked"
                   class="text-xs text-muted"
@@ -285,11 +297,11 @@ function openUnlock(group: Group) {
                 >{{ group.description }}</span>
               </div>
               <UTooltip
-                v-if="!group.locked"
+                v-if="!group.locked && !group.isPrivate"
                 :text="t('groupVpn.open')"
               >
                 <UButton
-                  :icon="infraTypeIcon.vpn"
+                  :icon="vpnIcon"
                   color="neutral"
                   variant="ghost"
                   size="sm"
@@ -307,7 +319,7 @@ function openUnlock(group: Group) {
                 @click="openCreate(group.id)"
               />
               <UDropdownMenu
-                v-if="can('manageGroups')"
+                v-if="group.isPrivate ? can('edit') : can('manageGroups')"
                 :items="groupMenu(group)"
               >
                 <UButton

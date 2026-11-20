@@ -403,7 +403,11 @@
     "accessCodeHint": "Opsional. Maintainer dan viewer wajib memasukkannya untuk membuka grup. Kosongkan agar grup terbuka.",
     "invalidAccessCode": "Kode akses salah",
     "deleteHasTrash": "Hapus dulu proyek grup ini dari tempat sampah",
-    "tooManyAttempts": "Terlalu banyak kode salah. Coba lagi dalam {minutes} menit."
+    "tooManyAttempts": "Terlalu banyak kode salah. Coba lagi dalam {minutes} menit.",
+    "private": "Privat",
+    "privateSwitch": "Grup privat",
+    "privateHint": "Hanya kamu yang bisa melihat grup ini dan project di dalamnya. Orang lain tidak bisa, termasuk master.",
+    "emptyDescriptionPrivate": "Project disimpan di dalam grup. Buat grup privat milikmu untuk memulai."
   },
   "groupVpn": {
     "title": "VPN di {name}",
@@ -607,7 +611,6 @@
     "server": "Server",
     "kubernetes": "Rancher / Kubernetes",
     "database": "Database",
-    "vpn": "VPN",
     "registry": "Registry",
     "other": "Lainnya"
   }

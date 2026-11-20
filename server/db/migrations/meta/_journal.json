@@ -99,6 +99,20 @@
       "when": 1795085040770,
       "tag": "0013_vpn_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1795145749937,
+      "tag": "0014_remove_vpn_infra_type",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1795146382359,
+      "tag": "0015_private_groups",
+      "breakpoints": true
     }
   ]
 }
