@@ -125,6 +125,14 @@ function groupMenu(group: Group) {
   ]]
 }
 
+const vpnOpen = ref(false)
+const vpnGroup = ref<Group>()
+
+function openVpn(group: Group) {
+  vpnGroup.value = group
+  vpnOpen.value = true
+}
+
 const unlockOpen = ref(false)
 const unlockingGroup = ref<Group>()
 
@@ -258,6 +266,10 @@ function openUnlock(group: Group) {
                   {{ group.name }}
                 </h2>
                 <span class="text-xs text-muted">{{ t('groups.projectCount', group.projectCount) }}</span>
+                <span
+                  v-if="group.vpnCount && !group.locked"
+                  class="text-xs text-muted"
+                >· {{ t('groupVpn.count', group.vpnCount) }}</span>
                 <UTooltip
                   v-if="group.hasAccessCode && !group.locked"
                   :text="t('groups.protected')"
@@ -272,6 +284,19 @@ function openUnlock(group: Group) {
                   class="w-full truncate text-sm text-muted"
                 >{{ group.description }}</span>
               </div>
+              <UTooltip
+                v-if="!group.locked"
+                :text="t('groupVpn.open')"
+              >
+                <UButton
+                  :icon="infraTypeIcon.vpn"
+                  color="neutral"
+                  variant="ghost"
+                  size="sm"
+                  :aria-label="t('groupVpn.open')"
+                  @click="openVpn(group)"
+                />
+              </UTooltip>
               <UButton
                 v-if="can('edit') && !group.locked"
                 icon="i-lucide-plus"
@@ -358,6 +383,11 @@ function openUnlock(group: Group) {
       v-model:open="groupFormOpen"
       :group="editingGroup"
       @saved="refreshGroups()"
+    />
+    <GroupVpnModal
+      v-model:open="vpnOpen"
+      :group="vpnGroup"
+      @changed="refreshGroups()"
     />
     <UnlockGroupModal
       v-model:open="unlockOpen"

@@ -56,6 +56,11 @@ export async function projectScopeForPath(path: string) {
       .innerJoin(projects, eq(projects.id, apps.projectId))
       .where(eq(table.id, id))
 
+  if (kind.toLowerCase() === 'group-vpns') {
+    const [row] = await db.select({ groupId: tables.groupVpns.groupId }).from(tables.groupVpns).where(eq(tables.groupVpns.id, id))
+    return row && { groupId: row.groupId, trashed: false }
+  }
+
   const query = {
     'projects': () => db.select(scope).from(projects).where(eq(projects.id, id)),
     'apps': () => byProject(apps),

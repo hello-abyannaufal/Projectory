@@ -11,6 +11,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid
 } from 'drizzle-orm/pg-core'
 import {
@@ -138,6 +139,31 @@ export const groupUnlocks = pgTable('group_unlocks', {
   sessionId: text('session_id').notNull().references(() => session.id, { onDelete: 'cascade' }),
   groupId: uuid('group_id').notNull().references(() => groups.id, { onDelete: 'cascade' })
 }, t => [primaryKey({ columns: [t.sessionId, t.groupId] })])
+
+// VPNs the master registers for a group. Address and notes only; each user
+// keeps their own login in group_vpn_accounts. Separate from the per-project
+// infrastructure items.
+export const groupVpns = pgTable('group_vpns', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  groupId: uuid('group_id').notNull().references(() => groups.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  // IP, hostname, host:port or URL
+  host: text('host').notNull(),
+  notes: text('notes'),
+  ...timestamps
+}, t => [index('group_vpns_group_idx').on(t.groupId)])
+
+// A user's own login for a group VPN. Private to that user.
+export const groupVpnAccounts = pgTable('group_vpn_accounts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  vpnId: uuid('vpn_id').notNull().references(() => groupVpns.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  username: text('username').notNull(),
+  // Ciphertext (see server/utils/crypto.ts)
+  password: text('password').notNull().default(''),
+  notes: text('notes'),
+  ...timestamps
+}, t => [uniqueIndex('group_vpn_accounts_vpn_user_idx').on(t.vpnId, t.userId)])
 
 export const projects = pgTable('projects', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -370,7 +396,12 @@ export const auditLogs = pgTable('audit_logs', {
 // ---------------------------------------------------------------------------
 
 export const groupsRelations = relations(groups, ({ many }) => ({
-  projects: many(projects)
+  projects: many(projects),
+  vpns: many(groupVpns)
+}))
+
+export const groupVpnsRelations = relations(groupVpns, ({ one }) => ({
+  group: one(groups, { fields: [groupVpns.groupId], references: [groups.id] })
 }))
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
@@ -381,9 +412,21 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   infraItems: many(infraItems)
 }))
 
+// Which group VPNs an environment is reached through.
+export const environmentVpns = pgTable('environment_vpns', {
+  environmentId: uuid('environment_id').notNull().references(() => environments.id, { onDelete: 'cascade' }),
+  vpnId: uuid('vpn_id').notNull().references(() => groupVpns.id, { onDelete: 'cascade' })
+}, t => [primaryKey({ columns: [t.environmentId, t.vpnId] })])
+
 export const environmentsRelations = relations(environments, ({ one, many }) => ({
   project: one(projects, { fields: [environments.projectId], references: [projects.id] }),
-  deployments: many(deployments)
+  deployments: many(deployments),
+  vpns: many(environmentVpns)
+}))
+
+export const environmentVpnsRelations = relations(environmentVpns, ({ one }) => ({
+  environment: one(environments, { fields: [environmentVpns.environmentId], references: [environments.id] }),
+  vpn: one(groupVpns, { fields: [environmentVpns.vpnId], references: [groupVpns.id] })
 }))
 
 export const appsRelations = relations(apps, ({ one, many }) => ({

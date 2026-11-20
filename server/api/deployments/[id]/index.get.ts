@@ -51,6 +51,18 @@ export default defineEventHandler(async (event) => {
     orderBy: asc(tables.infraItems.name)
   })
 
+  // Group VPNs this environment is reached through.
+  const vpns = await db.select({
+    id: tables.groupVpns.id,
+    name: tables.groupVpns.name,
+    host: tables.groupVpns.host,
+    notes: tables.groupVpns.notes
+  })
+    .from(tables.environmentVpns)
+    .innerJoin(tables.groupVpns, eq(tables.groupVpns.id, tables.environmentVpns.vpnId))
+    .where(eq(tables.environmentVpns.environmentId, deployment.environmentId))
+    .orderBy(asc(tables.groupVpns.name))
+
   // Links flagged with this environment, of this app or the whole project; category then name.
   const links = await db.query.links.findMany({
     where: and(
@@ -65,6 +77,7 @@ export default defineEventHandler(async (event) => {
   return {
     ...rest,
     infraItems,
+    vpns,
     links,
     app: { id: app.id, name: app.name, files: app.files },
     project: app.project,

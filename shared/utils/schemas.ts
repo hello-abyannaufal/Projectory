@@ -54,6 +54,19 @@ export const infraInput = z.object({
   notes: optionalText(2000)
 })
 
+export const groupVpnInput = z.object({
+  name: z.string().trim().min(1).max(120),
+  host: z.string().trim().min(1).max(255),
+  notes: optionalText(2000)
+})
+
+export const groupVpnAccountInput = z.object({
+  username: z.string().trim().min(1).max(255),
+  // Omitted on update keeps the stored password
+  password: z.string().max(500).optional(),
+  notes: optionalText(2000)
+})
+
 export const environmentInput = z.object({
   name: z.string().trim().min(1).max(40),
   isProduction: z.boolean().default(false)

@@ -1,12 +1,13 @@
 import type { Role } from './constants'
 
 // manageGroups / manageTechStacks / manageUsers / viewAuditLog: master and super user only.
+// manageVpns: register, change and delete a group's VPNs. Master only.
 // edit: create, change and delete projects and everything inside them.
 // viewSecrets: reveal account passwords and .env values, export with secrets.
-export type Permission = 'manageGroups' | 'manageTechStacks' | 'manageUsers' | 'viewAuditLog' | 'edit' | 'viewSecrets'
+export type Permission = 'manageGroups' | 'manageTechStacks' | 'manageUsers' | 'viewAuditLog' | 'manageVpns' | 'edit' | 'viewSecrets'
 
 const PERMISSIONS: Record<Role, Permission[]> = {
-  master: ['manageGroups', 'manageTechStacks', 'manageUsers', 'viewAuditLog', 'edit', 'viewSecrets'],
+  master: ['manageGroups', 'manageTechStacks', 'manageUsers', 'viewAuditLog', 'manageVpns', 'edit', 'viewSecrets'],
   super_user: ['manageGroups', 'manageTechStacks', 'manageUsers', 'viewAuditLog', 'edit', 'viewSecrets'],
   maintainer: ['edit', 'viewSecrets'],
   viewer: []
